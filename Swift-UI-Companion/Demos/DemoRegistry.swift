@@ -43,6 +43,9 @@ enum DemoRegistry {
         case "datePicker": return AnyView(DatePickerDemo())
         case "label": return AnyView(LabelStyleDemo())
         case "controlSize": return AnyView(ControlSizeDemo())
+        case "timingCurve": return AnyView(TimingCurveDemo())
+        case "gradientAnchors": return AnyView(GradientAnchorsDemo())
+        case "rotationAnchor": return AnyView(RotationAnchorDemo())
         default: return nil
         }
     }

@@ -1,404 +1,418 @@
 [
   {
-    "code" : "Button(\"Get Started\") { begin() }\n    .buttonStyle(.glassProminent)\n\nButton(\"Later\") { skip() }\n    .buttonStyle(.glass)",
-    "discussion" : "WWDC '25 added glass and glassProminent button styles: capsule buttons on the refractive glass material with the system's press morphing. Use them for floating controls above content; inside toolbars, glass comes for free.",
-    "kind" : "Style",
-    "name" : ".buttonStyle(.glass)",
-    "related" : [
+    "code": "Button(\"Get Started\") { begin() }\n    .buttonStyle(.glassProminent)\n\nButton(\"Later\") { skip() }\n    .buttonStyle(.glass)",
+    "discussion": "WWDC '25 added glass and glassProminent button styles: capsule buttons on the refractive glass material with the system's press morphing. Use them for floating controls above content; inside toolbars, glass comes for free.",
+    "kind": "Style",
+    "name": ".buttonStyle(.glass)",
+    "related": [
       ".glassEffect()",
       ".buttonStyle()",
       "GlassEffectContainer"
     ],
-    "summary" : "Buttons rendered on Liquid Glass material.",
-    "wwdcYear" : 2025
+    "summary": "Buttons rendered on Liquid Glass material.",
+    "wwdcYear": 2025
   },
   {
-    "children" : [
+    "children": [
       {
-        "code" : "Button(\"Continue\") { proceed() }\n    .buttonStyle(.automatic)",
-        "name" : ".automatic",
-        "summary" : "Resolves to the platform's default look per context."
+        "code": "Button(\"Continue\") { proceed() }\n    .buttonStyle(.automatic)",
+        "name": ".automatic",
+        "summary": "Resolves to the platform's default look per context."
       },
       {
-        "code" : "Button(\"Add to Cart\") { add() }\n    .buttonStyle(.bordered)",
-        "name" : ".bordered",
-        "summary" : "A tinted platter behind the label."
+        "code": "Button(\"Add to Cart\") { add() }\n    .buttonStyle(.bordered)",
+        "name": ".bordered",
+        "summary": "A tinted platter behind the label."
       },
       {
-        "code" : "Button(\"Buy Now\") { checkout() }\n    .buttonStyle(.borderedProminent)\n    .tint(.green)",
-        "discussion" : "Reserve it for the one action you most want taken; a screen full of prominent buttons has none.",
-        "name" : ".borderedProminent",
-        "summary" : "Filled with the tint color — the primary action."
+        "code": "Button(\"Buy Now\") { checkout() }\n    .buttonStyle(.borderedProminent)\n    .tint(.green)",
+        "discussion": "Reserve it for the one action you most want taken; a screen full of prominent buttons has none.",
+        "name": ".borderedProminent",
+        "summary": "Filled with the tint color — the primary action."
       },
       {
-        "code" : "Button(\"Show details\") { reveal() }\n    .buttonStyle(.plain)",
-        "name" : ".plain",
-        "summary" : "No chrome until the button is pressed or focused."
+        "code": "Button(\"Show details\") { reveal() }\n    .buttonStyle(.plain)",
+        "name": ".plain",
+        "summary": "No chrome until the button is pressed or focused."
       },
       {
-        "code" : "Button(\"Learn more…\") { openDocs() }\n    .buttonStyle(.link)",
-        "name" : ".link",
-        "summary" : "Hyperlink styling for navigation-flavored actions (macOS)."
+        "code": "Button(\"Learn more…\") { openDocs() }\n    .buttonStyle(.link)",
+        "name": ".link",
+        "summary": "Hyperlink styling for navigation-flavored actions (macOS)."
       }
     ],
-    "code" : "HStack {\n    Button(\"Cancel\") { }\n    Button(\"Save\") { }\n        .buttonStyle(.borderedProminent)\n}\n.buttonStyle(.bordered)",
-    "demoID" : "button",
-    "discussion" : "buttonStyle propagates through the environment, so one call on a container restyles every button inside. Built-ins span .plain, .borderless, .bordered, and .borderedProminent; controlSize and tint refine them further.",
-    "kind" : "Style",
-    "name" : ".buttonStyle()",
-    "related" : [
+    "code": "HStack {\n    Button(\"Cancel\") { }\n    Button(\"Save\") { }\n        .buttonStyle(.borderedProminent)\n}\n.buttonStyle(.bordered)",
+    "demoID": "button",
+    "discussion": "buttonStyle propagates through the environment, so one call on a container restyles every button inside. Built-ins span .plain, .borderless, .bordered, and .borderedProminent; controlSize and tint refine them further.",
+    "kind": "Style",
+    "name": ".buttonStyle()",
+    "related": [
       "Button",
       "ButtonStyle"
     ],
-    "summary" : "Applies a built-in or custom style to buttons.",
-    "wwdcYear" : 2019
+    "summary": "Applies a built-in or custom style to buttons.",
+    "wwdcYear": 2019
   },
   {
-    "code" : "DatePicker(\"Date\", selection: $date, displayedComponents: .date)\n    .datePickerStyle(.graphical)",
-    "demoID" : "datePicker",
-    "discussion" : "datePickerStyle spans compact (tap-to-pop-over), graphical (full calendar), wheel on iOS, and field\/stepperField on macOS — same binding, very different footprints.",
-    "kind" : "Style",
-    "name" : ".datePickerStyle()",
-    "platforms" : [
+    "code": "DatePicker(\"Date\", selection: $date, displayedComponents: .date)\n    .datePickerStyle(.graphical)",
+    "demoID": "datePicker",
+    "discussion": "datePickerStyle spans compact (tap-to-pop-over), graphical (full calendar), wheel on iOS, and field/stepperField on macOS — same binding, very different footprints.",
+    "kind": "Style",
+    "name": ".datePickerStyle()",
+    "platforms": [
       "iOS",
       "macOS",
       "watchOS"
     ],
-    "related" : [
+    "related": [
       "DatePicker"
     ],
-    "summary" : "Chooses calendar, wheel, field, or compact date UI.",
-    "wwdcYear" : 2019
+    "summary": "Chooses calendar, wheel, field, or compact date UI.",
+    "wwdcYear": 2019
   },
   {
-    "code" : "struct PlusMinus: DisclosureGroupStyle {\n    func makeBody(configuration: Configuration) -> some View {\n        Button {\n            configuration.isExpanded.toggle()\n        } label: {\n            HStack {\n                configuration.label\n                Spacer()\n                Image(systemName: configuration.isExpanded\n                      ? \"minus\" : \"plus\")\n            }\n        }\n        if configuration.isExpanded { configuration.content }\n    }\n}",
-    "discussion" : "DisclosureGroupStyle exposes the label, content, and isExpanded binding so you can replace the chevron treatment entirely — animated arrows, plus\/minus buttons, or full-row toggles.",
-    "kind" : "Style",
-    "name" : ".disclosureGroupStyle()",
-    "platforms" : [
+    "code": "struct PlusMinus: DisclosureGroupStyle {\n    func makeBody(configuration: Configuration) -> some View {\n        Button {\n            configuration.isExpanded.toggle()\n        } label: {\n            HStack {\n                configuration.label\n                Spacer()\n                Image(systemName: configuration.isExpanded\n                      ? \"minus\" : \"plus\")\n            }\n        }\n        if configuration.isExpanded { configuration.content }\n    }\n}",
+    "discussion": "DisclosureGroupStyle exposes the label, content, and isExpanded binding so you can replace the chevron treatment entirely — animated arrows, plus/minus buttons, or full-row toggles.",
+    "kind": "Style",
+    "name": ".disclosureGroupStyle()",
+    "platforms": [
       "iOS",
       "macOS"
     ],
-    "related" : [
+    "related": [
       "DisclosureGroup"
     ],
-    "summary" : "Custom expansion chrome for disclosure groups.",
-    "wwdcYear" : 2022
+    "summary": "Custom expansion chrome for disclosure groups.",
+    "wwdcYear": 2022
   },
   {
-    "code" : "Form {\n    TextField(\"Server\", text: $server)\n    Toggle(\"Use TLS\", isOn: $tls)\n}\n.formStyle(.grouped)",
-    "discussion" : "formStyle selects grouped (rows on platters, labels leading) or columns (aligned label column, macOS settings look) for a Form. Grouped on macOS gives the iOS-like settings design used since Ventura.",
-    "kind" : "Style",
-    "name" : ".formStyle()",
-    "platforms" : [
+    "code": "Form {\n    TextField(\"Server\", text: $server)\n    Toggle(\"Use TLS\", isOn: $tls)\n}\n.formStyle(.grouped)",
+    "discussion": "formStyle selects grouped (rows on platters, labels leading) or columns (aligned label column, macOS settings look) for a Form. Grouped on macOS gives the iOS-like settings design used since Ventura.",
+    "kind": "Style",
+    "name": ".formStyle()",
+    "platforms": [
       "iOS",
       "macOS"
     ],
-    "related" : [
+    "related": [
       "Form",
       "Section"
     ],
-    "summary" : "Chooses a form's layout family.",
-    "wwdcYear" : 2022
+    "summary": "Chooses a form's layout family.",
+    "wwdcYear": 2022
   },
   {
-    "code" : "Gauge(value: speed, in: 0...200) { Text(\"km\/h\") }\n    .gaugeStyle(.accessoryCircular)\n    .tint(.green)",
-    "demoID" : "gauge",
-    "discussion" : "gaugeStyle spans linear and circular families, including the accessory variants designed for widgets and watch complications where space is tight.",
-    "kind" : "Style",
-    "name" : ".gaugeStyle()",
-    "platforms" : [
+    "code": "Gauge(value: speed, in: 0...200) { Text(\"km/h\") }\n    .gaugeStyle(.accessoryCircular)\n    .tint(.green)",
+    "demoID": "gauge",
+    "discussion": "gaugeStyle spans linear and circular families, including the accessory variants designed for widgets and watch complications where space is tight.",
+    "kind": "Style",
+    "name": ".gaugeStyle()",
+    "platforms": [
       "iOS",
       "macOS",
       "watchOS"
     ],
-    "related" : [
+    "related": [
       "Gauge"
     ],
-    "summary" : "Chooses a gauge's rendering, from bars to dials.",
-    "wwdcYear" : 2022
+    "summary": "Chooses a gauge's rendering, from bars to dials.",
+    "wwdcYear": 2022
   },
   {
-    "code" : "struct CardBox: GroupBoxStyle {\n    func makeBody(configuration: Configuration) -> some View {\n        VStack(alignment: .leading, spacing: 8) {\n            configuration.label.font(.headline)\n            configuration.content\n        }\n        .padding()\n        .background(.background.secondary, in: .rect(cornerRadius: 12))\n    }\n}",
-    "discussion" : "A GroupBoxStyle receives the label and content and draws its own platter — brand cards and callout boxes that still read as grouped content at the call site.",
-    "kind" : "Style",
-    "name" : ".groupBoxStyle()",
-    "platforms" : [
+    "code": "struct CardBox: GroupBoxStyle {\n    func makeBody(configuration: Configuration) -> some View {\n        VStack(alignment: .leading, spacing: 8) {\n            configuration.label.font(.headline)\n            configuration.content\n        }\n        .padding()\n        .background(.background.secondary, in: .rect(cornerRadius: 12))\n    }\n}",
+    "discussion": "A GroupBoxStyle receives the label and content and draws its own platter — brand cards and callout boxes that still read as grouped content at the call site.",
+    "kind": "Style",
+    "name": ".groupBoxStyle()",
+    "platforms": [
       "iOS",
       "macOS"
     ],
-    "related" : [
+    "related": [
       "GroupBox"
     ],
-    "summary" : "Custom chrome for GroupBox containers.",
-    "wwdcYear" : 2020
+    "summary": "Custom chrome for GroupBox containers.",
+    "wwdcYear": 2020
   },
   {
-    "code" : "Label(\"Downloads\", systemImage: \"arrow.down.circle\")\n    .labelStyle(.iconOnly)",
-    "demoID" : "label",
-    "discussion" : "labelStyle adapts Labels to their surroundings: iconOnly for compact toolbars, titleOnly where symbols would be noise, titleAndIcon to force both. Custom LabelStyles can rearrange the pair arbitrarily.",
-    "kind" : "Style",
-    "name" : ".labelStyle()",
-    "related" : [
+    "code": "Label(\"Downloads\", systemImage: \"arrow.down.circle\")\n    .labelStyle(.iconOnly)",
+    "demoID": "label",
+    "discussion": "labelStyle adapts Labels to their surroundings: iconOnly for compact toolbars, titleOnly where symbols would be noise, titleAndIcon to force both. Custom LabelStyles can rearrange the pair arbitrarily.",
+    "kind": "Style",
+    "name": ".labelStyle()",
+    "related": [
       "Label"
     ],
-    "summary" : "Shows a label's icon, title, or both.",
-    "wwdcYear" : 2020
+    "summary": "Shows a label's icon, title, or both.",
+    "wwdcYear": 2020
   },
   {
-    "children" : [
+    "children": [
       {
-        "code" : "List(results) { ResultRow($0) }\n    .listStyle(.plain)",
-        "name" : ".plain",
-        "summary" : "Edge-to-edge rows with minimal decoration."
+        "code": "List(results) { ResultRow($0) }\n    .listStyle(.plain)",
+        "name": ".plain",
+        "summary": "Edge-to-edge rows with minimal decoration."
       },
       {
-        "code" : "List(tracks) { TrackRow($0) }\n    .listStyle(.inset)",
-        "name" : ".inset",
-        "summary" : "Rows inset from the container's edges."
+        "code": "List(tracks) { TrackRow($0) }\n    .listStyle(.inset)",
+        "name": ".inset",
+        "summary": "Rows inset from the container's edges."
       },
       {
-        "code" : "List(selection: $selection) {\n    Section(\"Library\") {\n        ForEach(folders) { FolderRow($0) }\n    }\n}\n.listStyle(.sidebar)",
-        "discussion" : "The standard treatment for the leading column of a NavigationSplitView; section headers gain disclosure behavior automatically.",
-        "name" : ".sidebar",
-        "summary" : "Source-list styling with collapsible sections."
+        "code": "List(selection: $selection) {\n    Section(\"Library\") {\n        ForEach(folders) { FolderRow($0) }\n    }\n}\n.listStyle(.sidebar)",
+        "discussion": "The standard treatment for the leading column of a NavigationSplitView; section headers gain disclosure behavior automatically.",
+        "name": ".sidebar",
+        "summary": "Source-list styling with collapsible sections."
       },
       {
-        "code" : "List(devices, selection: $device) { DeviceRow($0) }\n    .listStyle(.bordered)",
-        "name" : ".bordered",
-        "summary" : "A macOS list framed with a visible border."
+        "code": "List(devices, selection: $device) { DeviceRow($0) }\n    .listStyle(.bordered)",
+        "name": ".bordered",
+        "summary": "A macOS list framed with a visible border."
       }
     ],
-    "code" : "List(items, selection: $selection) { ItemRow($0) }\n    .listStyle(.sidebar)",
-    "discussion" : "listStyle moves a List between plain, inset, grouped, insetGrouped, and sidebar appearances. Sidebar styling also enables collapsible sections — the standard look for source lists on macOS and iPadOS.",
-    "kind" : "Style",
-    "name" : ".listStyle()",
-    "related" : [
+    "code": "List(items, selection: $selection) { ItemRow($0) }\n    .listStyle(.sidebar)",
+    "discussion": "listStyle moves a List between plain, inset, grouped, insetGrouped, and sidebar appearances. Sidebar styling also enables collapsible sections — the standard look for source lists on macOS and iPadOS.",
+    "kind": "Style",
+    "name": ".listStyle()",
+    "related": [
       "List"
     ],
-    "summary" : "Sets the visual treatment of a list.",
-    "wwdcYear" : 2019
+    "summary": "Sets the visual treatment of a list.",
+    "wwdcYear": 2019
   },
   {
-    "code" : "Menu(\"Options\") {\n    Button(\"Rename\") { }\n}\n.menuStyle(.button)",
-    "discussion" : "menuStyle picks how a Menu presents — the standard button form, or borderlessButton on macOS for toolbar-like menus. Most apps only need it to remove chrome.",
-    "kind" : "Style",
-    "name" : ".menuStyle()",
-    "platforms" : [
+    "code": "Menu(\"Options\") {\n    Button(\"Rename\") { }\n}\n.menuStyle(.button)",
+    "discussion": "menuStyle picks how a Menu presents — the standard button form, or borderlessButton on macOS for toolbar-like menus. Most apps only need it to remove chrome.",
+    "kind": "Style",
+    "name": ".menuStyle()",
+    "platforms": [
       "iOS",
       "macOS"
     ],
-    "related" : [
+    "related": [
       "Menu"
     ],
-    "summary" : "Sets the presentation of menus.",
-    "wwdcYear" : 2020
+    "summary": "Sets the presentation of menus.",
+    "wwdcYear": 2020
   },
   {
-    "children" : [
+    "children": [
       {
-        "code" : "Picker(\"Sort\", selection: $sort) {\n    ForEach(SortOrder.allCases) { Text($0.label).tag($0) }\n}\n.pickerStyle(.menu)",
-        "name" : ".menu",
-        "summary" : "Collapses the options into a pull-down menu."
+        "code": "Picker(\"Sort\", selection: $sort) {\n    ForEach(SortOrder.allCases) { Text($0.label).tag($0) }\n}\n.pickerStyle(.menu)",
+        "name": ".menu",
+        "summary": "Collapses the options into a pull-down menu."
       },
       {
-        "code" : "Picker(\"Units\", selection: $units) {\n    Text(\"Metric\").tag(Units.metric)\n    Text(\"Imperial\").tag(Units.imperial)\n}\n.pickerStyle(.segmented)",
-        "discussion" : "Best with two to five short, mutually exclusive options — beyond that the segments get cramped.",
-        "name" : ".segmented",
-        "summary" : "Every option visible side by side in one control."
+        "code": "Picker(\"Units\", selection: $units) {\n    Text(\"Metric\").tag(Units.metric)\n    Text(\"Imperial\").tag(Units.imperial)\n}\n.pickerStyle(.segmented)",
+        "discussion": "Best with two to five short, mutually exclusive options — beyond that the segments get cramped.",
+        "name": ".segmented",
+        "summary": "Every option visible side by side in one control."
       },
       {
-        "code" : "Picker(\"Format\", selection: $format) {\n    Text(\"PNG\").tag(Format.png)\n    Text(\"JPEG\").tag(Format.jpeg)\n}\n.pickerStyle(.radioGroup)",
-        "name" : ".radioGroup",
-        "summary" : "macOS radio buttons, one per option."
+        "code": "Picker(\"Format\", selection: $format) {\n    Text(\"PNG\").tag(Format.png)\n    Text(\"JPEG\").tag(Format.jpeg)\n}\n.pickerStyle(.radioGroup)",
+        "name": ".radioGroup",
+        "summary": "macOS radio buttons, one per option."
       },
       {
-        "code" : "Form {\n    Picker(\"Theme\", selection: $theme) {\n        ForEach(Theme.allCases) { Text($0.name).tag($0) }\n    }\n    .pickerStyle(.inline)\n}",
-        "name" : ".inline",
-        "summary" : "Options listed flat inside the surrounding container."
+        "code": "Form {\n    Picker(\"Theme\", selection: $theme) {\n        ForEach(Theme.allCases) { Text($0.name).tag($0) }\n    }\n    .pickerStyle(.inline)\n}",
+        "name": ".inline",
+        "summary": "Options listed flat inside the surrounding container."
       }
     ],
-    "code" : "Picker(\"Units\", selection: $units) {\n    Text(\"Metric\").tag(Units.metric)\n    Text(\"Imperial\").tag(Units.imperial)\n}\n.pickerStyle(.segmented)",
-    "demoID" : "picker",
-    "discussion" : "pickerStyle switches a Picker between menu, segmented, inline, wheel (iOS), radioGroup (macOS), and palette renderings. The right style depends on option count and how prominent the choice should be.",
-    "kind" : "Style",
-    "name" : ".pickerStyle()",
-    "related" : [
+    "code": "Picker(\"Units\", selection: $units) {\n    Text(\"Metric\").tag(Units.metric)\n    Text(\"Imperial\").tag(Units.imperial)\n}\n.pickerStyle(.segmented)",
+    "demoID": "picker",
+    "discussion": "pickerStyle switches a Picker between menu, segmented, inline, wheel (iOS), radioGroup (macOS), and palette renderings. The right style depends on option count and how prominent the choice should be.",
+    "kind": "Style",
+    "name": ".pickerStyle()",
+    "related": [
       "Picker"
     ],
-    "summary" : "Selects the presentation for pickers.",
-    "wwdcYear" : 2019
+    "summary": "Selects the presentation for pickers.",
+    "wwdcYear": 2019
   },
   {
-    "code" : "ProgressView(value: 0.4)\n    .progressViewStyle(.circular)",
-    "demoID" : "progress",
-    "discussion" : "progressViewStyle picks linear or circular rendering independent of whether progress is determinate. A custom ProgressViewStyle reads fractionCompleted from the configuration to draw gauges of any design.",
-    "kind" : "Style",
-    "name" : ".progressViewStyle()",
-    "related" : [
+    "code": "ProgressView(value: 0.4)\n    .progressViewStyle(.circular)",
+    "demoID": "progress",
+    "discussion": "progressViewStyle picks linear or circular rendering independent of whether progress is determinate. A custom ProgressViewStyle reads fractionCompleted from the configuration to draw gauges of any design.",
+    "kind": "Style",
+    "name": ".progressViewStyle()",
+    "related": [
       "ProgressView",
       "Gauge"
     ],
-    "summary" : "Renders progress as a bar or a circle.",
-    "wwdcYear" : 2020
+    "summary": "Renders progress as a bar or a circle.",
+    "wwdcYear": 2020
   },
   {
-    "code" : "Table(people) {\n    TableColumn(\"Name\", value: \\.name)\n}\n.tableStyle(.bordered(alternatesRowBackgrounds: true))",
-    "discussion" : "tableStyle switches Table between the inset default and bordered variants on macOS, with alternating row backgrounds controlled separately. Mostly a macOS concern; iOS tables keep list styling.",
-    "kind" : "Style",
-    "name" : ".tableStyle()",
-    "platforms" : [
+    "code": "Table(people) {\n    TableColumn(\"Name\", value: \\.name)\n}\n.tableStyle(.bordered(alternatesRowBackgrounds: true))",
+    "discussion": "tableStyle switches Table between the inset default and bordered variants on macOS, with alternating row backgrounds controlled separately. Mostly a macOS concern; iOS tables keep list styling.",
+    "kind": "Style",
+    "name": ".tableStyle()",
+    "platforms": [
       "iOS",
       "macOS"
     ],
-    "related" : [
+    "related": [
       "Table"
     ],
-    "summary" : "Adjusts a table's borders and row insets.",
-    "wwdcYear" : 2021
+    "summary": "Adjusts a table's borders and row insets.",
+    "wwdcYear": 2021
   },
   {
-    "code" : "TabView {\n    ForEach(slides) { SlideView($0) }\n}\n.tabViewStyle(.page(indexDisplayMode: .automatic))",
-    "discussion" : "tabViewStyle turns a TabView into swipeable pages (page), the watch's vertical carousel, or sidebarAdaptable (2024) where tabs can promote into a sidebar on iPad and Mac.",
-    "kind" : "Style",
-    "name" : ".tabViewStyle()",
-    "related" : [
+    "code": "TabView {\n    ForEach(slides) { SlideView($0) }\n}\n.tabViewStyle(.page(indexDisplayMode: .automatic))",
+    "discussion": "tabViewStyle turns a TabView into swipeable pages (page), the watch's vertical carousel, or sidebarAdaptable (2024) where tabs can promote into a sidebar on iPad and Mac.",
+    "kind": "Style",
+    "name": ".tabViewStyle()",
+    "related": [
       "TabView",
       ".tabBarMinimizeBehavior()"
     ],
-    "summary" : "Switches tabs between bar, page, and sidebar modes.",
-    "wwdcYear" : 2020
+    "summary": "Switches tabs between bar, page, and sidebar modes.",
+    "wwdcYear": 2020
   },
   {
-    "code" : "TextField(\"City\", text: $city)\n    .textFieldStyle(.roundedBorder)",
-    "discussion" : "textFieldStyle switches between plain, roundedBorder, and the macOS squareBorder appearance for every field in scope. Plain is the base for fully custom field designs built with background and overlay.",
-    "kind" : "Style",
-    "name" : ".textFieldStyle()",
-    "related" : [
+    "code": "TextField(\"City\", text: $city)\n    .textFieldStyle(.roundedBorder)",
+    "discussion": "textFieldStyle switches between plain, roundedBorder, and the macOS squareBorder appearance for every field in scope. Plain is the base for fully custom field designs built with background and overlay.",
+    "kind": "Style",
+    "name": ".textFieldStyle()",
+    "related": [
       "TextField"
     ],
-    "summary" : "Chooses how text fields draw their chrome.",
-    "wwdcYear" : 2019
+    "summary": "Chooses how text fields draw their chrome.",
+    "wwdcYear": 2019
   },
   {
-    "children" : [
+    "children": [
       {
-        "code" : "Toggle(\"Wi-Fi\", isOn: $wifiEnabled)\n    .toggleStyle(.switch)",
-        "name" : ".switch",
-        "summary" : "The sliding on\/off switch."
+        "code": "Toggle(\"Wi-Fi\", isOn: $wifiEnabled)\n    .toggleStyle(.switch)",
+        "name": ".switch",
+        "summary": "The sliding on/off switch."
       },
       {
-        "code" : "Toggle(\"Remember me\", isOn: $remember)\n    .toggleStyle(.checkbox)",
-        "name" : ".checkbox",
-        "summary" : "The classic macOS checkbox."
+        "code": "Toggle(\"Remember me\", isOn: $remember)\n    .toggleStyle(.checkbox)",
+        "name": ".checkbox",
+        "summary": "The classic macOS checkbox."
       },
       {
-        "code" : "Toggle(\"Italic\", systemImage: \"italic\", isOn: $isItalic)\n    .toggleStyle(.button)",
-        "discussion" : "The natural fit for formatting toggles — bold, italic, filters — especially with a symbol label in a toolbar.",
-        "name" : ".button",
-        "summary" : "A button that stays highlighted while on."
+        "code": "Toggle(\"Italic\", systemImage: \"italic\", isOn: $isItalic)\n    .toggleStyle(.button)",
+        "discussion": "The natural fit for formatting toggles — bold, italic, filters — especially with a symbol label in a toolbar.",
+        "name": ".button",
+        "summary": "A button that stays highlighted while on."
       }
     ],
-    "code" : "Toggle(\"Bold\", systemImage: \"bold\", isOn: $isBold)\n    .toggleStyle(.button)",
-    "demoID" : "toggle",
-    "discussion" : "The same Toggle declaration can appear as an iOS switch, a macOS checkbox, or a pressed-state button via .button style. Custom ToggleStyle conformances take over rendering entirely.",
-    "kind" : "Style",
-    "name" : ".toggleStyle()",
-    "related" : [
+    "code": "Toggle(\"Bold\", systemImage: \"bold\", isOn: $isBold)\n    .toggleStyle(.button)",
+    "demoID": "toggle",
+    "discussion": "The same Toggle declaration can appear as an iOS switch, a macOS checkbox, or a pressed-state button via .button style. Custom ToggleStyle conformances take over rendering entirely.",
+    "kind": "Style",
+    "name": ".toggleStyle()",
+    "related": [
       "Toggle"
     ],
-    "summary" : "Chooses how toggles render — switch, checkbox, or button.",
-    "wwdcYear" : 2019
+    "summary": "Chooses how toggles render — switch, checkbox, or button.",
+    "wwdcYear": 2019
   },
   {
-    "code" : "Circle()\n    .fill(AngularGradient(\n        colors: [.red, .yellow, .green, .blue, .red],\n        center: .center\n    ))",
-    "demoID" : "gradient",
-    "discussion" : "AngularGradient (a conic gradient) rotates through its stops around a center, from a start to an end angle — the foundation of color wheels and circular meters.",
-    "kind" : "Style",
-    "name" : "AngularGradient",
-    "related" : [
+    "code": "Circle()\n    .fill(AngularGradient(\n        colors: [.red, .yellow, .green, .blue, .red],\n        center: .center\n    ))",
+    "demoID": "gradient",
+    "discussion": "AngularGradient (a conic gradient) rotates through its stops around a center, from a start to an end angle — the foundation of color wheels and circular meters.",
+    "kind": "Style",
+    "name": "AngularGradient",
+    "related": [
       "LinearGradient",
       "RadialGradient"
     ],
-    "summary" : "Sweeps colors around a center point.",
-    "wwdcYear" : 2019
+    "summary": "Sweeps colors around a center point.",
+    "wwdcYear": 2019
   },
   {
-    "code" : "let hover = Color.blue.mix(with: .white, by: 0.2)\n\nRectangle()\n    .fill(Color.red.mix(with: .purple, by: 0.5))",
-    "discussion" : "A WWDC '24 addition: mix interpolates a color toward another by a given fraction, in perceptual or device color spaces — no more manual component math for hover tints and charts.",
-    "kind" : "Style",
-    "name" : "Color.mix()",
-    "related" : [
+    "code": "let hover = Color.blue.mix(with: .white, by: 0.2)\n\nRectangle()\n    .fill(Color.red.mix(with: .purple, by: 0.5))",
+    "discussion": "A WWDC '24 addition: mix interpolates a color toward another by a given fraction, in perceptual or device color spaces — no more manual component math for hover tints and charts.",
+    "kind": "Style",
+    "name": "Color.mix()",
+    "related": [
       "MeshGradient",
       ".foregroundStyle()"
     ],
-    "summary" : "Blends two colors by a fraction in a color space.",
-    "wwdcYear" : 2024
+    "summary": "Blends two colors by a fraction in a color space.",
+    "wwdcYear": 2024
   },
   {
-    "code" : "RoundedRectangle(cornerRadius: 12)\n    .fill(ImagePaint(image: Image(\"dots\"), scale: 0.4))\n    .frame(width: 200, height: 100)",
-    "discussion" : "ImagePaint repeats a source image (or a cropped portion) as a ShapeStyle — textured fills and patterned borders without a custom shader.",
-    "kind" : "Style",
-    "name" : "ImagePaint",
-    "related" : [
+    "code": "RoundedRectangle(cornerRadius: 12)\n    .fill(ImagePaint(image: Image(\"dots\"), scale: 0.4))\n    .frame(width: 200, height: 100)",
+    "discussion": "ImagePaint repeats a source image (or a cropped portion) as a ShapeStyle — textured fills and patterned borders without a custom shader.",
+    "kind": "Style",
+    "name": "ImagePaint",
+    "related": [
       "ShapeStyle",
       "Image"
     ],
-    "summary" : "Tiles an image as a fill or stroke style.",
-    "wwdcYear" : 2019
+    "summary": "Tiles an image as a fill or stroke style.",
+    "wwdcYear": 2019
   },
   {
-    "code" : "RoundedRectangle(cornerRadius: 12)\n    .fill(LinearGradient(\n        colors: [.purple, .blue],\n        startPoint: .topLeading,\n        endPoint: .bottomTrailing\n    ))",
-    "demoID" : "gradient",
-    "discussion" : "LinearGradient interpolates between color stops from a start to an end unit point. As a ShapeStyle it slots into fill, background, and foregroundStyle alike; every Color also offers a subtle built-in .gradient variant.",
-    "kind" : "Style",
-    "name" : "LinearGradient",
-    "related" : [
+    "code": "RoundedRectangle(cornerRadius: 12)\n    .fill(LinearGradient(\n        colors: [.purple, .blue],\n        startPoint: .topLeading,\n        endPoint: .bottomTrailing\n    ))",
+    "demoID": "gradientAnchors",
+    "discussion": "LinearGradient interpolates between color stops from a start to an end unit point. As a ShapeStyle it slots into fill, background, and foregroundStyle alike; every Color also offers a subtle built-in .gradient variant.",
+    "kind": "Style",
+    "name": "LinearGradient",
+    "related": [
       "RadialGradient",
       "AngularGradient",
       "MeshGradient"
     ],
-    "summary" : "Blends colors along a straight line.",
-    "wwdcYear" : 2019
+    "summary": "Blends colors along a straight line.",
+    "wwdcYear": 2019
   },
   {
-    "code" : "VStack { controls }\n    .padding()\n    .background(.ultraThinMaterial, in: .rect(cornerRadius: 16))",
-    "demoID" : "material",
-    "discussion" : "Materials — ultraThin through ultraThick, plus bar — blur whatever is behind them and keep vibrant text legible on top. They are ShapeStyles, so they slot into background and fill; under the 2025 design language, glassEffect supersedes them for floating controls.",
-    "kind" : "Style",
-    "name" : "Material",
-    "related" : [
+    "code": "VStack { controls }\n    .padding()\n    .background(.ultraThinMaterial, in: .rect(cornerRadius: 16))",
+    "demoID": "material",
+    "discussion": "Materials — ultraThin through ultraThick, plus bar — blur whatever is behind them and keep vibrant text legible on top. They are ShapeStyles, so they slot into background and fill; under the 2025 design language, glassEffect supersedes them for floating controls.",
+    "kind": "Style",
+    "name": "Material",
+    "related": [
       ".background()",
       ".glassEffect()",
       "ShapeStyle"
     ],
-    "summary" : "Translucent blur layers that adapt to their backdrop.",
-    "wwdcYear" : 2021
+    "summary": "Translucent blur layers that adapt to their backdrop.",
+    "wwdcYear": 2021
   },
   {
-    "code" : "MeshGradient(\n    width: 3, height: 3,\n    points: [\n        [0, 0], [0.5, 0], [1, 0],\n        [0, 0.5], [0.7, 0.6], [1, 0.5],\n        [0, 1], [0.5, 1], [1, 1]\n    ],\n    colors: [\n        .indigo, .purple, .pink,\n        .blue, .teal, .orange,\n        .cyan, .mint, .yellow\n    ]\n)",
-    "demoID" : "meshGradient",
-    "discussion" : "New at WWDC '24, MeshGradient interpolates colors across a grid of movable control points, producing fluid, organic blends impossible with linear or radial gradients. Animate the points for lava-lamp backgrounds.",
-    "kind" : "Style",
-    "name" : "MeshGradient",
-    "related" : [
+    "code": "MeshGradient(\n    width: 3, height: 3,\n    points: [\n        [0, 0], [0.5, 0], [1, 0],\n        [0, 0.5], [0.7, 0.6], [1, 0.5],\n        [0, 1], [0.5, 1], [1, 1]\n    ],\n    colors: [\n        .indigo, .purple, .pink,\n        .blue, .teal, .orange,\n        .cyan, .mint, .yellow\n    ]\n)",
+    "demoID": "meshGradient",
+    "discussion": "New at WWDC '24, MeshGradient interpolates colors across a grid of movable control points, producing fluid, organic blends impossible with linear or radial gradients. Animate the points for lava-lamp backgrounds.",
+    "kind": "Style",
+    "name": "MeshGradient",
+    "related": [
       "LinearGradient",
       "Color.mix()"
     ],
-    "summary" : "A 2D mesh of control points, each with its own color.",
-    "wwdcYear" : 2024
+    "summary": "A 2D mesh of control points, each with its own color.",
+    "wwdcYear": 2024
   },
   {
-    "code" : "Circle()\n    .fill(RadialGradient(\n        colors: [.yellow, .orange, .red],\n        center: .center,\n        startRadius: 5,\n        endRadius: 60\n    ))",
-    "demoID" : "gradient",
-    "discussion" : "RadialGradient runs its stops from a center unit point between a start and end radius — the go-to for spotlight and glow effects.",
-    "kind" : "Style",
-    "name" : "RadialGradient",
-    "related" : [
+    "code": "Circle()\n    .fill(RadialGradient(\n        colors: [.yellow, .orange, .red],\n        center: .center,\n        startRadius: 5,\n        endRadius: 60\n    ))",
+    "demoID": "gradient",
+    "discussion": "RadialGradient runs its stops from a center unit point between a start and end radius — the go-to for spotlight and glow effects.",
+    "kind": "Style",
+    "name": "RadialGradient",
+    "related": [
       "LinearGradient",
       "AngularGradient"
     ],
-    "summary" : "Blends colors outward from a center point.",
-    "wwdcYear" : 2019
+    "summary": "Blends colors outward from a center point.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Circle()\n    .offset(x: isOn ? 110 : -110)\n    .animation(\n        .timingCurve(0.42, 0, 0.58, 1, duration: 0.8),\n        value: isOn\n    )",
+    "demoID": "timingCurve",
+    "discussion": "timingCurve defines an animation's pacing as a cubic Bézier: two control points bend the time-versus-progress curve between a standing start and a full stop. easeIn, easeOut, and easeInOut are all presets of this one function. Drag the control points in the demo and replay to feel how the curve's shape becomes motion.",
+    "kind": "Style",
+    "name": "Animation.timingCurve()",
+    "related": [
+      ".animation()",
+      "CustomAnimation",
+      ".addCurve()"
+    ],
+    "summary": "A cubic Bézier timing curve for animations.",
+    "wwdcYear": 2019
   }
 ]
