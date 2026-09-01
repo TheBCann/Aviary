@@ -1,0 +1,1505 @@
+[
+  {
+    "code" : "var icon: AnyView {\n    isLocked\n        ? AnyView(Image(systemName: \"lock\"))\n        : AnyView(ProgressView())\n}",
+    "discussion" : "AnyView hides the underlying view type, useful when branches must produce a single type outside a ViewBuilder. It costs SwiftUI diffing information, so prefer @ViewBuilder or Group where possible.",
+    "kind" : "View",
+    "name" : "AnyView",
+    "related" : [
+      "Group",
+      "View"
+    ],
+    "summary" : "Type-erases a view behind one concrete wrapper.",
+    "wwdcYear" : 2019
+  },
+  {
+    "children" : [
+      {
+        "code" : "AsyncImage(url: URL(string: \"https:\/\/example.com\/avatar.png\"))\n    .frame(width: 44, height: 44)",
+        "name" : "AsyncImage(url:)",
+        "summary" : "The simplest form: fetches the URL, shows a gray placeholder meanwhile."
+      },
+      {
+        "code" : "AsyncImage(url: photoURL) { image in\n    image.resizable().scaledToFill()\n} placeholder: {\n    Color.gray.opacity(0.2)\n}",
+        "discussion" : "The content closure only receives the successfully loaded image, so this form cannot distinguish a failure from still-loading — use the phase initializer for that.",
+        "name" : "AsyncImage(url:content:placeholder:)",
+        "summary" : "Lets you style the loaded image and supply your own placeholder."
+      },
+      {
+        "code" : "AsyncImage(url: photoURL, transaction: Transaction(animation: .easeOut)) { phase in\n    switch phase {\n    case .success(let image): image.resizable().scaledToFit()\n    case .failure: Image(systemName: \"photo.badge.exclamationmark\")\n    case .empty: ProgressView()\n    @unknown default: EmptyView()\n    }\n}",
+        "discussion" : "The closure receives an AsyncImagePhase — empty, success, or failure — and the transaction animates the transition between them.",
+        "name" : "AsyncImage(url:scale:transaction:content:)",
+        "summary" : "Branches over every loading phase, with an animated swap-in."
+      }
+    ],
+    "code" : "AsyncImage(url: URL(string: \"https:\/\/example.com\/photo.jpg\")) { image in\n    image.resizable().scaledToFit()\n} placeholder: {\n    ProgressView()\n}\n.frame(width: 220, height: 160)",
+    "discussion" : "AsyncImage downloads on a background task and swaps in the result when it arrives. The phase-based initializer lets you branch over empty, success, and failure states, and supply a placeholder while loading.",
+    "kind" : "View",
+    "name" : "AsyncImage",
+    "related" : [
+      "Image",
+      "ProgressView"
+    ],
+    "summary" : "Loads and displays an image from a URL asynchronously.",
+    "wwdcYear" : 2021
+  },
+  {
+    "children" : [
+      {
+        "code" : "Button(\"Save\") {\n    save()\n}",
+        "name" : "Button(_:action:)",
+        "summary" : "A titled button that runs a closure when activated."
+      },
+      {
+        "code" : "Button(\"Delete\", role: .destructive) {\n    deleteItem()\n}",
+        "discussion" : "Roles let the platform place and color the button correctly — destructive turns red in menus and swipe actions, cancel gets the dismiss position in dialogs.",
+        "name" : "Button(_:role:action:)",
+        "summary" : "Attaches a semantic role such as destructive or cancel."
+      },
+      {
+        "code" : "Button(\"Compose\", systemImage: \"square.and.pencil\") {\n    startDraft()\n}",
+        "name" : "Button(_:systemImage:action:)",
+        "summary" : "Builds a Label-style button from a title and SF Symbol in one call."
+      }
+    ],
+    "code" : "Button(\"Delete\", role: .destructive) {\n    deleteItem()\n}\n.buttonStyle(.borderedProminent)",
+    "demoID" : "button",
+    "discussion" : "Button separates behavior (the action closure) from appearance (the label). Roles communicate intent — a destructive role renders red where the platform expects it — and buttonStyle plus controlSize change the visual weight without touching the action.",
+    "kind" : "View",
+    "name" : "Button",
+    "related" : [
+      "ButtonStyle",
+      "Menu",
+      "Link"
+    ],
+    "summary" : "Runs an action when the user taps or clicks it.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "Canvas { context, size in\n    let rect = CGRect(origin: .zero, size: size).insetBy(dx: 8, dy: 8)\n    context.stroke(\n        Path(ellipseIn: rect),\n        with: .color(.orange),\n        lineWidth: 4\n    )\n}",
+    "discussion" : "Canvas hands you a GraphicsContext and a size every time it needs to draw, ideal for particle systems, charts, and other high-volume graphics that would be expensive as individual views. It redraws when its inputs change; pair with TimelineView for animation.",
+    "kind" : "View",
+    "name" : "Canvas",
+    "related" : [
+      "Path",
+      "TimelineView",
+      "Shape"
+    ],
+    "summary" : "Immediate-mode drawing into a graphics context.",
+    "wwdcYear" : 2021
+  },
+  {
+    "code" : "import Charts\n\nChart(sales) { day in\n    BarMark(\n        x: .value(\"Day\", day.date, unit: .day),\n        y: .value(\"Revenue\", day.total)\n    )\n}",
+    "discussion" : "Chart composes marks — BarMark, LineMark, PointMark, AreaMark — from your data the way SwiftUI composes views, deriving axes, scales, and legends automatically. Requires import Charts.",
+    "framework" : "Swift Charts",
+    "kind" : "View",
+    "name" : "Chart",
+    "related" : [
+      "Chart3D",
+      "Canvas"
+    ],
+    "summary" : "Declarative data visualization from Swift Charts.",
+    "wwdcYear" : 2022
+  },
+  {
+    "code" : "import Charts\n\nChart3D(samples) { sample in\n    PointMark(\n        x: .value(\"X\", sample.x),\n        y: .value(\"Y\", sample.y),\n        z: .value(\"Z\", sample.z)\n    )\n}",
+    "discussion" : "Added at WWDC '25, Chart3D plots marks in three dimensions — surface plots and 3D point clouds — with orbitable cameras. Best for data whose third axis genuinely carries meaning. Requires import Charts.",
+    "framework" : "Swift Charts",
+    "kind" : "View",
+    "name" : "Chart3D",
+    "platforms" : [
+      "iOS",
+      "macOS"
+    ],
+    "related" : [
+      "Chart"
+    ],
+    "summary" : "Three-dimensional charts from Swift Charts.",
+    "wwdcYear" : 2025
+  },
+  {
+    "code" : "@State private var accent = Color.blue\n\nColorPicker(\"Accent color\", selection: $accent, supportsOpacity: false)",
+    "discussion" : "ColorPicker presents the platform's color panel and writes the choice into a Binding<Color> (or CGColor). The supportsOpacity flag hides the alpha slider when transparency is not meaningful.",
+    "kind" : "View",
+    "name" : "ColorPicker",
+    "platforms" : [
+      "iOS",
+      "macOS"
+    ],
+    "related" : [
+      "Picker"
+    ],
+    "summary" : "Opens the system color well to pick a color binding.",
+    "wwdcYear" : 2020
+  },
+  {
+    "code" : "ContentUnavailableView {\n    Label(\"No Documents\", systemImage: \"tray\")\n} description: {\n    Text(\"Documents you add appear here.\")\n} actions: {\n    Button(\"Add Document\") { add() }\n}",
+    "discussion" : "ContentUnavailableView renders the platform's canonical empty state — use the search preset for no-results screens, or compose your own icon, description, and action buttons for empty libraries and error states.",
+    "kind" : "View",
+    "name" : "ContentUnavailableView",
+    "related" : [
+      "List"
+    ],
+    "summary" : "A standard empty-state with icon, title, and description.",
+    "wwdcYear" : 2023
+  },
+  {
+    "code" : "ControlGroup {\n    Button(\"Back\", systemImage: \"chevron.backward\") { back() }\n    Button(\"Forward\", systemImage: \"chevron.forward\") { forward() }\n}",
+    "discussion" : "ControlGroup renders its buttons as one segmented cluster — back\/forward pairs, formatting sets — and adapts inside toolbars and menus. Styles include navigation and palette renderings.",
+    "kind" : "View",
+    "name" : "ControlGroup",
+    "platforms" : [
+      "iOS",
+      "macOS"
+    ],
+    "related" : [
+      ".toolbar()",
+      "Menu"
+    ],
+    "summary" : "Visually groups related controls, toolbar-style.",
+    "wwdcYear" : 2021
+  },
+  {
+    "children" : [
+      {
+        "code" : "DatePicker(\n    \"Reminder\",\n    selection: $reminder,\n    displayedComponents: .hourAndMinute\n)",
+        "name" : "DatePicker(_:selection:displayedComponents:)",
+        "summary" : "Picks a date, a time, or both, bound to a Date value."
+      },
+      {
+        "code" : "DatePicker(\n    \"Check-in\",\n    selection: $checkIn,\n    in: Date.now...,\n    displayedComponents: .date\n)",
+        "discussion" : "Open-ended ranges work too — Date.now... forbids past dates without capping the future.",
+        "name" : "DatePicker(_:selection:in:displayedComponents:)",
+        "summary" : "Restricts the selectable dates to a range."
+      },
+      {
+        "code" : "DatePicker(selection: $due, displayedComponents: .date) {\n    Label(\"Due date\", systemImage: \"calendar.badge.clock\")\n}",
+        "name" : "DatePicker(selection:displayedComponents:label:)",
+        "summary" : "Provides the label as a custom view."
+      }
+    ],
+    "code" : "@State private var departure = Date.now\n\nDatePicker(\n    \"Departure\",\n    selection: $departure,\n    displayedComponents: [.date, .hourAndMinute]\n)\n.datePickerStyle(.compact)",
+    "demoID" : "datePicker",
+    "discussion" : "DatePicker binds to a Date and limits input through displayedComponents and an optional closed range. Styles range from the compact field to a full graphical calendar.",
+    "kind" : "View",
+    "name" : "DatePicker",
+    "platforms" : [
+      "iOS",
+      "macOS",
+      "watchOS"
+    ],
+    "related" : [
+      "Picker"
+    ],
+    "summary" : "Selects a date, a time, or both from calendar-style UI.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "DisclosureGroup(\"Advanced\", isExpanded: $showAdvanced) {\n    Toggle(\"Verbose logging\", isOn: $verbose)\n}",
+    "discussion" : "DisclosureGroup collapses secondary content until the user expands it, with an optional binding to control expansion programmatically. Lists build outline hierarchies from the same idea via the children parameter.",
+    "kind" : "View",
+    "name" : "DisclosureGroup",
+    "platforms" : [
+      "iOS",
+      "macOS"
+    ],
+    "related" : [
+      "GroupBox",
+      "List"
+    ],
+    "summary" : "Shows or hides content behind a disclosure chevron.",
+    "wwdcYear" : 2020
+  },
+  {
+    "code" : "VStack {\n    Text(\"Above\")\n    Divider()\n    Text(\"Below\")\n}",
+    "discussion" : "Divider renders a hairline perpendicular to its containing stack's axis — horizontal in a VStack, vertical in an HStack. Tint it with foregroundStyle or replace it with a styled Rectangle for custom weight.",
+    "kind" : "View",
+    "name" : "Divider",
+    "related" : [
+      "Spacer"
+    ],
+    "summary" : "A thin line separating content in a stack.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "List { ForEach(items) { ItemRow($0) }.onDelete(perform: remove) }\n    .toolbar { EditButton() }",
+    "discussion" : "EditButton flips the environment's editMode, switching the enclosing List into the mode where onDelete and onMove affordances appear. Its title tracks the state automatically.",
+    "kind" : "View",
+    "name" : "EditButton",
+    "platforms" : [
+      "iOS"
+    ],
+    "related" : [
+      "List",
+      "editMode"
+    ],
+    "summary" : "Toggles a list's edit mode on iOS.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "Section {\n    rows\n} header: {\n    EmptyView()\n}",
+    "discussion" : "EmptyView is the explicit 'nothing here' — the default for optional generic slots like section headers. Returning it from a branch removes that branch from layout entirely.",
+    "kind" : "View",
+    "name" : "EmptyView",
+    "related" : [
+      "Group",
+      "Spacer"
+    ],
+    "summary" : "A view that draws nothing and takes no space.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "ForEach(items) { item in\n    ItemRow(item)\n}\n.onDelete { offsets in\n    items.remove(atOffsets: offsets)\n}",
+    "discussion" : "ForEach is not a loop — it is a view that maps identifiable data to child views, which lets SwiftUI diff, animate, and reorder them by identity. Prefer Identifiable data over id: \\.self for anything that can contain duplicates.",
+    "kind" : "View",
+    "name" : "ForEach",
+    "related" : [
+      "List",
+      "LazyVGrid",
+      "Identifiable"
+    ],
+    "summary" : "Generates views from a collection of identified data.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "Form {\n    Section(\"Account\") {\n        TextField(\"Username\", text: $username)\n        Toggle(\"Public profile\", isOn: $isPublic)\n    }\n}\n.formStyle(.grouped)",
+    "discussion" : "Form gives labeled controls the platform's settings appearance — grouped rows on iOS, aligned labels on macOS with the grouped form style. Sections add headers and visual separation; most controls adapt their look automatically inside a form.",
+    "kind" : "View",
+    "name" : "Form",
+    "related" : [
+      "Section",
+      "List",
+      "GroupBox"
+    ],
+    "summary" : "Groups controls into platform-standard settings layouts.",
+    "wwdcYear" : 2019
+  },
+  {
+    "children" : [
+      {
+        "code" : "Gauge(value: speed, in: 0...240) {\n    Text(\"km\/h\")\n}",
+        "name" : "Gauge(value:in:label:)",
+        "summary" : "The minimal gauge: a value, its range, and a label."
+      },
+      {
+        "code" : "Gauge(value: cpuLoad, in: 0...1) {\n    Text(\"CPU\")\n} currentValueLabel: {\n    Text(cpuLoad, format: .percent.precision(.fractionLength(0)))\n}",
+        "discussion" : "Accessory styles print the current value inside the dial, so keep this label short — a number, not a sentence.",
+        "name" : "Gauge(value:in:label:currentValueLabel:)",
+        "summary" : "Adds a label showing the current reading."
+      },
+      {
+        "code" : "Gauge(value: 74, in: 0...100) {\n    Text(\"Battery\")\n} currentValueLabel: {\n    Text(\"74%\")\n} minimumValueLabel: {\n    Text(\"0\")\n} maximumValueLabel: {\n    Text(\"100\")\n}",
+        "name" : "Gauge(value:in:label:currentValueLabel:minimumValueLabel:maximumValueLabel:)",
+        "summary" : "Also labels both extremes of the range."
+      }
+    ],
+    "code" : "Gauge(value: 74, in: 0...100) {\n    Text(\"Battery\")\n} currentValueLabel: {\n    Text(\"74%\")\n}\n.gaugeStyle(.accessoryCircular)",
+    "demoID" : "gauge",
+    "discussion" : "Gauge grew out of watch complications and shows where a current value sits between bounds, with optional labels for the value and the extremes. Accessory styles render compact dials suited to widgets and small spaces.",
+    "kind" : "View",
+    "name" : "Gauge",
+    "platforms" : [
+      "iOS",
+      "macOS",
+      "watchOS"
+    ],
+    "related" : [
+      "ProgressView",
+      "GaugeStyle"
+    ],
+    "summary" : "Displays a value within a range, dial- or capacity-style.",
+    "wwdcYear" : 2022
+  },
+  {
+    "code" : "GeometryReader { proxy in\n    Rectangle()\n        .frame(width: proxy.size.width \/ 2)\n}",
+    "discussion" : "GeometryReader hands you a GeometryProxy with the proposed size and coordinate-space frames, enabling proportional layouts and measurements. It greedily fills its offered space, so use it sparingly — containerRelativeFrame and onGeometryChange cover many former uses.",
+    "kind" : "View",
+    "name" : "GeometryReader",
+    "related" : [
+      ".containerRelativeFrame()",
+      ".frame()"
+    ],
+    "summary" : "Gives its content the size and frame it was offered.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "GlassEffectContainer(spacing: 20) {\n    HStack(spacing: 20) {\n        Image(systemName: \"sun.max.fill\")\n            .frame(width: 60, height: 60)\n            .glassEffect()\n        Image(systemName: \"moon.fill\")\n            .frame(width: 60, height: 60)\n            .glassEffect()\n    }\n}",
+    "discussion" : "Introduced with the Liquid Glass design language at WWDC '25, GlassEffectContainer lets nearby glassEffect views merge their shapes and share sampled background content, and enables morphing transitions between them via glassEffectID.",
+    "kind" : "View",
+    "name" : "GlassEffectContainer",
+    "related" : [
+      ".glassEffect()",
+      ".buttonStyle(.glass)"
+    ],
+    "summary" : "Groups Liquid Glass shapes so they blend and morph together.",
+    "wwdcYear" : 2025
+  },
+  {
+    "code" : "Grid(alignment: .leading, horizontalSpacing: 16) {\n    GridRow {\n        Text(\"Plan\")\n        Text(\"Price\").gridColumnAlignment(.trailing)\n    }\n    Divider()\n    GridRow {\n        Text(\"Pro\")\n        Text(\"$9.99\").gridColumnAlignment(.trailing)\n    }\n}",
+    "demoID" : "grid",
+    "discussion" : "Grid loads all of its content at once and aligns cells across rows, which makes it ideal for forms, scoreboards, and comparison tables where columns must line up. GridRow defines each row; cells can span columns with gridCellColumns.",
+    "kind" : "View",
+    "name" : "Grid",
+    "related" : [
+      "LazyVGrid",
+      "Table",
+      "HStack"
+    ],
+    "summary" : "A static two-dimensional layout of aligned rows and columns.",
+    "wwdcYear" : 2022
+  },
+  {
+    "code" : "Group {\n    Text(\"One\")\n    Text(\"Two\")\n}\n.font(.headline)",
+    "discussion" : "Group exists purely to treat several views as one — apply a shared modifier, sidestep the child-count limit of a builder, or return mixed branches from a helper. Layout comes entirely from the container the group sits in.",
+    "kind" : "View",
+    "name" : "Group",
+    "related" : [
+      "ForEach",
+      "Section"
+    ],
+    "summary" : "Bundles views without adding any layout of its own.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "GroupBox(\"Notifications\") {\n    Toggle(\"Email\", isOn: $email)\n    Toggle(\"Push\", isOn: $push)\n}",
+    "discussion" : "GroupBox draws its content on a rounded platter, giving related controls a visible boundary without the semantics of a Form. A label view titles the group.",
+    "kind" : "View",
+    "name" : "GroupBox",
+    "platforms" : [
+      "iOS",
+      "macOS"
+    ],
+    "related" : [
+      "Form",
+      "DisclosureGroup"
+    ],
+    "summary" : "A visual container with a background and optional label.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "HelpLink(destination: URL(string: \"https:\/\/example.com\/help\")!)",
+    "discussion" : "HelpLink renders the standard question-mark button that macOS users expect in alerts and settings panes, opening a URL or running an action. Certain containers place it automatically in the platform-correct corner.",
+    "kind" : "View",
+    "name" : "HelpLink",
+    "platforms" : [
+      "macOS"
+    ],
+    "related" : [
+      "Link",
+      "Settings"
+    ],
+    "summary" : "The round macOS help button, wired to a destination.",
+    "wwdcYear" : 2023
+  },
+  {
+    "code" : "HStack(alignment: .firstTextBaseline, spacing: 12) {\n    Text(\"Total\")\n    Spacer()\n    Text(\"$42.00\").bold()\n}",
+    "demoID" : "stacks",
+    "discussion" : "HStack lays out its children left to right with a shared vertical alignment and spacing. It sizes to fit its content; add Spacer or frame(maxWidth:) to control distribution. For many children created lazily, use LazyHStack inside a ScrollView.",
+    "kind" : "View",
+    "name" : "HStack",
+    "related" : [
+      "VStack",
+      "ZStack",
+      "Spacer",
+      "Grid"
+    ],
+    "summary" : "Arranges children in a horizontal line.",
+    "wwdcYear" : 2019
+  },
+  {
+    "children" : [
+      {
+        "code" : "Image(\"beach\")\n    .resizable()\n    .scaledToFit()",
+        "name" : "Image(_:)",
+        "summary" : "Loads a named image from the asset catalog."
+      },
+      {
+        "code" : "Image(systemName: \"cloud.sun.rain\")\n    .symbolRenderingMode(.multicolor)\n    .font(.largeTitle)",
+        "discussion" : "Symbols behave like text: font, imageScale, and foregroundStyle all apply, and many symbols support multicolor and variable rendering.",
+        "name" : "Image(systemName:)",
+        "summary" : "Draws an SF Symbol that scales with the current font."
+      },
+      {
+        "code" : "Image(decorative: \"confetti-background\")\n    .resizable()\n    .scaledToFill()",
+        "discussion" : "Use it for purely visual flourishes so VoiceOver users are not read a meaningless image name.",
+        "name" : "Image(decorative:)",
+        "summary" : "An asset image that accessibility skips over entirely."
+      }
+    ],
+    "code" : "Image(systemName: \"swift\")\n    .imageScale(.large)\n\nImage(\"beach\")\n    .resizable()\n    .scaledToFill()\n    .frame(width: 200, height: 120)\n    .clipShape(.rect(cornerRadius: 12))",
+    "discussion" : "Image draws fixed content at its natural size unless you mark it resizable. SF Symbols come through the systemName initializer and scale with the surrounding font. Combine resizable with scaledToFit or scaledToFill inside a frame for photos.",
+    "kind" : "View",
+    "name" : "Image",
+    "related" : [
+      "AsyncImage",
+      "Label"
+    ],
+    "summary" : "Renders an asset, SF Symbol, or platform image.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "KeyframeAnimator(initialValue: Pose(), trigger: bounce) { pose in\n    Ball().offset(y: pose.y).scaleEffect(pose.squash)\n} keyframes: { _ in\n    KeyframeTrack(\\.y) {\n        CubicKeyframe(-80, duration: 0.3)\n        SpringKeyframe(0, duration: 0.5)\n    }\n}",
+    "discussion" : "KeyframeAnimator drives a value type through per-property tracks — linear, cubic, spring keyframes with independent timing — for choreography that phase-based animation can't express. The content closure renders each interpolated frame.",
+    "kind" : "View",
+    "name" : "KeyframeAnimator",
+    "related" : [
+      "PhaseAnimator",
+      "CustomAnimation"
+    ],
+    "summary" : "Animates multiple properties along keyframe tracks.",
+    "wwdcYear" : 2023
+  },
+  {
+    "children" : [
+      {
+        "code" : "Label(\"Favorites\", systemImage: \"star.fill\")",
+        "name" : "Label(_:systemImage:)",
+        "summary" : "Titles the label and pulls its icon from SF Symbols."
+      },
+      {
+        "code" : "Label(\"Teams\", image: \"team-badge\")",
+        "name" : "Label(_:image:)",
+        "summary" : "Uses an image from your asset catalog as the icon."
+      },
+      {
+        "code" : "Label {\n    Text(\"Storage\")\n        .font(.headline)\n} icon: {\n    Image(systemName: \"externaldrive\")\n        .foregroundStyle(.tint)\n}",
+        "discussion" : "The closure form is the escape hatch when either half needs styling of its own — a multi-line title, a tinted or resized icon.",
+        "name" : "Label(title:icon:)",
+        "summary" : "Builds title and icon from arbitrary views."
+      }
+    ],
+    "code" : "Label(\"Favorites\", systemImage: \"star.fill\")\n    .labelStyle(.titleAndIcon)",
+    "demoID" : "label",
+    "discussion" : "Label keeps text and image aligned the way the platform expects, and adapts when shown in toolbars, menus, or lists. Use labelStyle to show only the icon or only the title without changing the call site.",
+    "kind" : "View",
+    "name" : "Label",
+    "related" : [
+      "Text",
+      "Image",
+      "LabelStyle"
+    ],
+    "summary" : "Pairs a title with an icon in a standard layout.",
+    "wwdcYear" : 2020
+  },
+  {
+    "children" : [
+      {
+        "code" : "LabeledContent(\"Build\", value: \"1024\")",
+        "name" : "LabeledContent(_:value:)",
+        "summary" : "Read-only title and string value — the settings-row workhorse."
+      },
+      {
+        "code" : "LabeledContent(\"Distance\", value: meters, format: .number.precision(.fractionLength(1)))\nLabeledContent(\"Updated\", value: lastSync, format: .dateTime.hour().minute())",
+        "name" : "LabeledContent(_:value:format:)",
+        "summary" : "Formats a non-string value through a FormatStyle."
+      },
+      {
+        "code" : "LabeledContent(\"Status\") {\n    StatusBadge(state: server.state)\n}",
+        "name" : "LabeledContent(_:content:)",
+        "summary" : "Puts any view on the value side of the row."
+      },
+      {
+        "code" : "LabeledContent {\n    Text(user.handle)\n} label: {\n    Text(\"Handle\")\n    Text(\"Visible on your public profile\")\n}",
+        "discussion" : "Extra Text lines in the label render as smaller secondary text beneath the title inside a Form, matching the system settings look.",
+        "name" : "LabeledContent(content:label:)",
+        "summary" : "Both sides as builders, for multi-line labels."
+      }
+    ],
+    "code" : "Form {\n    LabeledContent(\"Version\", value: \"2.4.1\")\n    LabeledContent(\"Storage\") {\n        Text(\"82%\") + Text(\" used\").foregroundStyle(.secondary)\n    }\n}",
+    "discussion" : "LabeledContent lays out a title against any value view the way Form expects — trailing gray text on iOS, aligned columns on macOS — replacing ad-hoc HStack+Spacer rows. The string-value initializer covers the common read-only case.",
+    "kind" : "View",
+    "name" : "LabeledContent",
+    "related" : [
+      "Form",
+      "Section"
+    ],
+    "summary" : "A label-and-value pair with standard form alignment.",
+    "wwdcYear" : 2022
+  },
+  {
+    "code" : "ScrollView(.horizontal) {\n    LazyHGrid(rows: [GridItem(.fixed(44)), GridItem(.fixed(44))]) {\n        ForEach(tags) { TagChip($0) }\n    }\n}",
+    "discussion" : "LazyHGrid fills fixed rows described by GridItem values and grows sideways as you scroll — the shape of tag clouds and horizontally scrolling galleries.",
+    "kind" : "View",
+    "name" : "LazyHGrid",
+    "related" : [
+      "LazyVGrid",
+      "Grid"
+    ],
+    "summary" : "A horizontally growing grid with on-demand items.",
+    "wwdcYear" : 2020
+  },
+  {
+    "code" : "ScrollView(.horizontal) {\n    LazyHStack(spacing: 12) {\n        ForEach(albums) { AlbumCard($0) }\n    }\n}",
+    "discussion" : "The horizontal twin of LazyVStack, built for carousels and shelves inside a horizontal ScrollView. Pair with scrollTargetBehavior for paging or view-aligned snapping.",
+    "kind" : "View",
+    "name" : "LazyHStack",
+    "related" : [
+      "HStack",
+      "LazyVStack",
+      ".scrollTargetBehavior()"
+    ],
+    "summary" : "A horizontal stack that creates children on demand.",
+    "wwdcYear" : 2020
+  },
+  {
+    "code" : "let columns = [GridItem(.adaptive(minimum: 90))]\n\nScrollView {\n    LazyVGrid(columns: columns, spacing: 8) {\n        ForEach(photos) { PhotoCell($0) }\n    }\n}",
+    "demoID" : "lazyGrid",
+    "discussion" : "LazyVGrid arranges children into columns described by GridItem values — fixed, flexible, or adaptive — and instantiates rows only as they scroll into view. Use adaptive columns for photo-grid layouts that reflow with the window.",
+    "kind" : "View",
+    "name" : "LazyVGrid",
+    "related" : [
+      "Grid",
+      "ScrollView",
+      "ForEach"
+    ],
+    "summary" : "A vertically growing grid that creates items on demand.",
+    "wwdcYear" : 2020
+  },
+  {
+    "code" : "ScrollView {\n    LazyVStack(alignment: .leading, spacing: 8) {\n        ForEach(messages) { MessageRow($0) }\n    }\n}",
+    "discussion" : "Inside a ScrollView, LazyVStack instantiates rows as they approach the viewport instead of all at once — the difference between smooth and unusable for long feeds. Pinned section headers are supported via pinnedViews.",
+    "kind" : "View",
+    "name" : "LazyVStack",
+    "related" : [
+      "VStack",
+      "LazyHStack",
+      "ScrollView"
+    ],
+    "summary" : "A vertical stack that creates children only when visible.",
+    "wwdcYear" : 2020
+  },
+  {
+    "code" : "Link(\"Swift.org\", destination: URL(string: \"https:\/\/swift.org\")!)",
+    "discussion" : "Link looks like a button but its action is fixed: open the destination URL, typically in the default browser. For custom handling, set the openURL environment value instead of intercepting the tap.",
+    "kind" : "View",
+    "name" : "Link",
+    "related" : [
+      "Button",
+      "ShareLink",
+      "openURL"
+    ],
+    "summary" : "Opens a URL in the appropriate app when activated.",
+    "wwdcYear" : 2020
+  },
+  {
+    "children" : [
+      {
+        "code" : "List(oceans) { ocean in\n    Text(ocean.name)\n}",
+        "name" : "List(_:rowContent:)",
+        "summary" : "Builds one row per element of an Identifiable collection."
+      },
+      {
+        "code" : "@State private var selection = Set<Ocean.ID>()\n\nList(selection: $selection) {\n    ForEach(oceans) { Text($0.name) }\n}",
+        "discussion" : "Bind a single optional id for one selection or a Set for multi-select; on macOS multi-select works immediately, on iOS it appears in edit mode.",
+        "name" : "List(selection:content:)",
+        "summary" : "Tracks the selected row (or rows) through a binding."
+      },
+      {
+        "code" : "struct FileItem: Identifiable {\n    let id = UUID()\n    let name: String\n    var children: [FileItem]?\n}\n\nList(fileTree, children: \\.children) { item in\n    Label(item.name, systemImage: item.children == nil ? \"doc\" : \"folder\")\n}",
+        "discussion" : "The children key path points at an optional array of the same type — nil marks a leaf, an empty array an expandable-but-empty node.",
+        "name" : "List(_:children:rowContent:)",
+        "summary" : "Renders a tree as an expandable outline."
+      }
+    ],
+    "code" : "struct Ocean: Identifiable {\n    let name: String\n    var id: String { name }\n}\n\nList(oceans, selection: $selected) { ocean in\n    Text(ocean.name)\n}\n.listStyle(.sidebar)",
+    "discussion" : "List provides selection, swipe actions, separators, and editing for free, and reuses rows efficiently for large data sets. Rows come from static content, a ForEach over data, or hierarchical children for outlines. listStyle adapts it from inset-grouped tables to macOS sidebars.",
+    "kind" : "View",
+    "name" : "List",
+    "related" : [
+      "ForEach",
+      "Table",
+      "ListStyle",
+      "ScrollView"
+    ],
+    "summary" : "A scrolling container of rows with platform styling.",
+    "wwdcYear" : 2019
+  },
+  {
+    "children" : [
+      {
+        "code" : "Map(initialPosition: .region(campus)) {\n    Marker(\"Library\", coordinate: library)\n}",
+        "discussion" : "Fire-and-forget: the app sets the opening frame but never hears about later panning or zooming. Use the binding form when you need to observe or steer the camera.",
+        "name" : "Map(initialPosition:content:)",
+        "summary" : "Starts the camera somewhere, then lets the user roam."
+      },
+      {
+        "code" : "@State private var position: MapCameraPosition = .automatic\n\nMap(position: $position) {\n    UserAnnotation()\n}",
+        "discussion" : "The binding updates as the user moves the map, and assigning a new MapCameraPosition — a region, a rect, or .userLocation — animates the camera there.",
+        "name" : "Map(position:content:)",
+        "summary" : "Two-way binding to the camera position."
+      }
+    ],
+    "code" : "import MapKit\n\nMap(initialPosition: .region(region)) {\n    Marker(\"HQ\", coordinate: hq)\n}\n.mapStyle(.standard(elevation: .realistic))",
+    "discussion" : "Map shows a region or camera position and takes markers, annotations, and overlays as builder content. Since 2023 the camera is a bindable MapCameraPosition, and map controls like the compass are separate composable views. Requires import MapKit.",
+    "framework" : "MapKit",
+    "kind" : "View",
+    "name" : "Map",
+    "related" : [
+      "Canvas"
+    ],
+    "summary" : "An interactive MapKit map with SwiftUI content.",
+    "wwdcYear" : 2020
+  },
+  {
+    "children" : [
+      {
+        "code" : "Menu(\"Options\") {\n    Button(\"Rename\") { rename() }\n    Button(\"Duplicate\") { duplicate() }\n    Button(\"Delete\", role: .destructive) { delete() }\n}",
+        "name" : "Menu(_:content:)",
+        "summary" : "A titled menu whose items come from the content builder."
+      },
+      {
+        "code" : "Menu {\n    Picker(\"Sort by\", selection: $sortKey) {\n        ForEach(SortKey.allCases) { Text($0.title) }\n    }\n} label: {\n    Image(systemName: \"ellipsis.circle\")\n}",
+        "name" : "Menu(content:label:)",
+        "summary" : "Uses a custom view as the menu's visible control."
+      },
+      {
+        "code" : "Menu(\"Bookmark\") {\n    Button(\"Bookmark All Tabs\") { bookmarkAll() }\n} primaryAction: {\n    bookmarkCurrent()\n}",
+        "discussion" : "This is the split-button pattern — the common case is one tap away while the variants stay reachable.",
+        "name" : "Menu(_:content:primaryAction:)",
+        "summary" : "Runs a default action on tap; the menu opens on long press."
+      }
+    ],
+    "code" : "Menu(\"Sort\") {\n    Button(\"By name\") { sort(.name) }\n    Button(\"By date\") { sort(.date) }\n    Divider()\n    Button(\"Reverse\", systemImage: \"arrow.up.arrow.down\") {\n        reverse()\n    }\n}",
+    "discussion" : "Menu groups related actions behind one control, supporting nested submenus, dividers, and a primaryAction that runs on a plain tap while the menu appears on press-and-hold.",
+    "kind" : "View",
+    "name" : "Menu",
+    "platforms" : [
+      "iOS",
+      "macOS",
+      "tvOS"
+    ],
+    "related" : [
+      "Button",
+      ".contextMenu()"
+    ],
+    "summary" : "A button that reveals a list of actions when pressed.",
+    "wwdcYear" : 2020
+  },
+  {
+    "code" : "\/\/ Legacy:\nMenuButton(\"Actions\") {\n    Button(\"Duplicate\") { duplicate() }\n}\n\n\/\/ Modern replacement:\nMenu(\"Actions\") {\n    Button(\"Duplicate\") { duplicate() }\n}",
+    "deprecated" : true,
+    "discussion" : "MenuButton shipped with the first macOS SwiftUI release and was deprecated once Menu unified pull-down menus across platforms. Kept here for reading older code.",
+    "kind" : "View",
+    "name" : "MenuButton",
+    "platforms" : [
+      "macOS"
+    ],
+    "related" : [
+      "Menu",
+      "Button"
+    ],
+    "summary" : "The original macOS pull-down button, replaced by Menu.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "\/\/ These are the same type:\nlet a = Text(\"Hi\").padding()\nlet b = ModifiedContent(\n    content: Text(\"Hi\"),\n    modifier: _PaddingLayout(insets: nil)\n)",
+    "discussion" : "Every modifier call really returns ModifiedContent<Content, Modifier> — the nested generic you see in compiler errors and type signatures. You rarely write it directly, but recognizing it demystifies 'some View' diagnostics.",
+    "kind" : "View",
+    "name" : "ModifiedContent",
+    "related" : [
+      "ViewModifier",
+      "View"
+    ],
+    "summary" : "The type produced by applying a modifier to a view.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "@State private var dates: Set<DateComponents> = []\n\nMultiDatePicker(\"Days off\", selection: $dates)",
+    "discussion" : "MultiDatePicker binds a Set<DateComponents> to a calendar grid where each tap toggles a date — built for booking and scheduling flows that a single-date picker can't express.",
+    "kind" : "View",
+    "name" : "MultiDatePicker",
+    "platforms" : [
+      "iOS"
+    ],
+    "related" : [
+      "DatePicker"
+    ],
+    "summary" : "Selects multiple, non-contiguous calendar dates.",
+    "wwdcYear" : 2022
+  },
+  {
+    "children" : [
+      {
+        "code" : "NavigationLink(value: recipe) {\n    Label(recipe.title, systemImage: \"fork.knife\")\n}\n\n\/\/ resolved elsewhere:\n.navigationDestination(for: Recipe.self) { RecipeDetail($0) }",
+        "discussion" : "Because the link only carries data, the same row works in any stack whose navigationDestination understands the value type — and deep links can push the identical value programmatically.",
+        "name" : "NavigationLink(value:label:)",
+        "summary" : "Pushes a Hashable value; navigationDestination maps it to a view."
+      },
+      {
+        "code" : "NavigationLink(\"Statistics\", value: Route.stats)",
+        "name" : "NavigationLink(_:value:)",
+        "summary" : "Title-string shorthand for a value-presenting link."
+      },
+      {
+        "code" : "NavigationLink {\n    AboutView()\n} label: {\n    Label(\"About\", systemImage: \"info.circle\")\n}",
+        "discussion" : "Fine for simple static pushes, but the destination is baked into the link, so state restoration and programmatic navigation can't reach it the way value-based links allow.",
+        "name" : "NavigationLink(destination:label:)",
+        "summary" : "Builds the destination view directly — no value type involved."
+      }
+    ],
+    "code" : "NavigationLink(value: park) {\n    Label(park.name, systemImage: \"tree\")\n}",
+    "discussion" : "In modern code NavigationLink carries a value; the enclosing NavigationStack's navigationDestination decides what view that value becomes. The older destination-closure form still works for simple static pushes.",
+    "kind" : "View",
+    "name" : "NavigationLink",
+    "related" : [
+      "NavigationStack",
+      "NavigationSplitView"
+    ],
+    "summary" : "A control that pushes a destination onto the navigation stack.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "NavigationSplitView {\n    List(folders, selection: $folder) { Text($0.name) }\n} detail: {\n    if let folder {\n        FolderDetail(folder)\n    } else {\n        Text(\"Select a folder\")\n    }\n}",
+    "discussion" : "NavigationSplitView shows sidebar, optional content, and detail columns, collapsing to a stack on compact widths automatically. Drive it with list selection bindings; columnVisibility controls which columns are on screen.",
+    "kind" : "View",
+    "name" : "NavigationSplitView",
+    "related" : [
+      "NavigationStack",
+      "List"
+    ],
+    "summary" : "Two- or three-column navigation for wide layouts.",
+    "wwdcYear" : 2022
+  },
+  {
+    "code" : "NavigationStack(path: $path) {\n    List(parks) { park in\n        NavigationLink(park.name, value: park)\n    }\n    .navigationDestination(for: Park.self) { park in\n        ParkDetail(park)\n    }\n}",
+    "discussion" : "NavigationStack replaces NavigationView with data-driven navigation: NavigationLink pushes values, and navigationDestination maps each value type to a destination view. Binding the path enables deep linking and programmatic pops.",
+    "kind" : "View",
+    "name" : "NavigationStack",
+    "related" : [
+      "NavigationSplitView",
+      "TabView"
+    ],
+    "summary" : "Push-and-pop navigation driven by a typed path.",
+    "wwdcYear" : 2022
+  },
+  {
+    "code" : "\/\/ Legacy:\nNavigationView {\n    List(items) { ItemRow($0) }\n}\n\n\/\/ Modern replacement:\nNavigationStack {\n    List(items) { ItemRow($0) }\n}",
+    "deprecated" : true,
+    "discussion" : "NavigationView wrapped push navigation and split layouts in one type with stringly-typed links. It is deprecated: NavigationStack covers push-and-pop and NavigationSplitView covers columns, both driven by data instead of view identity.",
+    "kind" : "View",
+    "name" : "NavigationView",
+    "related" : [
+      "NavigationStack",
+      "NavigationSplitView"
+    ],
+    "summary" : "The original navigation container, replaced in 2022.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "import WatchKit\n\nTabView {\n    LibraryView()\n    NowPlayingView()\n}",
+    "discussion" : "NowPlayingView drops the standard media transport UI — artwork, scrubber, volume — into a watch app, staying in sync with the active audio session. Requires import WatchKit.",
+    "framework" : "WatchKit",
+    "kind" : "View",
+    "name" : "NowPlayingView",
+    "platforms" : [
+      "watchOS"
+    ],
+    "related" : [
+      "VideoPlayer"
+    ],
+    "summary" : "The system Now Playing screen for watchOS apps.",
+    "wwdcYear" : 2020
+  },
+  {
+    "children" : [
+      {
+        "code" : "OutlineGroup(fileTree, children: \\.children) { node in\n    Label(node.name, systemImage: node.icon)\n}",
+        "discussion" : "The key path points at an optional array of the same element type; nil marks a leaf, an empty array an expandable-but-empty branch.",
+        "name" : "OutlineGroup(_:children:content:)",
+        "summary" : "Walks Identifiable data through a recursive children key path."
+      },
+      {
+        "code" : "OutlineGroup(chapters, id: \\.title, children: \\.subsections) { chapter in\n    Text(chapter.title)\n}",
+        "name" : "OutlineGroup(_:id:children:content:)",
+        "summary" : "The same traversal for data that isn't Identifiable."
+      }
+    ],
+    "code" : "OutlineGroup(fileTree, children: \\.children) { node in\n    Label(node.name, systemImage: node.icon)\n}",
+    "discussion" : "OutlineGroup walks recursive data through a children key path and produces nested DisclosureGroups automatically. Inside a List you usually get the same effect from the List(_:children:) initializer.",
+    "kind" : "View",
+    "name" : "OutlineGroup",
+    "platforms" : [
+      "iOS",
+      "macOS"
+    ],
+    "related" : [
+      "DisclosureGroup",
+      "List"
+    ],
+    "summary" : "Renders a tree of data as expandable disclosure rows.",
+    "wwdcYear" : 2020
+  },
+  {
+    "children" : [
+      {
+        "code" : "PasteButton(payloadType: String.self) { strings in\n    notes.append(contentsOf: strings)\n}",
+        "discussion" : "Any Transferable type works — String, Image, URL, or your own — and the closure receives every matching item the pasteboard held.",
+        "name" : "PasteButton(payloadType:onPaste:)",
+        "summary" : "The Transferable form: name a type, receive decoded values."
+      },
+      {
+        "code" : "PasteButton(supportedContentTypes: [.fileURL]) { providers in\n    importFiles(from: providers)\n}",
+        "discussion" : "Reach for this when the content type matters more than a concrete Swift type — the providers arrive unloaded, so fetch their data asynchronously.",
+        "name" : "PasteButton(supportedContentTypes:payloadAction:)",
+        "summary" : "The UTType form: hands you raw NSItemProviders to load."
+      }
+    ],
+    "code" : "PasteButton(payloadType: String.self) { strings in\n    notes.append(contentsOf: strings)\n}",
+    "discussion" : "PasteButton reads Transferable types from the pasteboard without prompting the paste-permission alert, because the user's tap is the consent. It enables itself only when compatible content is present. macOS had an earlier form since 10.15; the Transferable version arrived in 2022.",
+    "kind" : "View",
+    "name" : "PasteButton",
+    "platforms" : [
+      "iOS",
+      "macOS"
+    ],
+    "related" : [
+      "Transferable",
+      "ShareLink"
+    ],
+    "summary" : "A system button that pastes matching pasteboard content.",
+    "wwdcYear" : 2022
+  },
+  {
+    "code" : "PhaseAnimator([1.0, 1.3, 0.9, 1.0], trigger: taps) { scale in\n    Image(systemName: \"heart.fill\")\n        .scaleEffect(scale)\n}",
+    "discussion" : "PhaseAnimator steps through the phases you list — continuously, or once per trigger change — re-rendering its content for each phase with an animation between steps. It turns multi-step effects like a shake-and-settle into declarative code.",
+    "kind" : "View",
+    "name" : "PhaseAnimator",
+    "related" : [
+      "KeyframeAnimator",
+      ".animation()"
+    ],
+    "summary" : "Cycles content through a sequence of animation phases.",
+    "wwdcYear" : 2023
+  },
+  {
+    "children" : [
+      {
+        "code" : "@State private var picked: PhotosPickerItem?\n\nPhotosPicker(selection: $picked, matching: .images) {\n    Label(\"Choose Photo\", systemImage: \"photo\")\n}",
+        "discussion" : "The matching filter narrows what the sheet offers — .images, .videos, .screenshots, or combinations built with .any(of:). Load the picked item's data afterwards with loadTransferable.",
+        "name" : "PhotosPicker(selection:matching:label:)",
+        "summary" : "Single selection into an optional PhotosPickerItem binding."
+      },
+      {
+        "code" : "@State private var items: [PhotosPickerItem] = []\n\nPhotosPicker(selection: $items, maxSelectionCount: 4, matching: .images) {\n    Label(\"Add up to 4\", systemImage: \"photo.stack\")\n}",
+        "discussion" : "Pass nil for maxSelectionCount to allow as many items as the library holds; a number caps the sheet at that count.",
+        "name" : "PhotosPicker(selection:maxSelectionCount:matching:label:)",
+        "summary" : "Multi-selection bound to an array, with an optional cap."
+      }
+    ],
+    "code" : "import PhotosUI\n\nPhotosPicker(selection: $picked, matching: .images) {\n    Label(\"Choose Photo\", systemImage: \"photo\")\n}",
+    "discussion" : "PhotosPicker binds selected PhotosPickerItems and runs out-of-process, so the app never sees the library — only what the user picks. Load the actual image data asynchronously from each item. Requires import PhotosUI.",
+    "framework" : "PhotosUI",
+    "kind" : "View",
+    "name" : "PhotosPicker",
+    "platforms" : [
+      "iOS",
+      "macOS",
+      "watchOS"
+    ],
+    "related" : [
+      "ShareLink",
+      "Transferable"
+    ],
+    "summary" : "Presents the system photo library picker.",
+    "wwdcYear" : 2022
+  },
+  {
+    "children" : [
+      {
+        "code" : "Picker(\"Priority\", selection: $priority) {\n    Text(\"Low\").tag(Priority.low)\n    Text(\"Medium\").tag(Priority.medium)\n    Text(\"High\").tag(Priority.high)\n}",
+        "discussion" : "Each option needs a tag matching the selection's type — ForEach over Identifiable data tags rows automatically.",
+        "name" : "Picker(_:selection:content:)",
+        "summary" : "A titled picker whose options come from the content builder."
+      },
+      {
+        "code" : "Picker(\"Layout\", systemImage: \"square.grid.2x2\", selection: $layout) {\n    ForEach(Layout.allCases) { Text($0.title) }\n}",
+        "name" : "Picker(_:systemImage:selection:content:)",
+        "summary" : "Adds an SF Symbol to the picker's label."
+      },
+      {
+        "code" : "Picker(selection: $theme) {\n    ForEach(Theme.allCases) { Text($0.name) }\n} label: {\n    Label(\"Theme\", systemImage: \"paintpalette\")\n}",
+        "name" : "Picker(selection:content:label:)",
+        "summary" : "Supplies a fully custom view as the label."
+      }
+    ],
+    "code" : "@State private var flavor = \"Vanilla\"\n\nPicker(\"Flavor\", selection: $flavor) {\n    ForEach([\"Vanilla\", \"Chocolate\", \"Mango\"], id: \\.self) {\n        Text($0)\n    }\n}\n.pickerStyle(.segmented)",
+    "demoID" : "picker",
+    "discussion" : "Picker binds a selection to tagged content. The same declaration renders as a menu, segmented control, wheel, or radio group depending on pickerStyle and platform, so choose the style that fits the context rather than building custom selection UI.",
+    "kind" : "View",
+    "name" : "Picker",
+    "related" : [
+      "PickerStyle",
+      "Toggle",
+      "Menu"
+    ],
+    "summary" : "Chooses one option from a set of mutually exclusive values.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "import StoreKit\n\nProductView(id: \"com.example.pro.monthly\")\n    .productViewStyle(.compact)",
+    "discussion" : "ProductView loads an in-app purchase by identifier and renders its name, price, and purchase button with StoreKit handling the transaction sheet. Styles scale from compact rows to large promotional layouts. Requires import StoreKit.",
+    "framework" : "StoreKit",
+    "kind" : "View",
+    "name" : "ProductView",
+    "related" : [
+      "Link"
+    ],
+    "summary" : "Displays an App Store product with a buy button.",
+    "wwdcYear" : 2023
+  },
+  {
+    "children" : [
+      {
+        "code" : "ProgressView()\n    .controlSize(.large)",
+        "name" : "ProgressView()",
+        "summary" : "An indeterminate spinner for work of unknown length."
+      },
+      {
+        "code" : "ProgressView(value: bytesReceived, total: bytesExpected)\n    .progressViewStyle(.linear)",
+        "discussion" : "Passing nil for value drops back to the indeterminate look, which makes one declaration serve both phases of a download.",
+        "name" : "ProgressView(value:total:)",
+        "summary" : "A determinate bar showing value as a fraction of total."
+      },
+      {
+        "code" : "ProgressView(\n    timerInterval: Date.now...Date.now.addingTimeInterval(60),\n    countsDown: true\n)",
+        "name" : "ProgressView(timerInterval:countsDown:)",
+        "summary" : "Tracks a date interval automatically, counting down by default."
+      }
+    ],
+    "code" : "ProgressView(\"Uploading…\", value: 0.7, total: 1.0)\n    .progressViewStyle(.linear)\n\nProgressView()   \/\/ indeterminate spinner",
+    "demoID" : "progress",
+    "discussion" : "Without arguments ProgressView spins forever — the right choice when duration is unknown. Give it a value and total for a progress bar, or a timerInterval for a self-updating countdown. progressViewStyle switches between linear and circular renderings.",
+    "kind" : "View",
+    "name" : "ProgressView",
+    "related" : [
+      "Gauge",
+      "ProgressViewStyle"
+    ],
+    "summary" : "Shows determinate progress or an indeterminate spinner.",
+    "wwdcYear" : 2020
+  },
+  {
+    "code" : "TextField(\"Name\", text: $name)\n    .focused($isRenaming)\n    .contextMenu { RenameButton() }\n    .renameAction { isRenaming = true }",
+    "discussion" : "RenameButton fires whatever rename behavior the surrounding context registered via the renameAction modifier — commonly focusing the editable navigation title. It stays disabled until an action exists.",
+    "kind" : "View",
+    "name" : "RenameButton",
+    "related" : [
+      ".navigationTitle()",
+      ".contextMenu()"
+    ],
+    "summary" : "Triggers the standard rename action of its context.",
+    "wwdcYear" : 2022
+  },
+  {
+    "children" : [
+      {
+        "code" : "SceneView(\n    scene: spaceScene,\n    pointOfView: chaseCamera,\n    options: [.rendersContinuously]\n)",
+        "discussion" : "pointOfView names the SCNNode to render from; leave it nil and the scene's own camera (or a default one) is used. Later parameters with defaults add a frame-rate target, antialiasing mode, and render delegate.",
+        "name" : "SceneView(scene:pointOfView:options:)",
+        "summary" : "Scene plus an optional camera node and render options."
+      },
+      {
+        "code" : "SceneView(\n    scene: modelScene,\n    options: [.allowsCameraControl, .autoenablesDefaultLighting]\n)",
+        "discussion" : "allowsCameraControl gives users orbit\/zoom gestures, autoenablesDefaultLighting adds an omni light when the scene has none, and rendersContinuously redraws every frame instead of only when the scene changes.",
+        "name" : "SceneView.Options",
+        "summary" : "Flags for camera control, lighting, jitter, and render cadence."
+      }
+    ],
+    "code" : "import SceneKit\n\nSceneView(\n    scene: SCNScene(named: \"ship.scn\"),\n    options: [.allowsCameraControl, .autoenablesDefaultLighting]\n)",
+    "discussion" : "SceneView displays an SCNScene with optional camera controls, letting users orbit and zoom 3D content without any UIKit\/AppKit bridging. Rendering delegates and technique options pass through. Requires import SceneKit.",
+    "framework" : "SceneKit",
+    "kind" : "View",
+    "name" : "SceneView",
+    "platforms" : [
+      "iOS",
+      "macOS",
+      "tvOS"
+    ],
+    "related" : [
+      "SpriteView"
+    ],
+    "summary" : "Renders a 3D SceneKit scene.",
+    "wwdcYear" : 2020
+  },
+  {
+    "code" : "ScrollView(.horizontal) {\n    LazyHStack(spacing: 12) {\n        ForEach(photos) { photo in\n            PhotoCard(photo)\n        }\n    }\n}\n.scrollIndicators(.hidden)",
+    "discussion" : "Unlike List, ScrollView imposes no row structure — it simply makes its content scrollable. Combine it with lazy stacks for long content, scrollTargetBehavior for paging, and ScrollViewReader or scrollPosition to control the offset programmatically.",
+    "kind" : "View",
+    "name" : "ScrollView",
+    "related" : [
+      "List",
+      "LazyVGrid",
+      "ScrollPosition"
+    ],
+    "summary" : "Scrolls arbitrary content along one or both axes.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "ScrollViewReader { proxy in\n    ScrollView {\n        LazyVStack { ForEach(messages) { MessageRow($0) } }\n    }\n    .onChange(of: messages.count) {\n        proxy.scrollTo(messages.last?.id, anchor: .bottom)\n    }\n}",
+    "discussion" : "ScrollViewReader's proxy jumps the enclosing ScrollView to any child tagged with id, optionally anchored and animated. Newer code can often use the scrollPosition modifier instead, which also reads the position back.",
+    "kind" : "View",
+    "name" : "ScrollViewReader",
+    "related" : [
+      "ScrollView",
+      ".scrollPosition()"
+    ],
+    "summary" : "Scrolls programmatically to a child with a given id.",
+    "wwdcYear" : 2020
+  },
+  {
+    "code" : "List {\n    Section {\n        Text(\"Row\")\n    } header: {\n        Text(\"Today\")\n    } footer: {\n        Text(\"Updated just now.\")\n    }\n}",
+    "discussion" : "Section structures the content of lists, forms, and pickers. Headers and footers take arbitrary views, and sections can be collapsible in sidebar-styled lists.",
+    "kind" : "View",
+    "name" : "Section",
+    "related" : [
+      "List",
+      "Form"
+    ],
+    "summary" : "A logical grouping with optional header and footer.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "@State private var password = \"\"\n\nSecureField(\"Password\", text: $password)",
+    "discussion" : "SecureField behaves like TextField but obscures its content, making it the right control for passwords and other secrets. The bound string still contains the real value.",
+    "kind" : "View",
+    "name" : "SecureField",
+    "related" : [
+      "TextField"
+    ],
+    "summary" : "A text field that masks the characters the user types.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "SettingsLink {\n    Label(\"Preferences…\", systemImage: \"gearshape\")\n}",
+    "discussion" : "SettingsLink replaces the old showSettingsWindow selector hack on macOS: a plain button, custom label allowed, that opens the Settings scene directly.",
+    "kind" : "View",
+    "name" : "SettingsLink",
+    "platforms" : [
+      "macOS"
+    ],
+    "related" : [
+      "Settings",
+      "openWindow"
+    ],
+    "summary" : "A button that opens the app's Settings scene.",
+    "wwdcYear" : 2023
+  },
+  {
+    "code" : "ShareLink(\n    item: URL(string: \"https:\/\/example.com\/article\")!,\n    subject: Text(\"Worth a read\"),\n    message: Text(\"Found this today.\")\n)",
+    "discussion" : "ShareLink hands any Transferable value to the platform share experience — no view controller bridging required. Provide a subject and message to prefill fields where the chosen activity supports them.",
+    "kind" : "View",
+    "name" : "ShareLink",
+    "platforms" : [
+      "iOS",
+      "macOS",
+      "watchOS"
+    ],
+    "related" : [
+      "Link",
+      "Transferable"
+    ],
+    "summary" : "Presents the system share sheet for an item.",
+    "wwdcYear" : 2022
+  },
+  {
+    "children" : [
+      {
+        "code" : "SignInWithAppleButton(.signUp) { request in\n    request.requestedScopes = [.fullName, .email]\n} onCompletion: { result in\n    switch result {\n    case .success(let auth): store(auth)\n    case .failure(let error): report(error)\n    }\n}",
+        "discussion" : "onRequest is where you ask for scopes and set a nonce for backend verification; onCompletion delivers a Result wrapping the ASAuthorization or the error.",
+        "name" : "SignInWithAppleButton(_:onRequest:onCompletion:)",
+        "summary" : "Label choice, request configuration, and result handling in one call."
+      },
+      {
+        "code" : "SignInWithAppleButton(.continue) { request in\n    request.requestedScopes = [.email]\n} onCompletion: { result in\n    handle(result)\n}",
+        "discussion" : "Pick the phrase that matches the surrounding flow — the system supplies the localized wording, so the button never needs a custom string.",
+        "name" : "SignInWithAppleButton.Label",
+        "summary" : "The three sanctioned titles: signIn, signUp, and continue."
+      }
+    ],
+    "code" : "import AuthenticationServices\n\nSignInWithAppleButton(.signIn) { request in\n    request.requestedScopes = [.email]\n} onCompletion: { result in\n    handle(result)\n}\n.signInWithAppleButtonStyle(.black)",
+    "discussion" : "SignInWithAppleButton starts the system authorization sheet and reports the credential result to your closures, with label variants (signIn, signUp, continue) and black\/white styles. Requires import AuthenticationServices.",
+    "framework" : "AuthenticationServices",
+    "kind" : "View",
+    "name" : "SignInWithAppleButton",
+    "related" : [
+      "Button"
+    ],
+    "summary" : "The standard Sign in with Apple button and flow.",
+    "wwdcYear" : 2020
+  },
+  {
+    "children" : [
+      {
+        "code" : "@State private var brightness = 0.8\n\nSlider(value: $brightness, in: 0...1)",
+        "name" : "Slider(value:in:)",
+        "summary" : "A continuous slider over a closed range."
+      },
+      {
+        "code" : "@State private var rating = 3.0\n\nSlider(value: $rating, in: 0...5, step: 0.5)",
+        "name" : "Slider(value:in:step:)",
+        "summary" : "Snaps the thumb to discrete increments."
+      },
+      {
+        "code" : "Slider(value: $exposure, in: -2...2) { editing in\n    isScrubbing = editing\n}",
+        "discussion" : "Useful for deferring expensive work — apply a filter preview while editing is true, commit the real render when it flips back to false.",
+        "name" : "Slider(value:in:onEditingChanged:)",
+        "summary" : "Reports when the drag gesture starts and ends."
+      }
+    ],
+    "code" : "@State private var volume = 0.5\n\nSlider(value: $volume, in: 0...1, step: 0.05) {\n    Text(\"Volume\")\n} minimumValueLabel: {\n    Image(systemName: \"speaker\")\n} maximumValueLabel: {\n    Image(systemName: \"speaker.wave.3\")\n}",
+    "demoID" : "slider",
+    "discussion" : "Slider binds to a numeric value within a range you provide, with an optional step. Labels at the ends describe the extremes; the onEditingChanged closure reports when the drag begins and ends.",
+    "kind" : "View",
+    "name" : "Slider",
+    "platforms" : [
+      "iOS",
+      "macOS",
+      "watchOS"
+    ],
+    "related" : [
+      "Stepper",
+      "ProgressView",
+      "Gauge"
+    ],
+    "summary" : "Selects a value from a continuous range by dragging.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "HStack {\n    Image(systemName: \"wifi\")\n    Spacer()\n    Text(\"Connected\")\n}",
+    "discussion" : "Inside a stack, Spacer greedily claims leftover space, which is how you pin content to edges or distribute it. The minLength parameter keeps a floor under how small it may shrink.",
+    "kind" : "View",
+    "name" : "Spacer",
+    "related" : [
+      "HStack",
+      "Divider",
+      ".frame()"
+    ],
+    "summary" : "Expands along the stack axis to push siblings apart.",
+    "wwdcYear" : 2019
+  },
+  {
+    "children" : [
+      {
+        "code" : "SpriteView(scene: GameScene(size: CGSize(width: 320, height: 480)))\n    .ignoresSafeArea()",
+        "name" : "SpriteView(scene:)",
+        "summary" : "Just the scene — default frame rate, opaque, running."
+      },
+      {
+        "code" : "SpriteView(\n    scene: level,\n    transition: .crossFade(withDuration: 0.4),\n    isPaused: isInMenu,\n    preferredFramesPerSecond: 120,\n    options: [.ignoresSiblingOrder]\n)",
+        "discussion" : "Every parameter past the scene has a default, so you only spell out what you change. The transition plays when the view switches to a different scene object, and isPaused freezes the scene's update loop. This still isn't the whole surface: a defaulted shouldRender: closure lets you skip rendering individual frames, and a sibling overload adds a debugOptions: parameter.",
+        "name" : "SpriteView(scene:transition:isPaused:preferredFramesPerSecond:options:)",
+        "summary" : "A heavily configured form: transition, pause, frame cap, options."
+      },
+      {
+        "code" : "SpriteView(\n    scene: hudScene,\n    options: [.allowsTransparency, .shouldCullNonVisibleNodes]\n)",
+        "discussion" : "allowsTransparency lets SwiftUI content show through the scene's clear areas, ignoresSiblingOrder frees SpriteKit to batch nodes at equal zPosition, and shouldCullNonVisibleNodes skips drawing offscreen nodes.",
+        "name" : "SpriteView.Options",
+        "summary" : "Rendering flags: transparency, sibling order, culling."
+      }
+    ],
+    "code" : "import SpriteKit\n\nSpriteView(\n    scene: BouncingScene(size: CGSize(width: 300, height: 300)),\n    options: [.allowsTransparency]\n)\n.frame(width: 300, height: 300)",
+    "discussion" : "SpriteView runs an SKScene with options for frame rate, debug overlays, and paused state — the fast path for 2D games and particle effects in a SwiftUI hierarchy. The scene object carries its own physics and node graph. Requires import SpriteKit.",
+    "framework" : "SpriteKit",
+    "kind" : "View",
+    "name" : "SpriteView",
+    "related" : [
+      "SceneView",
+      "Canvas",
+      "TimelineView"
+    ],
+    "summary" : "Hosts a SpriteKit scene inside SwiftUI.",
+    "wwdcYear" : 2020
+  },
+  {
+    "code" : "@State private var quantity = 1\n\nStepper(\"Quantity: \\(quantity)\", value: $quantity, in: 1...10)",
+    "discussion" : "Stepper is the precise sibling of Slider: each press changes the bound value by a fixed step, clamped to an optional range. Use it where exact integer adjustments matter.",
+    "kind" : "View",
+    "name" : "Stepper",
+    "platforms" : [
+      "iOS",
+      "macOS",
+      "watchOS"
+    ],
+    "related" : [
+      "Slider"
+    ],
+    "summary" : "Increments or decrements a value with plus\/minus controls.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "Table(people, selection: $selection, sortOrder: $order) {\n    TableColumn(\"Name\", value: \\.name)\n    TableColumn(\"Age\") { person in\n        Text(person.age, format: .number)\n    }\n}",
+    "discussion" : "Table maps key paths of your row type to columns, supporting selection, sorting via KeyPathComparator bindings, and context menus. On compact iOS widths it collapses to show only the first column.",
+    "kind" : "View",
+    "name" : "Table",
+    "platforms" : [
+      "iOS",
+      "macOS"
+    ],
+    "related" : [
+      "List",
+      "Grid"
+    ],
+    "summary" : "A multi-column data table with sortable headers.",
+    "wwdcYear" : 2021
+  },
+  {
+    "children" : [
+      {
+        "code" : "@State private var selection: Section = .library\n\nTabView(selection: $selection) {\n    Tab(\"Library\", systemImage: \"books.vertical\", value: .library) {\n        LibraryView()\n    }\n    Tab(\"Search\", systemImage: \"magnifyingglass\", value: .search) {\n        SearchView()\n    }\n}",
+        "discussion" : "The binding's type must match each tab's value (or tag). Writing to it programmatically changes tabs — handy for deep links and onboarding flows.",
+        "name" : "TabView(selection:content:)",
+        "summary" : "Binds the active tab so code can switch sections."
+      },
+      {
+        "code" : "Tab(\"Settings\", systemImage: \"gear\", value: Section.settings) {\n    SettingsView()\n}",
+        "discussion" : "Introduced at WWDC '24 to replace the tabItem modifier: the tab's identity lives in the declaration itself instead of being attached afterwards.",
+        "name" : "Tab(_:systemImage:value:content:)",
+        "summary" : "Declares one tab — title, icon, selection value, and content together."
+      }
+    ],
+    "code" : "TabView(selection: $selection) {\n    Tab(\"Library\", systemImage: \"books.vertical\", value: .library) {\n        LibraryView()\n    }\n    Tab(\"Search\", systemImage: \"magnifyingglass\", value: .search) {\n        SearchView()\n    }\n}",
+    "discussion" : "TabView presents parallel sections of an app. Since WWDC '24 the Tab initializer declares each tab with a title, image, and value in one place, and the sidebarAdaptable style lets iPadOS render tabs as a sidebar. The page style turns it into swipeable pages instead.",
+    "kind" : "View",
+    "name" : "TabView",
+    "related" : [
+      "NavigationStack",
+      "Tab"
+    ],
+    "summary" : "Switches between child views with a tab bar or pages.",
+    "wwdcYear" : 2019
+  },
+  {
+    "children" : [
+      {
+        "code" : "Text(\"Welcome back, **\\(username)**\")\n    .font(.headline)",
+        "discussion" : "A literal is treated as a LocalizedStringKey, so it participates in localization and inline Markdown like *emphasis* and **bold** renders styled.",
+        "name" : "Text(_:)",
+        "summary" : "Creates text from a string literal, with Markdown parsed."
+      },
+      {
+        "code" : "Text(verbatim: \"v2.1.0-beta+build.417\")\n    .monospaced()",
+        "name" : "Text(verbatim:)",
+        "summary" : "Shows a string exactly as given — no localization, no Markdown."
+      },
+      {
+        "code" : "Text(meeting.start, style: .relative)\nText(meeting.start, style: .timer)",
+        "discussion" : "The relative, timer, and offset styles keep ticking on their own — no timer state required in your view.",
+        "name" : "Text(_:style:)",
+        "summary" : "Renders a Date with a live-updating system style."
+      },
+      {
+        "code" : "Text(price, format: .currency(code: \"USD\"))\nText(distance, format: .number.precision(.fractionLength(1)))",
+        "name" : "Text(_:format:)",
+        "summary" : "Formats any value through a FormatStyle at render time."
+      }
+    ],
+    "code" : "VStack(alignment: .leading) {\n    Text(\"Hello, SwiftUI!\")\n        .font(.title)\n        .fontWeight(.semibold)\n    Text(\"Rendered *with* **Markdown**.\")\n    Text(Date.now, style: .time)\n        .foregroundStyle(.secondary)\n}",
+    "demoID" : "text",
+    "discussion" : "Text is the workhorse for showing strings. It supports Markdown in string literals, date and number formatting through format styles, and composes with font, weight, and color modifiers. Multiple Text values can be joined with + to mix styles inside one line.",
+    "kind" : "View",
+    "name" : "Text",
+    "related" : [
+      "Label",
+      "TextField",
+      ".font()"
+    ],
+    "summary" : "Displays one or more lines of read-only styled text.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "@State private var notes = \"Dear diary…\"\n\nTextEditor(text: $notes)\n    .font(.body)\n    .frame(minHeight: 120)",
+    "discussion" : "TextEditor is the multi-line counterpart to TextField. It fills the space it is given, scrolls internally, and honors font and foregroundStyle modifiers for its content.",
+    "kind" : "View",
+    "name" : "TextEditor",
+    "platforms" : [
+      "iOS",
+      "macOS"
+    ],
+    "related" : [
+      "TextField"
+    ],
+    "summary" : "A scrollable, multi-line editable text region.",
+    "wwdcYear" : 2020
+  },
+  {
+    "children" : [
+      {
+        "code" : "@State private var name = \"\"\n\nTextField(\"Name\", text: $name)",
+        "name" : "TextField(_:text:)",
+        "summary" : "The basic form: a titled field bound to a String."
+      },
+      {
+        "code" : "TextField(\"Email\", text: $email, prompt: Text(\"name@example.com\"))",
+        "discussion" : "The title still describes the field to accessibility and forms; the prompt is what shows in the empty field.",
+        "name" : "TextField(_:text:prompt:)",
+        "summary" : "Adds explicit placeholder text separate from the label."
+      },
+      {
+        "code" : "@State private var amount = 0.0\n\nTextField(\"Amount\", value: $amount, format: .currency(code: \"USD\"))",
+        "discussion" : "Typing is converted both ways: the value renders through the format, and committed edits parse back into it — invalid input leaves the binding untouched.",
+        "name" : "TextField(_:value:format:)",
+        "summary" : "Binds a non-string value through a parsing format style."
+      },
+      {
+        "code" : "TextField(\"Comment\", text: $comment, axis: .vertical)\n    .lineLimit(1...5)",
+        "name" : "TextField(_:text:axis:)",
+        "summary" : "Lets the field grow vertically as the text wraps."
+      }
+    ],
+    "code" : "@State private var name = \"\"\n\nTextField(\"Name\", text: $name, prompt: Text(\"Your name\"))\n    .textFieldStyle(.roundedBorder)",
+    "discussion" : "TextField writes what the user types into a Binding<String>. It can also bind to non-string values through a format style, and the prompt argument supplies placeholder text. Pair with @FocusState to control keyboard focus programmatically.",
+    "kind" : "View",
+    "name" : "TextField",
+    "related" : [
+      "SecureField",
+      "TextEditor",
+      "@FocusState"
+    ],
+    "summary" : "An editable, single-line text input bound to a string.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "TextFieldLink(prompt: Text(\"Name\")) {\n    Label(\"Add name\", systemImage: \"pencil\")\n} onSubmit: { value in\n    name = value\n}",
+    "discussion" : "TextFieldLink opens the watch's system text input — dictation, scribble, or keyboard — and returns the result, since inline editable fields don't fit the wrist.",
+    "kind" : "View",
+    "name" : "TextFieldLink",
+    "platforms" : [
+      "watchOS"
+    ],
+    "related" : [
+      "TextField"
+    ],
+    "summary" : "watchOS text entry behind a tappable link.",
+    "wwdcYear" : 2022
+  },
+  {
+    "code" : "TimelineView(.animation) { context in\n    let angle = context.date.timeIntervalSinceReferenceDate\n        .truncatingRemainder(dividingBy: 2) * 180\n    Image(systemName: \"arrow.triangle.2.circlepath\")\n        .rotationEffect(.degrees(angle))\n}",
+    "discussion" : "TimelineView re-evaluates its content at times supplied by a schedule — every minute, on animation frames, or explicit dates — without any state of your own. The context's date drives the drawing, which keeps clocks and ambient animations correct even in always-on displays.",
+    "kind" : "View",
+    "name" : "TimelineView",
+    "related" : [
+      "Canvas",
+      ".animation()"
+    ],
+    "summary" : "Redraws its content on a schedule you choose.",
+    "wwdcYear" : 2021
+  },
+  {
+    "children" : [
+      {
+        "code" : "@State private var notificationsOn = true\n\nToggle(\"Notifications\", isOn: $notificationsOn)",
+        "name" : "Toggle(_:isOn:)",
+        "summary" : "A titled toggle bound to a Boolean."
+      },
+      {
+        "code" : "Toggle(\"Airplane Mode\", systemImage: \"airplane\", isOn: $airplane)",
+        "name" : "Toggle(_:systemImage:isOn:)",
+        "summary" : "Labels the toggle with a title and SF Symbol together."
+      },
+      {
+        "code" : "Toggle(isOn: $backupEnabled) {\n    VStack(alignment: .leading) {\n        Text(\"iCloud Backup\")\n        Text(\"Runs nightly on Wi-Fi\")\n            .font(.caption)\n            .foregroundStyle(.secondary)\n    }\n}",
+        "discussion" : "Reach for the closure form when the label needs more than a string — a two-line description, custom styling, or composed views.",
+        "name" : "Toggle(isOn:label:)",
+        "summary" : "Supplies the label as an arbitrary view."
+      }
+    ],
+    "code" : "@State private var isOn = true\n\nToggle(\"Wi-Fi\", isOn: $isOn)\n    .toggleStyle(.switch)",
+    "demoID" : "toggle",
+    "discussion" : "Toggle reflects and writes a Binding<Bool>. Its rendering is platform- and context-dependent: a switch on iOS, a checkbox in macOS forms — and toggleStyle overrides that choice, including a button-like appearance.",
+    "kind" : "View",
+    "name" : "Toggle",
+    "related" : [
+      "ToggleStyle",
+      "Picker"
+    ],
+    "summary" : "A control that switches a Boolean binding on or off.",
+    "wwdcYear" : 2019
+  },
+  {
+    "children" : [
+      {
+        "code" : "VideoPlayer(player: player)\n    .onAppear { player.play() }",
+        "discussion" : "The view never starts playback on its own — you own the player, so call play() yourself and reuse the same instance across view updates.",
+        "name" : "VideoPlayer(player:)",
+        "summary" : "System playback UI around the AVPlayer you supply."
+      },
+      {
+        "code" : "VideoPlayer(player: player) {\n    VStack {\n        Text(caption).padding(6).background(.thinMaterial)\n        Spacer()\n    }\n}",
+        "discussion" : "The overlay sits over the video image itself — captions, watermarks, scoreboards — while the system transport controls stay on top of everything.",
+        "name" : "VideoPlayer(player:videoOverlay:)",
+        "summary" : "Layers SwiftUI content above the video surface."
+      }
+    ],
+    "code" : "import AVKit\n\nVideoPlayer(player: AVPlayer(url: clipURL)) {\n    Text(\"Preview\").font(.caption).padding(4)\n}",
+    "discussion" : "VideoPlayer wraps AVKit playback — transport controls, PiP eligibility — around an AVPlayer you own and can drive programmatically. The overlay builder layers SwiftUI views above the video surface. Requires import AVKit.",
+    "framework" : "AVKit",
+    "kind" : "View",
+    "name" : "VideoPlayer",
+    "platforms" : [
+      "iOS",
+      "macOS",
+      "tvOS"
+    ],
+    "related" : [
+      "AsyncImage"
+    ],
+    "summary" : "Plays an AVPlayer's content with system controls.",
+    "wwdcYear" : 2020
+  },
+  {
+    "code" : "ViewThatFits {\n    HStack { LongLabels() }   \/\/ preferred when space allows\n    VStack { LongLabels() }   \/\/ fallback\n}",
+    "discussion" : "ViewThatFits tries its children in order and displays the first whose ideal size fits, making adaptive layouts declarative: offer a wide layout first and a compact fallback second, and let the container decide.",
+    "kind" : "View",
+    "name" : "ViewThatFits",
+    "related" : [
+      "HStack",
+      "VStack"
+    ],
+    "summary" : "Picks the first child that fits the available space.",
+    "wwdcYear" : 2022
+  },
+  {
+    "code" : "VStack(alignment: .leading, spacing: 8) {\n    Text(\"Title\").font(.headline)\n    Text(\"Subtitle\").foregroundStyle(.secondary)\n}",
+    "demoID" : "stacks",
+    "discussion" : "VStack stacks children top to bottom with a shared horizontal alignment. Alignment matters most with mixed-width children — leading alignment plus a maxWidth frame is the common recipe for form-like columns.",
+    "kind" : "View",
+    "name" : "VStack",
+    "related" : [
+      "HStack",
+      "ZStack",
+      "LazyVGrid"
+    ],
+    "summary" : "Arranges children in a vertical column.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "import WebKit\n\n@State private var page = WebPage()\n\nWebView(page)\n    .task {\n        page.load(URLRequest(url: docsURL))\n    }",
+    "discussion" : "WebView arrived at WWDC '25 alongside the observable WebPage model: point it at a URL or drive a WebPage for navigation control, JavaScript calls, and loading state — no more wrapping WKWebView by hand. Requires import WebKit.",
+    "framework" : "WebKit",
+    "kind" : "View",
+    "name" : "WebView",
+    "platforms" : [
+      "iOS",
+      "macOS"
+    ],
+    "related" : [
+      "Link",
+      "openURL"
+    ],
+    "summary" : "Displays web content natively in SwiftUI.",
+    "wwdcYear" : 2025
+  },
+  {
+    "code" : "ZStack(alignment: .topTrailing) {\n    PhotoView()\n    BadgeView()\n        .padding(6)\n}",
+    "discussion" : "ZStack draws its children on top of each other, aligned by a shared anchor. Use it for badges, watermarks, and layered compositions; for a single decoration behind or in front of one view, background and overlay are lighter-weight.",
+    "kind" : "View",
+    "name" : "ZStack",
+    "related" : [
+      "HStack",
+      "VStack",
+      ".overlay()",
+      ".background()"
+    ],
+    "summary" : "Overlays children back to front in the same space.",
+    "wwdcYear" : 2019
+  }
+]

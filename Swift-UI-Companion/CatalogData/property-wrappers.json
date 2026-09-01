@@ -1,0 +1,297 @@
+[
+  {
+    "code" : "@Animatable\nstruct Wedge: Shape {\n    var startAngle: Angle\n    var endAngle: Angle\n\n    func path(in rect: CGRect) -> Path {\n        wedgePath(rect, startAngle, endAngle)\n    }\n}",
+    "discussion" : "New at WWDC '25, the @Animatable macro generates the animatableData plumbing from a type's stored numeric properties — custom shapes and modifiers animate without hand-written getters and setters; @AnimatableIgnored opts a property out.",
+    "kind" : "Property Wrapper",
+    "name" : "@Animatable",
+    "related" : [
+      "Animatable",
+      "Shape",
+      ".animation()"
+    ],
+    "summary" : "Macro that synthesizes animatableData for a type.",
+    "wwdcYear" : 2025
+  },
+  {
+    "code" : "@AppStorage(\"fontSize\") private var fontSize = 14.0\n\nSlider(value: $fontSize, in: 10...24)",
+    "discussion" : "@AppStorage reads and writes a UserDefaults key while behaving like @State — the view updates when the value changes from anywhere, including Settings panes. Best for small preferences, not documents.",
+    "kind" : "Property Wrapper",
+    "name" : "@AppStorage",
+    "related" : [
+      "@SceneStorage",
+      "@State",
+      "Settings"
+    ],
+    "summary" : "State persisted automatically in UserDefaults.",
+    "wwdcYear" : 2020
+  },
+  {
+    "code" : "struct EditorView: View {\n    @Bindable var book: Book\n\n    var body: some View {\n        TextField(\"Title\", text: $book.title)\n    }\n}",
+    "discussion" : "@Bindable bridges the gap the macro left: wrap an @Observable reference with it — as a property or a local in body — and the $ syntax yields bindings to its properties for use with controls.",
+    "kind" : "Property Wrapper",
+    "name" : "@Bindable",
+    "related" : [
+      "@Observable",
+      "@Binding"
+    ],
+    "summary" : "Creates bindings into an @Observable object.",
+    "wwdcYear" : 2023
+  },
+  {
+    "code" : "struct Row: View {\n    @Binding var isChecked: Bool\n\n    var body: some View {\n        Toggle(\"Done\", isOn: $isChecked)\n    }\n}\n\n\/\/ parent: Row(isChecked: $item.done)",
+    "discussion" : "@Binding lets a child view mutate its parent's state without owning it — the $ prefix on a @State property produces one. It is the backbone of every two-way control, from TextField to Toggle.",
+    "kind" : "Property Wrapper",
+    "name" : "@Binding",
+    "related" : [
+      "@State",
+      "@Bindable"
+    ],
+    "summary" : "A read-write reference to state owned elsewhere.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "extension EnvironmentValues {\n    @Entry var theme: Theme = .standard\n}\n\nContentView()\n    .environment(\\.theme, .midnight)",
+    "discussion" : "The @Entry macro (WWDC '24) replaces the EnvironmentKey boilerplate: annotate a var in an EnvironmentValues extension with a default value, and it becomes a fully usable custom environment entry. It works for transaction, container, and focused values too.",
+    "kind" : "Property Wrapper",
+    "name" : "@Entry",
+    "related" : [
+      "@Environment"
+    ],
+    "summary" : "Declares a custom environment value in one line.",
+    "wwdcYear" : 2024
+  },
+  {
+    "code" : "struct ThemedView: View {\n    @Environment(\\.colorScheme) private var scheme\n    @Environment(Library.self) private var library\n\n    var body: some View {\n        Text(scheme == .dark ? \"Dark\" : \"Light\")\n    }\n}",
+    "discussion" : "@Environment pulls system values — color scheme, locale, dismiss — or your own @Observable models injected with .environment out of the context. Values flow down the tree, and any ancestor can override them for its subtree.",
+    "kind" : "Property Wrapper",
+    "name" : "@Environment",
+    "related" : [
+      "@Observable",
+      "colorScheme",
+      "@EnvironmentObject"
+    ],
+    "summary" : "Reads a value the surrounding hierarchy provides.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "struct CartBadge: View {\n    @EnvironmentObject var cart: CartModel\n\n    var body: some View {\n        Text(\"\\(cart.items.count)\")\n    }\n}\n\n\/\/ upstream: ContentView().environmentObject(cart)",
+    "discussion" : "@EnvironmentObject pulls a shared ObservableObject placed with environmentObject from any descendant — crashing at runtime if nobody injected it. New code on current targets shares @Observable models through plain @Environment instead.",
+    "kind" : "Property Wrapper",
+    "name" : "@EnvironmentObject",
+    "related" : [
+      "@Environment",
+      "@Observable",
+      "@StateObject"
+    ],
+    "summary" : "Reads an ObservableObject injected upstream.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "@FetchRequest(sortDescriptors: [SortDescriptor(\\.date)])\nprivate var entries: FetchedResults<Entry>\n\nvar body: some View {\n    List(entries) { EntryRow($0) }\n}",
+    "discussion" : "@FetchRequest runs a fetch against the managedObjectContext in the environment and re-renders the view as objects change, with sort descriptors and predicates in the declaration. Requires import CoreData.",
+    "framework" : "CoreData",
+    "kind" : "Property Wrapper",
+    "name" : "@FetchRequest",
+    "related" : [
+      "@Query",
+      "@Environment"
+    ],
+    "summary" : "Live Core Data query results as a view property.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "\/\/ In the editor view:\neditor.focusedValue(\\.document, document)\n\n\/\/ In a Commands struct:\n@FocusedValue(\\.document) var document\nButton(\"Export\") { export(document) }\n    .disabled(document == nil)",
+    "discussion" : "Focused values flow from whatever currently has focus to interested observers — the mechanism menu commands use to act on 'the focused document'. Publish with focusedValue, read with @FocusedValue.",
+    "kind" : "Property Wrapper",
+    "name" : "@FocusedValue",
+    "platforms" : [
+      "iOS",
+      "macOS"
+    ],
+    "related" : [
+      "Commands",
+      "@FocusState"
+    ],
+    "summary" : "Reads a value published by the focused view.",
+    "wwdcYear" : 2020
+  },
+  {
+    "code" : "enum Field { case user, password }\n@FocusState private var focus: Field?\n\nTextField(\"User\", text: $user).focused($focus, equals: .user)\nSecureField(\"Password\", text: $pass).focused($focus, equals: .password)\n\nButton(\"Next\") { focus = .password }",
+    "discussion" : "@FocusState pairs with the focused modifier: a Boolean for one field, or a hashable enum to manage focus across a form. Setting the property moves focus; nil (or false) dismisses the keyboard.",
+    "kind" : "Property Wrapper",
+    "name" : "@FocusState",
+    "related" : [
+      "TextField"
+    ],
+    "summary" : "Tracks and drives which view has keyboard focus.",
+    "wwdcYear" : 2021
+  },
+  {
+    "code" : "@GestureState private var drag = CGSize.zero\n\nCircle()\n    .offset(drag)\n    .gesture(\n        DragGesture().updating($drag) { value, state, _ in\n            state = value.translation\n        }\n    )",
+    "discussion" : "@GestureState stores in-flight gesture data — a drag translation, a pinch scale — and snaps back to its initial value the moment the gesture finishes, with the reset animating automatically.",
+    "kind" : "Property Wrapper",
+    "name" : "@GestureState",
+    "related" : [
+      ".onTapGesture()",
+      "@State"
+    ],
+    "summary" : "Transient state that resets when a gesture ends.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "@Namespace private var animation\n\nThumbView()\n    .matchedGeometryEffect(id: item.id, in: animation)",
+    "discussion" : "@Namespace mints a unique namespace tying together matchedGeometryEffect pairs, zoom transition sources, and focus scopes within one view hierarchy.",
+    "kind" : "Property Wrapper",
+    "name" : "@Namespace",
+    "related" : [
+      ".matchedGeometryEffect()",
+      ".navigationTransition()"
+    ],
+    "summary" : "An identifier space for matched geometry and focus.",
+    "wwdcYear" : 2020
+  },
+  {
+    "code" : "@main\nstruct CompanionApp: App {\n    @NSApplicationDelegateAdaptor(AppDelegate.self)\n    private var appDelegate\n\n    var body: some Scene { WindowGroup { ContentView() } }\n}",
+    "discussion" : "Declared on the App struct, this wrapper instantiates your NSApplicationDelegate so lifecycle callbacks SwiftUI doesn't surface — Sparkle updaters, dock menu APIs, legacy integrations — still have a home.",
+    "kind" : "Property Wrapper",
+    "name" : "@NSApplicationDelegateAdaptor",
+    "platforms" : [
+      "macOS"
+    ],
+    "related" : [
+      "@UIApplicationDelegateAdaptor",
+      "App"
+    ],
+    "summary" : "Attaches an AppKit app delegate to a SwiftUI app.",
+    "wwdcYear" : 2020
+  },
+  {
+    "code" : "@Observable\nfinal class Library {\n    var books: [Book] = []\n    var filter = \"\"\n}\n\nstruct LibraryView: View {\n    @State private var library = Library()\n    var body: some View { BookList(library: library) }\n}",
+    "discussion" : "The @Observable macro (WWDC '23) replaces ObservableObject for new code: no @Published, and views re-render only when properties they actually read change. Store instances in @State, share them via .environment, and bind with @Bindable.",
+    "kind" : "Property Wrapper",
+    "name" : "@Observable",
+    "related" : [
+      "@State",
+      "@Bindable",
+      "@Environment"
+    ],
+    "summary" : "Macro that makes a class's properties observable.",
+    "wwdcYear" : 2023
+  },
+  {
+    "code" : "struct PostList: View {\n    @ObservedObject var model: FeedModel\n\n    var body: some View {\n        List(model.posts) { PostRow($0) }\n    }\n}",
+    "discussion" : "@ObservedObject re-renders the view when the object's @Published properties change, but does not keep the object alive — the parent must own it (typically via @StateObject). Superseded by plain properties on @Observable models.",
+    "kind" : "Property Wrapper",
+    "name" : "@ObservedObject",
+    "related" : [
+      "@StateObject",
+      "@Observable"
+    ],
+    "summary" : "Subscribes to an ObservableObject owned elsewhere.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "#Preview {\n    @Previewable @State var volume = 0.5\n    Slider(value: $volume)\n}",
+    "discussion" : "The @Previewable macro (WWDC '24) lets a #Preview declare @State and other dynamic properties inline — interactive previews without wrapping everything in a throwaway container view.",
+    "kind" : "Property Wrapper",
+    "name" : "@Previewable",
+    "related" : [
+      "@State"
+    ],
+    "summary" : "Allows live state directly inside a #Preview.",
+    "wwdcYear" : 2024
+  },
+  {
+    "code" : "final class FeedModel: ObservableObject {\n    @Published var posts: [Post] = []\n    @Published var isLoading = false\n}",
+    "discussion" : "@Published fires objectWillChange before every mutation, which is what @StateObject and @ObservedObject listen for. It belongs to Combine's ObservableObject world; the @Observable macro tracks properties without it.",
+    "framework" : "Combine",
+    "kind" : "Property Wrapper",
+    "name" : "@Published",
+    "related" : [
+      "@StateObject",
+      "@ObservedObject",
+      "@Observable"
+    ],
+    "summary" : "Marks an ObservableObject property as change-emitting.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "@Query(sort: \\Trip.startDate, order: .reverse)\nprivate var trips: [Trip]\n\nvar body: some View {\n    List(trips) { TripRow($0) }\n}",
+    "discussion" : "@Query is SwiftData's answer to @FetchRequest: declarative filtering and sorting over @Model types from the modelContext, updating the view as the store changes. Requires import SwiftData.",
+    "framework" : "SwiftData",
+    "kind" : "Property Wrapper",
+    "name" : "@Query",
+    "related" : [
+      "@FetchRequest",
+      "modelContext"
+    ],
+    "summary" : "Live SwiftData query results as a view property.",
+    "wwdcYear" : 2023
+  },
+  {
+    "code" : "@ScaledMetric(relativeTo: .body) private var iconSize = 20.0\n\nImage(systemName: \"star\")\n    .frame(width: iconSize, height: iconSize)",
+    "discussion" : "@ScaledMetric multiplies your base value by the user's text-size setting, optionally relative to a specific text style — keeping icons and spacing proportional to enlarged text.",
+    "kind" : "Property Wrapper",
+    "name" : "@ScaledMetric",
+    "related" : [
+      "dynamicTypeSize",
+      ".font()"
+    ],
+    "summary" : "A number that scales with Dynamic Type.",
+    "wwdcYear" : 2020
+  },
+  {
+    "code" : "@SceneStorage(\"selectedTab\") private var tab = \"home\"\n\nTabView(selection: $tab) { … }",
+    "discussion" : "@SceneStorage saves lightweight UI state — selected tab, scroll target, draft text — scoped to each window, so two windows restore independently. The system owns the storage; treat it as best-effort.",
+    "kind" : "Property Wrapper",
+    "name" : "@SceneStorage",
+    "related" : [
+      "@AppStorage",
+      "WindowGroup"
+    ],
+    "summary" : "Per-scene state restored across app launches.",
+    "wwdcYear" : 2020
+  },
+  {
+    "code" : "struct Counter: View {\n    @State private var count = 0\n\n    var body: some View {\n        Button(\"Count: \\(count)\") { count += 1 }\n    }\n}",
+    "discussion" : "@State moves a value out of the transient view struct into storage SwiftUI manages, re-rendering the view when it changes. Keep it private and pass it down as bindings; since WWDC '23 it also holds @Observable model objects.",
+    "kind" : "Property Wrapper",
+    "name" : "@State",
+    "related" : [
+      "@Binding",
+      "@Observable",
+      "@StateObject"
+    ],
+    "summary" : "View-owned storage that survives re-rendering.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "struct FeedView: View {\n    @StateObject private var model = FeedModel()\n\n    var body: some View {\n        List(model.posts) { PostRow($0) }\n    }\n}",
+    "discussion" : "@StateObject instantiates an ObservableObject once per view identity and keeps it alive across re-renders — the legacy counterpart of @State + @Observable. In new code targeting current OSes, prefer the @Observable macro.",
+    "kind" : "Property Wrapper",
+    "name" : "@StateObject",
+    "related" : [
+      "@ObservedObject",
+      "@Observable",
+      "@State"
+    ],
+    "summary" : "Owns an ObservableObject for the view's lifetime.",
+    "wwdcYear" : 2020
+  },
+  {
+    "code" : "@main\nstruct CompanionApp: App {\n    @UIApplicationDelegateAdaptor(AppDelegate.self)\n    private var appDelegate\n\n    var body: some Scene { WindowGroup { ContentView() } }\n}",
+    "discussion" : "The iOS counterpart: hosts a UIApplicationDelegate for push-notification registration, third-party SDK hooks, and other callbacks the SwiftUI lifecycle doesn't expose directly.",
+    "kind" : "Property Wrapper",
+    "name" : "@UIApplicationDelegateAdaptor",
+    "platforms" : [
+      "iOS",
+      "tvOS"
+    ],
+    "related" : [
+      "@NSApplicationDelegateAdaptor",
+      "App"
+    ],
+    "summary" : "Attaches a UIKit app delegate to a SwiftUI app.",
+    "wwdcYear" : 2020
+  }
+]

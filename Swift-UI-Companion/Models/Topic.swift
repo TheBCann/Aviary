@@ -6,7 +6,7 @@
 import SwiftUI
 
 /// A platform a catalog entry can be available on.
-enum ApplePlatform: String, CaseIterable, Identifiable, Hashable {
+enum ApplePlatform: String, CaseIterable, Identifiable, Hashable, Codable {
     case iOS = "iOS"
     case macOS = "macOS"
     case tvOS = "tvOS"
@@ -44,7 +44,7 @@ enum ApplePlatform: String, CaseIterable, Identifiable, Hashable {
 }
 
 /// The kind of API a catalog entry documents.
-enum TopicKind: String, CaseIterable, Identifiable, Hashable {
+enum TopicKind: String, CaseIterable, Identifiable, Hashable, Codable {
     case view = "View"
     case modifier = "Modifier"
     case shape = "Shape"
@@ -98,12 +98,12 @@ enum TopicKind: String, CaseIterable, Identifiable, Hashable {
 
 /// A sub-entry of a Topic: one initializer, method overload, or nested type
 /// (e.g. `SpriteView(scene:options:)` or `SpriteView.Options`).
-struct TopicChild: Identifiable, Hashable {
+struct TopicChild: Identifiable, Hashable, Codable {
     let name: String
     let summary: String
     let discussion: String
     let code: String
-    /// Set by Topic.init so ids stay unique across parents.
+    /// Set by Topic.init so ids stay unique across parents; never encoded.
     fileprivate(set) var parentID: String = ""
 
     var id: String { "\(parentID) › \(name)" }
@@ -114,10 +114,34 @@ struct TopicChild: Identifiable, Hashable {
         self.discussion = discussion
         self.code = code
     }
+
+    private enum CodingKeys: String, CodingKey {
+        case name, summary, discussion, code
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.init(
+            name: try container.decode(String.self, forKey: .name),
+            summary: try container.decode(String.self, forKey: .summary),
+            discussion: try container.decodeIfPresent(String.self, forKey: .discussion) ?? "",
+            code: try container.decode(String.self, forKey: .code)
+        )
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(name, forKey: .name)
+        try container.encode(summary, forKey: .summary)
+        if !discussion.isEmpty {
+            try container.encode(discussion, forKey: .discussion)
+        }
+        try container.encode(code, forKey: .code)
+    }
 }
 
 /// One documented SwiftUI API in the catalog.
-struct Topic: Identifiable, Hashable {
+struct Topic: Identifiable, Hashable, Codable {
     let id: String
     let name: String
     let kind: TopicKind
@@ -162,6 +186,59 @@ struct Topic: Identifiable, Hashable {
             var qualified = child
             qualified.parentID = name
             return qualified
+        }
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case name, kind, summary, discussion, wwdcYear, platforms, framework,
+             deprecated, code, demoID, related, children
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let platformList = try container.decodeIfPresent(
+            [ApplePlatform].self, forKey: .platforms
+        )
+        self.init(
+            name: try container.decode(String.self, forKey: .name),
+            kind: try container.decode(TopicKind.self, forKey: .kind),
+            summary: try container.decode(String.self, forKey: .summary),
+            discussion: try container.decode(String.self, forKey: .discussion),
+            wwdcYear: try container.decode(Int.self, forKey: .wwdcYear),
+            platforms: platformList.map(Set.init) ?? Set(ApplePlatform.allCases),
+            framework: try container.decodeIfPresent(String.self, forKey: .framework) ?? "SwiftUI",
+            deprecated: try container.decodeIfPresent(Bool.self, forKey: .deprecated) ?? false,
+            code: try container.decode(String.self, forKey: .code),
+            demoID: try container.decodeIfPresent(String.self, forKey: .demoID),
+            related: try container.decodeIfPresent([String].self, forKey: .related) ?? [],
+            children: try container.decodeIfPresent([TopicChild].self, forKey: .children) ?? []
+        )
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(name, forKey: .name)
+        try container.encode(kind, forKey: .kind)
+        try container.encode(summary, forKey: .summary)
+        try container.encode(discussion, forKey: .discussion)
+        try container.encode(wwdcYear, forKey: .wwdcYear)
+        // Defaults are omitted so the JSON stays as terse as the literals were.
+        if platforms != Set(ApplePlatform.allCases) {
+            try container.encode(orderedPlatforms, forKey: .platforms)
+        }
+        if framework != "SwiftUI" {
+            try container.encode(framework, forKey: .framework)
+        }
+        if deprecated {
+            try container.encode(true, forKey: .deprecated)
+        }
+        try container.encode(code, forKey: .code)
+        try container.encodeIfPresent(demoID, forKey: .demoID)
+        if !related.isEmpty {
+            try container.encode(related, forKey: .related)
+        }
+        if !children.isEmpty {
+            try container.encode(children, forKey: .children)
         }
     }
 

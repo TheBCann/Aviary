@@ -1,0 +1,361 @@
+[
+  {
+    "code" : "struct Wave: Shape {\n    var phase: Double\n\n    var animatableData: Double {\n        get { phase }\n        set { phase = newValue }\n    }\n\n    func path(in rect: CGRect) -> Path { wavePath(rect, phase) }\n}",
+    "demoID" : "spring",
+    "discussion" : "Animation works by interpolating animatableData between old and new values and re-rendering each frame. Custom shapes and modifiers adopt Animatable to make their numeric properties smoothly animatable; AnimatablePair combines multiple values.",
+    "kind" : "Protocol",
+    "name" : "Animatable",
+    "related" : [
+      "Shape",
+      ".animation()",
+      "CustomAnimation"
+    ],
+    "summary" : "Lets SwiftUI interpolate a type's data during animation.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "@main\nstruct CompanionApp: App {\n    @State private var model = AppModel()\n\n    var body: some Scene {\n        WindowGroup {\n            ContentView()\n                .environment(model)\n        }\n    }\n}",
+    "discussion" : "Marking a struct @main and conforming to App replaces the app delegate as the program's root: its body lists the scenes the app can present. App-wide state created here flows into every scene through the environment.",
+    "kind" : "Protocol",
+    "name" : "App",
+    "related" : [
+      "Scene",
+      "WindowGroup",
+      "View"
+    ],
+    "summary" : "The entry point declaring an app's scenes.",
+    "wwdcYear" : 2020
+  },
+  {
+    "code" : "struct SquishyStyle: ButtonStyle {\n    func makeBody(configuration: Configuration) -> some View {\n        configuration.label\n            .padding(.horizontal, 14)\n            .padding(.vertical, 8)\n            .background(.blue, in: .capsule)\n            .foregroundStyle(.white)\n            .scaleEffect(configuration.isPressed ? 0.92 : 1)\n    }\n}",
+    "discussion" : "Implement makeBody(configuration:) to restyle every button it is applied to: the configuration exposes the label, the role, and isPressed so the style can react to interaction. PrimitiveButtonStyle goes deeper and takes over triggering too.",
+    "kind" : "Protocol",
+    "name" : "ButtonStyle",
+    "related" : [
+      "Button",
+      "ToggleStyle",
+      ".buttonStyle()"
+    ],
+    "summary" : "Custom button appearance driven by press state.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "struct SortCommands: Commands {\n    var body: some Commands {\n        CommandMenu(\"Sort\") {\n            Button(\"By Name\") { sort(.name) }\n                .keyboardShortcut(\"1\")\n        }\n    }\n}",
+    "discussion" : "Commands populate the macOS menu bar (and iPad key-command HUD) declaratively: group replacements, new menus, and keyboard shortcuts, attached to a scene with the commands modifier. This app adds its tab shortcuts this way.",
+    "kind" : "Protocol",
+    "name" : "Commands",
+    "platforms" : [
+      "iOS",
+      "macOS"
+    ],
+    "related" : [
+      ".keyboardShortcut()",
+      "Scene"
+    ],
+    "summary" : "Declares menu bar commands for a scene.",
+    "wwdcYear" : 2020
+  },
+  {
+    "code" : "struct Linear2x: CustomAnimation {\n    func animate<V: VectorArithmetic>(\n        value: V, time: TimeInterval, context: inout AnimationContext<V>\n    ) -> V? {\n        time < 0.5 ? value.scaled(by: time * 2) : nil\n    }\n}",
+    "discussion" : "Added at WWDC '23, CustomAnimation exposes the animation engine itself: given elapsed time and a vector value, return the interpolated result — or nil to finish. Bounce, gravity, or any bespoke physics can drive standard SwiftUI animations this way.",
+    "kind" : "Protocol",
+    "name" : "CustomAnimation",
+    "related" : [
+      "Animatable",
+      ".animation()"
+    ],
+    "summary" : "Defines your own timing curve or physics for animations.",
+    "wwdcYear" : 2023
+  },
+  {
+    "code" : "@propertyWrapper\nstruct Stored: DynamicProperty {\n    @State private var value = load()\n\n    var wrappedValue: String {\n        get { value }\n        nonmutating set { value = newValue; save(newValue) }\n    }\n}",
+    "discussion" : "Property wrappers conforming to DynamicProperty get an update() call before each body evaluation and may compose @State, @Environment, and friends inside — the machinery behind wrappers like @FetchRequest, and yours if you build one.",
+    "kind" : "Protocol",
+    "name" : "DynamicProperty",
+    "related" : [
+      "@State",
+      "@Environment"
+    ],
+    "summary" : "Lets a custom property wrapper participate in updates.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "private struct ThemeKey: EnvironmentKey {\n    static let defaultValue = Theme.standard\n}\n\nextension EnvironmentValues {\n    var theme: Theme {\n        get { self[ThemeKey.self] }\n        set { self[ThemeKey.self] = newValue }\n    }\n}",
+    "discussion" : "An EnvironmentKey supplies a defaultValue, and an EnvironmentValues extension exposes it as a property. Since WWDC '24 the @Entry macro generates all of this from one line — reach for EnvironmentKey when supporting older targets.",
+    "kind" : "Protocol",
+    "name" : "EnvironmentKey",
+    "related" : [
+      "@Entry",
+      "@Environment"
+    ],
+    "summary" : "The manual way to define an environment value.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "struct Shake: GeometryEffect {\n    var phase: CGFloat\n    var animatableData: CGFloat {\n        get { phase } set { phase = newValue }\n    }\n    func effectValue(size: CGSize) -> ProjectionTransform {\n        ProjectionTransform(CGAffineTransform(\n            translationX: 8 * sin(phase * .pi * 4), y: 0))\n    }\n}",
+    "discussion" : "GeometryEffect returns a ProjectionTransform for a given size and animates via animatableData — the home of shake effects and skews. Layout is untouched; only rendering transforms.",
+    "kind" : "Protocol",
+    "name" : "GeometryEffect",
+    "related" : [
+      "Animatable",
+      ".offset()"
+    ],
+    "summary" : "An animatable transform applied to a view's geometry.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "let pinchAndRotate = MagnifyGesture()\n    .simultaneously(with: RotateGesture())\n\nphoto.gesture(pinchAndRotate)",
+    "discussion" : "DragGesture, TapGesture, MagnifyGesture and friends all conform to Gesture, which is what lets them compose: simultaneously, sequenced, and exclusively build multi-touch interactions from small parts.",
+    "kind" : "Protocol",
+    "name" : "Gesture",
+    "related" : [
+      ".gesture()",
+      "@GestureState"
+    ],
+    "summary" : "The protocol behind drags, taps, pinches, and combinations.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "extension Triangle: InsettableShape {\n    func inset(by amount: CGFloat) -> some InsettableShape {\n        var copy = self\n        copy.insetAmount += amount\n        return copy\n    }\n}\n\nTriangle().strokeBorder(.blue, lineWidth: 4)",
+    "discussion" : "strokeBorder keeps a stroke fully inside a shape's bounds by first insetting it — which requires the shape to implement inset(by:). All built-ins conform; custom shapes need it to avoid clipped borders.",
+    "kind" : "Protocol",
+    "name" : "InsettableShape",
+    "related" : [
+      "Shape",
+      "RoundedRectangle"
+    ],
+    "summary" : "A shape that can inset itself, enabling strokeBorder.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "struct VerticalLabel: LabelStyle {\n    func makeBody(configuration: Configuration) -> some View {\n        VStack(spacing: 4) {\n            configuration.icon\n            configuration.title.font(.caption)\n        }\n    }\n}",
+    "discussion" : "LabelStyle receives the icon and title as separate views, free to rearrange — icon above title, trailing icons, or badge-style compositions — applied anywhere via labelStyle.",
+    "kind" : "Protocol",
+    "name" : "LabelStyle",
+    "related" : [
+      "Label",
+      ".labelStyle()"
+    ],
+    "summary" : "Custom arrangement of a label's icon and title.",
+    "wwdcYear" : 2020
+  },
+  {
+    "code" : "struct FlowLayout: Layout {\n    func sizeThatFits(proposal: ProposedViewSize,\n                      subviews: Subviews, cache: inout ()) -> CGSize {\n        \/\/ measure rows against proposal.width …\n        .zero\n    }\n    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize,\n                       subviews: Subviews, cache: inout ()) {\n        \/\/ wrap subviews into rows …\n    }\n}",
+    "discussion" : "Layout puts your code where HStack's is: report a size from sizeThatFits, then position children in placeSubviews using their proposals and priorities. Flow layouts and radial arrangements become first-class containers that animate like built-ins.",
+    "kind" : "Protocol",
+    "name" : "Layout",
+    "related" : [
+      "HStack",
+      "Grid",
+      "GeometryReader"
+    ],
+    "summary" : "A custom layout container with full placement control.",
+    "wwdcYear" : 2022
+  },
+  {
+    "code" : "struct BlurView: NSViewRepresentable {\n    func makeNSView(context: Context) -> NSVisualEffectView {\n        let view = NSVisualEffectView()\n        view.material = .hudWindow\n        return view\n    }\n    func updateNSView(_ view: NSVisualEffectView, context: Context) { }\n}",
+    "discussion" : "Implement makeNSView and updateNSView to host any NSView, with a Coordinator bridging delegates back to SwiftUI. The escape hatch when macOS AppKit offers something SwiftUI doesn't yet.",
+    "kind" : "Protocol",
+    "name" : "NSViewRepresentable",
+    "platforms" : [
+      "macOS"
+    ],
+    "related" : [
+      "UIViewRepresentable",
+      "View"
+    ],
+    "summary" : "Wraps an AppKit view for use in SwiftUI.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "struct WidthKey: PreferenceKey {\n    static let defaultValue: CGFloat = 0\n    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {\n        value = max(value, nextValue())\n    }\n}\n\nchild\n    .preference(key: WidthKey.self, value: proxy.size.width)",
+    "discussion" : "Preferences flow opposite to the environment: children set values, a reduce function merges siblings, and ancestors read the result with onPreferenceChange. It's how navigation titles reach the bar — and how children report sizes to parents.",
+    "kind" : "Protocol",
+    "name" : "PreferenceKey",
+    "related" : [
+      "EnvironmentKey",
+      "GeometryReader"
+    ],
+    "summary" : "Passes values up the view tree, child to ancestor.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "struct HoldToConfirm: PrimitiveButtonStyle {\n    func makeBody(configuration: Configuration) -> some View {\n        configuration.label\n            .onLongPressGesture(minimumDuration: 1) {\n                configuration.trigger()\n            }\n    }\n}",
+    "discussion" : "Where ButtonStyle only redraws, PrimitiveButtonStyle receives the trigger itself — you decide what gesture invokes configuration.trigger(). This is how long-press-to-confirm or double-tap buttons are built.",
+    "kind" : "Protocol",
+    "name" : "PrimitiveButtonStyle",
+    "related" : [
+      "ButtonStyle",
+      "Button"
+    ],
+    "summary" : "A button style that also owns the trigger behavior.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "struct RingStyle: ProgressViewStyle {\n    func makeBody(configuration: Configuration) -> some View {\n        Circle()\n            .trim(from: 0, to: configuration.fractionCompleted ?? 0)\n            .stroke(.blue, style: .init(lineWidth: 6, lineCap: .round))\n            .rotationEffect(.degrees(-90))\n    }\n}",
+    "discussion" : "ProgressViewStyle reads the configuration's optional fractionCompleted (nil while indeterminate) and draws anything — rings, waves, battery bars. This app type-erases between the built-in linear and circular styles in its ProgressView demo.",
+    "kind" : "Protocol",
+    "name" : "ProgressViewStyle",
+    "related" : [
+      "ProgressView",
+      ".progressViewStyle()"
+    ],
+    "summary" : "Custom progress rendering from fractionCompleted.",
+    "wwdcYear" : 2020
+  },
+  {
+    "code" : "var body: some Scene {\n    WindowGroup { ContentView() }\n    Settings { SettingsView() }\n}",
+    "discussion" : "Scenes sit between the App and its views: WindowGroup, Window, Settings, DocumentGroup, and MenuBarExtra all conform. The system owns their lifecycle; scenePhase reports whether a scene is active, inactive, or backgrounded.",
+    "kind" : "Protocol",
+    "name" : "Scene",
+    "related" : [
+      "App",
+      "WindowGroup",
+      "scenePhase"
+    ],
+    "summary" : "A root container the system manages — windows, settings, menus.",
+    "wwdcYear" : 2020
+  },
+  {
+    "code" : "struct SnapTo80: ScrollTargetBehavior {\n    func updateTarget(_ target: inout ScrollTarget,\n                      context: TargetContext) {\n        target.rect.origin.y =\n            (target.rect.origin.y \/ 80).rounded() * 80\n    }\n}",
+    "discussion" : "Adopt ScrollTargetBehavior to bend the end of a scroll gesture: updateTarget receives the proposed resting point and may move it — snap grids, magnetic sections, or paging variants beyond the built-ins.",
+    "kind" : "Protocol",
+    "name" : "ScrollTargetBehavior",
+    "related" : [
+      ".scrollTargetBehavior()",
+      "ScrollView"
+    ],
+    "summary" : "Custom rules for where scrolling comes to rest.",
+    "wwdcYear" : 2023
+  },
+  {
+    "code" : "struct Triangle: Shape {\n    func path(in rect: CGRect) -> Path {\n        Path { p in\n            p.move(to: CGPoint(x: rect.midX, y: rect.minY))\n            p.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))\n            p.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))\n            p.closeSubpath()\n        }\n    }\n}",
+    "discussion" : "A Shape converts any rectangle into a Path, which makes it resolution-independent and reusable at any size. Conformers get fill, stroke, trim, and clipping behavior for free; animate custom geometry via animatableData.",
+    "kind" : "Protocol",
+    "name" : "Shape",
+    "related" : [
+      "Path",
+      "Animatable",
+      "InsettableShape"
+    ],
+    "summary" : "A view defined purely by the path it draws in a rect.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "Circle().fill(.blue)                    \/\/ Color\nCircle().fill(.blue.gradient)           \/\/ AnyGradient\nCircle().fill(.ultraThinMaterial)       \/\/ Material\nCircle().fill(.linearGradient(\n    colors: [.red, .orange],\n    startPoint: .top, endPoint: .bottom))",
+    "discussion" : "ShapeStyle unifies what fill, stroke, background, and foregroundStyle accept: Color, gradients, materials, hierarchical levels, and image paint all conform. Custom conformances can resolve differently per environment, like a color pair that adapts to dark mode.",
+    "kind" : "Protocol",
+    "name" : "ShapeStyle",
+    "related" : [
+      "LinearGradient",
+      "Material",
+      ".foregroundStyle()"
+    ],
+    "summary" : "Anything that can paint content — colors, gradients, materials.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "struct Jitter: TextRenderer {\n    func draw(layout: Text.Layout, in ctx: inout GraphicsContext) {\n        for line in layout {\n            for run in line {\n                ctx.translateBy(x: 0, y: .random(in: -1...1))\n                ctx.draw(run)\n            }\n        }\n    }\n}",
+    "discussion" : "TextRenderer (WWDC '24) hands you the resolved text layout and a GraphicsContext: draw runs and glyphs yourself for per-character animations and effects that were previously Core Text territory.",
+    "kind" : "Protocol",
+    "name" : "TextRenderer",
+    "platforms" : [
+      "iOS",
+      "macOS"
+    ],
+    "related" : [
+      "Text",
+      "Canvas"
+    ],
+    "summary" : "Takes over how Text draws, line by line, glyph by glyph.",
+    "wwdcYear" : 2024
+  },
+  {
+    "code" : "struct StarToggle: ToggleStyle {\n    func makeBody(configuration: Configuration) -> some View {\n        Button {\n            configuration.isOn.toggle()\n        } label: {\n            Image(systemName: configuration.isOn ? \"star.fill\" : \"star\")\n        }\n    }\n}",
+    "discussion" : "ToggleStyle's makeBody receives the label and the isOn binding — draw anything that flips the binding and every Toggle using the style inherits the behavior. The demo's checkbox\/switch\/button variants are the built-in conformers.",
+    "kind" : "Protocol",
+    "name" : "ToggleStyle",
+    "related" : [
+      "Toggle",
+      ".toggleStyle()",
+      "ButtonStyle"
+    ],
+    "summary" : "Custom rendering for toggles.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "struct EditorToolbar: ToolbarContent {\n    var body: some ToolbarContent {\n        ToolbarItem(placement: .primaryAction) {\n            Button(\"Save\", systemImage: \"tray.and.arrow.down\") { }\n        }\n    }\n}\n\ncontent.toolbar { EditorToolbar() }",
+    "discussion" : "Conforming to ToolbarContent lets you factor ToolbarItem declarations into named types shared across screens, keeping placements consistent — the toolbar counterpart of extracting a subview.",
+    "kind" : "Protocol",
+    "name" : "ToolbarContent",
+    "related" : [
+      ".toolbar()"
+    ],
+    "summary" : "Builds reusable groups of toolbar items.",
+    "wwdcYear" : 2020
+  },
+  {
+    "code" : "struct Recipe: Codable, Transferable {\n    var title: String\n\n    static var transferRepresentation: some TransferRepresentation {\n        CodableRepresentation(contentType: .json)\n    }\n}",
+    "discussion" : "Transferable centralizes serialization for sharing, drag and drop, and the pasteboard: describe your representations — Codable, data, file, or proxy — once, and every transfer surface understands the type.",
+    "kind" : "Protocol",
+    "name" : "Transferable",
+    "related" : [
+      "ShareLink"
+    ],
+    "summary" : "Declares how a type moves via drag, copy, or share.",
+    "wwdcYear" : 2022
+  },
+  {
+    "code" : "struct Twirl: Transition {\n    func body(content: Content, phase: TransitionPhase) -> some View {\n        content\n            .rotationEffect(.degrees(phase.isIdentity ? 0 : 180))\n            .opacity(phase.isIdentity ? 1 : 0)\n    }\n}",
+    "discussion" : "The Transition protocol (2023) formalizes what AnyTransition compositions did: given content and a phase — willAppear, identity, didDisappear — return the modified view, and SwiftUI interpolates between phases.",
+    "kind" : "Protocol",
+    "name" : "Transition",
+    "related" : [
+      ".transition()",
+      "CustomAnimation"
+    ],
+    "summary" : "Defines custom insertion and removal animations.",
+    "wwdcYear" : 2023
+  },
+  {
+    "code" : "struct ActivityRing: UIViewRepresentable {\n    var progress: Double\n\n    func makeUIView(context: Context) -> RingView { RingView() }\n    func updateUIView(_ view: RingView, context: Context) {\n        view.progress = progress\n    }\n}",
+    "discussion" : "The iOS twin of NSViewRepresentable: makeUIView creates the UIView once, updateUIView syncs SwiftUI state into it, and a Coordinator handles delegate callbacks. Prefer native SwiftUI when an equivalent exists.",
+    "kind" : "Protocol",
+    "name" : "UIViewRepresentable",
+    "platforms" : [
+      "iOS",
+      "tvOS"
+    ],
+    "related" : [
+      "NSViewRepresentable",
+      "View"
+    ],
+    "summary" : "Wraps a UIKit view for use in SwiftUI.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "struct BadgeView: View {\n    let count: Int\n\n    var body: some View {\n        Text(\"\\(count)\")\n            .padding(6)\n            .background(.red, in: .circle)\n            .foregroundStyle(.white)\n    }\n}",
+    "discussion" : "A View is a lightweight value describing what to display; its single requirement is the body property. SwiftUI recreates these values freely and diffs them, so keep them cheap — state lives in property wrappers, not in the struct's stored properties.",
+    "kind" : "Protocol",
+    "name" : "View",
+    "related" : [
+      "ViewModifier",
+      "App",
+      "@State"
+    ],
+    "summary" : "The requirement every piece of SwiftUI UI conforms to.",
+    "wwdcYear" : 2019
+  },
+  {
+    "code" : "struct CardStyle: ViewModifier {\n    func body(content: Content) -> some View {\n        content\n            .padding()\n            .background(.background, in: .rect(cornerRadius: 12))\n            .shadow(radius: 4)\n    }\n}\n\nextension View {\n    func cardStyle() -> some View { modifier(CardStyle()) }\n}",
+    "discussion" : "Conform to ViewModifier to bundle a set of modifiers — and any state they need — into one named unit, applied with the modifier function. Pair it with a View extension for a fluent call site.",
+    "kind" : "Protocol",
+    "name" : "ViewModifier",
+    "related" : [
+      "View",
+      ".padding()"
+    ],
+    "summary" : "A reusable transformation applied to any view.",
+    "wwdcYear" : 2019
+  }
+]

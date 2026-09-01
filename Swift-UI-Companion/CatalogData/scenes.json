@@ -1,0 +1,107 @@
+[
+  {
+    "code" : "DocumentGroup(newDocument: TextFile()) { file in\n    EditorView(document: file.$document)\n}",
+    "discussion" : "DocumentGroup binds a FileDocument or ReferenceFileDocument type to editor windows, inheriting the platform's new\/open\/save\/rename machinery, recents, and iCloud integration.",
+    "kind" : "Scene",
+    "name" : "DocumentGroup",
+    "platforms" : [
+      "iOS",
+      "macOS"
+    ],
+    "related" : [
+      "WindowGroup"
+    ],
+    "summary" : "Document-based app scenes with open\/save for free.",
+    "wwdcYear" : 2020
+  },
+  {
+    "code" : "DocumentGroupLaunchScene(\"Sketchpad\") {\n    NewDocumentButton(\"New Sketch\")\n} background: {\n    Image(\"launch-hero\").resizable().scaledToFill()\n}",
+    "discussion" : "Added at WWDC '24, DocumentGroupLaunchScene gives document apps the title-screen treatment — hero background, title, and action buttons for creating or opening documents — replacing the bare document browser as the first screen.",
+    "kind" : "Scene",
+    "name" : "DocumentGroupLaunchScene",
+    "platforms" : [
+      "iOS"
+    ],
+    "related" : [
+      "DocumentGroup"
+    ],
+    "summary" : "A designed launch experience for document-based iOS apps.",
+    "wwdcYear" : 2024
+  },
+  {
+    "code" : "MenuBarExtra(\"Companion\", systemImage: \"swift\") {\n    QuickSearchView()\n}\n.menuBarExtraStyle(.window)",
+    "discussion" : "MenuBarExtra installs a status item with either a pull-down menu or, with the window style, a full SwiftUI popover panel. Apps can be menu-bar-only by making it their sole scene. This very app uses one for quick topic search.",
+    "kind" : "Scene",
+    "name" : "MenuBarExtra",
+    "platforms" : [
+      "macOS"
+    ],
+    "related" : [
+      "Window",
+      "Scene"
+    ],
+    "summary" : "Puts your app in the macOS menu bar.",
+    "wwdcYear" : 2022
+  },
+  {
+    "code" : "Settings {\n    TabView {\n        GeneralPane()\n            .tabItem { Label(\"General\", systemImage: \"gear\") }\n    }\n}",
+    "discussion" : "Declaring a Settings scene gives the app the standard Settings menu item, ⌘, shortcut, and window. TabViews inside render as settings panes.",
+    "kind" : "Scene",
+    "name" : "Settings",
+    "platforms" : [
+      "macOS"
+    ],
+    "related" : [
+      "WindowGroup",
+      "@AppStorage"
+    ],
+    "summary" : "The macOS Settings window, wired to the app menu.",
+    "wwdcYear" : 2020
+  },
+  {
+    "code" : "Window(\"Activity\", id: \"activity\") {\n    ActivityView()\n}\n.keyboardShortcut(\"0\", modifiers: [.command, .option])",
+    "discussion" : "Where WindowGroup multiplies, Window guarantees exactly one instance — right for dashboards, about panels, and utility windows. It joins the Windows menu automatically and opens via its id.",
+    "kind" : "Scene",
+    "name" : "Window",
+    "platforms" : [
+      "macOS"
+    ],
+    "related" : [
+      "WindowGroup",
+      "MenuBarExtra"
+    ],
+    "summary" : "A single, unique window on macOS.",
+    "wwdcYear" : 2022
+  },
+  {
+    "children" : [
+      {
+        "code" : "WindowGroup(\"Library\") {\n    LibraryView()\n}",
+        "name" : "WindowGroup(_:content:)",
+        "summary" : "The basic form: a titled group of identical windows."
+      },
+      {
+        "code" : "WindowGroup(id: \"main\") {\n    ContentView()\n}\n\n\/\/ later:\nopenWindow(id: \"main\")",
+        "name" : "WindowGroup(id:content:)",
+        "summary" : "Adds a stable identifier so openWindow can target the group."
+      },
+      {
+        "code" : "WindowGroup(for: Note.ID.self) { $noteID in\n    \/\/ noteID is Note.ID? — nil for a plain new window\n    NoteEditor(id: noteID)\n}\n\n\/\/ later:\nopenWindow(value: note.id)",
+        "discussion" : "The system opens one window per distinct value and hands the content closure a binding to an optional — it is nil when a window opens without a presented value, as from the New Window menu command, so the content must handle that case. openWindow(value:) reuses an existing window when the value already has one, and the defaultValue: overload supplies a fallback that makes the binding non-optional.",
+        "name" : "WindowGroup(for:content:)",
+        "summary" : "Presents a window per value — one editor per document id."
+      }
+    ],
+    "code" : "WindowGroup(id: \"main\") {\n    ContentView()\n}\n\n\/\/ elsewhere:\n@Environment(\\.openWindow) private var openWindow\nopenWindow(id: \"main\")",
+    "discussion" : "WindowGroup can instantiate any number of identical windows (macOS and iPadOS) from one declaration. Give it an id or a presented value type to open specific windows programmatically through the openWindow environment action.",
+    "kind" : "Scene",
+    "name" : "WindowGroup",
+    "related" : [
+      "Window",
+      "Scene",
+      "openWindow"
+    ],
+    "summary" : "The standard scene for an app's main windows.",
+    "wwdcYear" : 2020
+  }
+]
