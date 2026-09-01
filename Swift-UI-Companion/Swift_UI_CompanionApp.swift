@@ -38,6 +38,13 @@ struct Swift_UI_CompanionApp: App {
             }
 
             CommandMenu("Go") {
+                Button("Quick Open…") {
+                    model.isQuickOpenPresented = true
+                }
+                .keyboardShortcut("k")
+
+                Divider()
+
                 Button("Back") {
                     model.activeTab.goBack()
                 }

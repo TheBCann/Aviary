@@ -11,11 +11,17 @@ struct ContentView: View {
     @Environment(AppModel.self) private var model
 
     var body: some View {
-        VStack(spacing: 0) {
-            TabStripView()
-            Divider()
-            WorkspaceView(tab: model.activeTab)
-                .id(model.activeTabID)
+        ZStack {
+            VStack(spacing: 0) {
+                TabStripView()
+                Divider()
+                WorkspaceView(tab: model.activeTab)
+                    .id(model.activeTabID)
+            }
+
+            if model.isQuickOpenPresented {
+                QuickOpenOverlay()
+            }
         }
         .frame(minWidth: 940, minHeight: 580)
     }

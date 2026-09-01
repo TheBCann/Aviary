@@ -89,6 +89,7 @@ final class AppModel {
     let frameworks: [String]
     var tabs: [WorkspaceTab]
     var activeTabID: WorkspaceTab.ID
+    var isQuickOpenPresented = false
 
     private let topicsByID: [String: Topic]
     private let childParents: [String: String]
