@@ -5,16 +5,75 @@
 
 import SwiftUI
 
-/// One workspace tab: its own filter, search text, and selection.
+/// One selection state a tab can navigate back or forward to.
+struct NavSnapshot: Hashable {
+    var sidebar: SidebarItem?
+    var topicID: Topic.ID?
+}
+
+/// One workspace tab: its own filter, search text, selection, and
+/// back/forward navigation history.
 @Observable
 final class WorkspaceTab: Identifiable {
     let id = UUID()
     var criteria = FilterCriteria()
     var searchText = ""
-    var sidebarSelection: SidebarItem? = .all
-    var selectedTopicID: Topic.ID?
+
+    private(set) var backStack: [NavSnapshot] = []
+    private(set) var forwardStack: [NavSnapshot] = []
+    private var isRestoring = false
+    /// The state as of the last recorded change — what a new navigation
+    /// pushes onto the back stack.
+    private var current = NavSnapshot(sidebar: .all, topicID: nil)
+
+    var sidebarSelection: SidebarItem? = .all {
+        didSet { syncCurrent() }
+    }
+
+    var selectedTopicID: Topic.ID? {
+        didSet {
+            guard !isRestoring, oldValue != selectedTopicID else {
+                syncCurrent()
+                return
+            }
+            // Don't record the empty "nothing selected" launch state.
+            if current.topicID != nil {
+                backStack.append(current)
+                forwardStack.removeAll()
+            }
+            syncCurrent()
+        }
+    }
 
     var title: String { criteria.summaryLabel }
+
+    var canGoBack: Bool { !backStack.isEmpty }
+    var canGoForward: Bool { !forwardStack.isEmpty }
+
+    func goBack() {
+        guard let snapshot = backStack.popLast() else { return }
+        forwardStack.append(current)
+        apply(snapshot)
+    }
+
+    func goForward() {
+        guard let snapshot = forwardStack.popLast() else { return }
+        backStack.append(current)
+        apply(snapshot)
+    }
+
+    private func apply(_ snapshot: NavSnapshot) {
+        isRestoring = true
+        sidebarSelection = snapshot.sidebar
+        selectedTopicID = snapshot.topicID
+        current = snapshot
+        isRestoring = false
+    }
+
+    private func syncCurrent() {
+        guard !isRestoring else { return }
+        current = NavSnapshot(sidebar: sidebarSelection, topicID: selectedTopicID)
+    }
 }
 
 /// App-wide state: the catalog plus the open workspace tabs.
@@ -127,13 +186,14 @@ final class AppModel {
     }
 
     /// Jump the active tab to `topic` (used by the menu bar search and
-    /// related-topic links).
+    /// related-topic links). The topic is selected before the sidebar moves
+    /// so the history snapshot keeps the old entry with its old context.
     func reveal(_ topic: Topic) {
         let tab = activeTab
         tab.criteria = FilterCriteria()
         tab.searchText = ""
-        tab.sidebarSelection = .kind(topic.kind)
         tab.selectedTopicID = topic.id
+        tab.sidebarSelection = .kind(topic.kind)
     }
 
     /// Jump the active tab straight to a child entry.
@@ -142,7 +202,10 @@ final class AppModel {
             let parentID = childParents[childID],
             let parent = topicsByID[parentID]
         else { return }
-        reveal(parent)
-        activeTab.selectedTopicID = childID
+        let tab = activeTab
+        tab.criteria = FilterCriteria()
+        tab.searchText = ""
+        tab.selectedTopicID = childID
+        tab.sidebarSelection = .kind(parent.kind)
     }
 }

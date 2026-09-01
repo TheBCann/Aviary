@@ -38,6 +38,24 @@ struct TopicListView: View {
         .navigationTitle(listTitle)
         .navigationSubtitle("\(topics.count) entries")
         .toolbar {
+            ToolbarItemGroup(placement: .navigation) {
+                Button {
+                    tab.goBack()
+                } label: {
+                    Image(systemName: "chevron.backward")
+                }
+                .disabled(!tab.canGoBack)
+                .help("Back")
+
+                Button {
+                    tab.goForward()
+                } label: {
+                    Image(systemName: "chevron.forward")
+                }
+                .disabled(!tab.canGoForward)
+                .help("Forward")
+            }
+
             ToolbarItem(placement: .primaryAction) {
                 FilterButton(tab: tab)
             }

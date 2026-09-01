@@ -36,6 +36,20 @@ struct Swift_UI_CompanionApp: App {
                 .keyboardShortcut("w", modifiers: [.command, .shift])
                 .disabled(model.tabs.count == 1)
             }
+
+            CommandMenu("Go") {
+                Button("Back") {
+                    model.activeTab.goBack()
+                }
+                .keyboardShortcut("[", modifiers: .command)
+                .disabled(!model.activeTab.canGoBack)
+
+                Button("Forward") {
+                    model.activeTab.goForward()
+                }
+                .keyboardShortcut("]", modifiers: .command)
+                .disabled(!model.activeTab.canGoForward)
+            }
         }
 
         MenuBarExtra("SwiftUI Companion", systemImage: "swift") {
