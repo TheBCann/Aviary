@@ -32,6 +32,8 @@ struct TopicListView: View {
                 }
             }
         }
+        .scrollContentBackground(.hidden)
+        .background(Theme.Surface.raised)
         .searchable(text: $tab.searchText, prompt: "Search APIs")
         .navigationTitle(listTitle)
         .navigationSubtitle("\(topics.count) entries")

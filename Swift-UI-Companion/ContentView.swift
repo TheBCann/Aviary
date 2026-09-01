@@ -54,26 +54,32 @@ struct WorkspaceView: View {
                 }
             }
             .listStyle(.sidebar)
+            .scrollContentBackground(.hidden)
+            .background(Theme.Surface.sidebar)
             .navigationSplitViewColumnWidth(min: 200, ideal: 220)
         } content: {
             TopicListView(tab: tab)
                 .navigationSplitViewColumnWidth(min: 260, ideal: 300)
         } detail: {
-            if let selection = model.resolve(tab.selectedTopicID) {
-                if let child = selection.child {
-                    ChildDetailView(topic: selection.topic, child: child)
-                        .id(child.id)
+            Group {
+                if let selection = model.resolve(tab.selectedTopicID) {
+                    if let child = selection.child {
+                        ChildDetailView(topic: selection.topic, child: child)
+                            .id(child.id)
+                    } else {
+                        TopicDetailView(topic: selection.topic)
+                            .id(selection.topic.id)
+                    }
                 } else {
-                    TopicDetailView(topic: selection.topic)
-                        .id(selection.topic.id)
-                }
-            } else {
-                ContentUnavailableView {
-                    Label("SwiftUI Companion", systemImage: "swift")
-                } description: {
-                    Text("Select a topic, or search from the menu bar icon.")
+                    ContentUnavailableView {
+                        Label("SwiftUI Companion", systemImage: "swift")
+                    } description: {
+                        Text("Select a topic, or search from the menu bar icon.")
+                    }
                 }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Theme.Surface.window)
         }
     }
 }
