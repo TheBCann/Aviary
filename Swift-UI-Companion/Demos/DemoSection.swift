@@ -23,7 +23,14 @@ struct DemoSection<Preview: View, Controls: View>: View {
                 preview
                     .frame(maxWidth: .infinity, minHeight: 150)
                     .padding(20)
-                    .background(.quaternary.opacity(0.4))
+                    .background(
+                        LinearGradient(
+                            colors: [Theme.accent.opacity(0.07), .clear],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .background(.quaternary.opacity(0.25))
 
                 Divider()
 

@@ -42,9 +42,14 @@ struct WorkspaceView: View {
                 Section("Kinds") {
                     // A tab filtered to specific API areas shows only those.
                     ForEach(sidebarKinds) { kind in
-                        Label(kind.pluralTitle, systemImage: kind.symbolName)
-                            .badge(model.count(of: .kind(kind), for: tab))
-                            .tag(SidebarItem.kind(kind))
+                        Label {
+                            Text(kind.pluralTitle)
+                        } icon: {
+                            Image(systemName: kind.symbolName)
+                                .foregroundStyle(kind.tint)
+                        }
+                        .badge(model.count(of: .kind(kind), for: tab))
+                        .tag(SidebarItem.kind(kind))
                     }
                 }
             }
