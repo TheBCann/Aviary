@@ -46,6 +46,10 @@ enum DemoRegistry {
         case "timingCurve": return AnyView(TimingCurveDemo())
         case "gradientAnchors": return AnyView(GradientAnchorsDemo())
         case "rotationAnchor": return AnyView(RotationAnchorDemo())
+        case "shadowLight": return AnyView(ShadowLightDemo())
+        case "unevenCorners": return AnyView(UnevenCornersDemo())
+        case "radialGradient": return AnyView(RadialCenterDemo())
+        case "angularGradient": return AnyView(AngularSweepDemo())
         default: return nil
         }
     }

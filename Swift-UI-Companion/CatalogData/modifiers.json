@@ -1039,7 +1039,7 @@
       }
     ],
     "code": "RoundedRectangle(cornerRadius: 12)\n    .fill(.white)\n    .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4)",
-    "demoID": "effects",
+    "demoID": "shadowLight",
     "discussion": "shadow offsets and blurs a copy of the view's alpha channel. Small radii with subtle opacity read as elevation; the color parameter tints the shadow for glows. For shadows on shape fills specifically, the .shadow ShapeStyle keeps text inside unaffected.",
     "kind": "Modifier",
     "name": ".shadow()",

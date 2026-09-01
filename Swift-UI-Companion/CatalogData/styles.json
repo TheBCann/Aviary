@@ -312,7 +312,7 @@
   },
   {
     "code": "Circle()\n    .fill(AngularGradient(\n        colors: [.red, .yellow, .green, .blue, .red],\n        center: .center\n    ))",
-    "demoID": "gradient",
+    "demoID": "angularGradient",
     "discussion": "AngularGradient (a conic gradient) rotates through its stops around a center, from a start to an end angle — the foundation of color wheels and circular meters.",
     "kind": "Style",
     "name": "AngularGradient",
@@ -390,7 +390,7 @@
   },
   {
     "code": "Circle()\n    .fill(RadialGradient(\n        colors: [.yellow, .orange, .red],\n        center: .center,\n        startRadius: 5,\n        endRadius: 60\n    ))",
-    "demoID": "gradient",
+    "demoID": "radialGradient",
     "discussion": "RadialGradient runs its stops from a center unit point between a start and end radius — the go-to for spotlight and glow effects.",
     "kind": "Style",
     "name": "RadialGradient",

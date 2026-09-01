@@ -1,222 +1,223 @@
 [
   {
-    "code" : "Path { p in\n    p.move(to: center)\n    p.addArc(center: center, radius: 60,\n             startAngle: .degrees(0),\n             endAngle: .degrees(120),\n             clockwise: false)\n    p.closeSubpath()\n}\n.fill(.teal)",
-    "demoID" : "arc",
-    "discussion" : "addArc sweeps from a start to an end angle around a center and radius — pie slices, ring segments, and rounded corners built by hand. Mind the clockwise flag: SwiftUI's flipped y-axis makes it read backwards.",
-    "kind" : "Shape",
-    "name" : ".addArc()",
-    "related" : [
+    "code": "Path { p in\n    p.move(to: center)\n    p.addArc(center: center, radius: 60,\n             startAngle: .degrees(0),\n             endAngle: .degrees(120),\n             clockwise: false)\n    p.closeSubpath()\n}\n.fill(.teal)",
+    "demoID": "arc",
+    "discussion": "addArc sweeps from a start to an end angle around a center and radius — pie slices, ring segments, and rounded corners built by hand. Mind the clockwise flag: SwiftUI's flipped y-axis makes it read backwards.",
+    "kind": "Shape",
+    "name": ".addArc()",
+    "related": [
       "Path",
       ".addQuadCurve()",
       ".addCurve()"
     ],
-    "summary" : "Appends a circular arc to a path.",
-    "wwdcYear" : 2019
+    "summary": "Appends a circular arc to a path.",
+    "wwdcYear": 2019
   },
   {
-    "code" : "Path { p in\n    p.move(to: CGPoint(x: 20, y: 100))\n    p.addCurve(\n        to: CGPoint(x: 220, y: 100),\n        control1: CGPoint(x: 80, y: 20),\n        control2: CGPoint(x: 160, y: 180)\n    )\n}\n.stroke(.purple, lineWidth: 3)",
-    "demoID" : "cubicCurve",
-    "discussion" : "Where a quadratic curve bends around one control point, addCurve uses two — enough freedom for S-curves and smooth waveforms in a single segment. Chain segments and match tangents for continuous curves.",
-    "kind" : "Shape",
-    "name" : ".addCurve()",
-    "related" : [
+    "code": "Path { p in\n    p.move(to: CGPoint(x: 20, y: 100))\n    p.addCurve(\n        to: CGPoint(x: 220, y: 100),\n        control1: CGPoint(x: 80, y: 20),\n        control2: CGPoint(x: 160, y: 180)\n    )\n}\n.stroke(.purple, lineWidth: 3)",
+    "demoID": "cubicCurve",
+    "discussion": "Where a quadratic curve bends around one control point, addCurve uses two — enough freedom for S-curves and smooth waveforms in a single segment. Chain segments and match tangents for continuous curves.",
+    "kind": "Shape",
+    "name": ".addCurve()",
+    "related": [
       ".addQuadCurve()",
       "Path"
     ],
-    "summary" : "Appends a cubic Bézier curve with two control points.",
-    "wwdcYear" : 2019
+    "summary": "Appends a cubic Bézier curve with two control points.",
+    "wwdcYear": 2019
   },
   {
-    "code" : "Path { p in\n    p.move(to: start)\n    p.addQuadCurve(to: end, control: control)\n}\n.stroke(.blue, lineWidth: 3)",
-    "demoID" : "quadCurve",
-    "discussion" : "A quadratic curve bends from the current point to an end point, pulled toward a single control point — the curve touches neither the control point nor the straight line, but stays inside their triangle. Drag the points in the demo to feel how the control point steers the arc.",
-    "kind" : "Shape",
-    "name" : ".addQuadCurve()",
-    "related" : [
+    "code": "Path { p in\n    p.move(to: start)\n    p.addQuadCurve(to: end, control: control)\n}\n.stroke(.blue, lineWidth: 3)",
+    "demoID": "quadCurve",
+    "discussion": "A quadratic curve bends from the current point to an end point, pulled toward a single control point — the curve touches neither the control point nor the straight line, but stays inside their triangle. Drag the points in the demo to feel how the control point steers the arc.",
+    "kind": "Shape",
+    "name": ".addQuadCurve()",
+    "related": [
       "Path",
       "Shape"
     ],
-    "summary" : "Appends a quadratic Bézier curve to a path.",
-    "wwdcYear" : 2019
+    "summary": "Appends a quadratic Bézier curve to a path.",
+    "wwdcYear": 2019
   },
   {
-    "code" : "var badge: AnyShape {\n    isRound ? AnyShape(Circle()) : AnyShape(Capsule())\n}\n\ncontent.clipShape(badge)",
-    "discussion" : "AnyShape wraps any Shape behind one concrete type, so a property or collection can hold circles and rectangles interchangeably. The trade-off mirrors AnyView: flexibility for diffing detail.",
-    "kind" : "Shape",
-    "name" : "AnyShape",
-    "related" : [
+    "code": "var badge: AnyShape {\n    isRound ? AnyShape(Circle()) : AnyShape(Capsule())\n}\n\ncontent.clipShape(badge)",
+    "discussion": "AnyShape wraps any Shape behind one concrete type, so a property or collection can hold circles and rectangles interchangeably. The trade-off mirrors AnyView: flexibility for diffing detail.",
+    "kind": "Shape",
+    "name": "AnyShape",
+    "related": [
       "Shape",
       "AnyView"
     ],
-    "summary" : "Type-erases a shape for heterogeneous storage.",
-    "wwdcYear" : 2022
+    "summary": "Type-erases a shape for heterogeneous storage.",
+    "wwdcYear": 2022
   },
   {
-    "code" : "Button(\"Continue\") { next() }\n    .buttonStyle(.borderedProminent)\n    .buttonBorderShape(.capsule)",
-    "discussion" : "ButtonBorderShape feeds the buttonBorderShape modifier to round bordered-style buttons as capsules, rounded rectangles, or circles — restyling system buttons without a custom ButtonStyle.",
-    "kind" : "Shape",
-    "name" : "ButtonBorderShape",
-    "related" : [
+    "code": "Button(\"Continue\") { next() }\n    .buttonStyle(.borderedProminent)\n    .buttonBorderShape(.capsule)",
+    "discussion": "ButtonBorderShape feeds the buttonBorderShape modifier to round bordered-style buttons as capsules, rounded rectangles, or circles — restyling system buttons without a custom ButtonStyle.",
+    "kind": "Shape",
+    "name": "ButtonBorderShape",
+    "related": [
       "Button",
       ".buttonStyle()",
       "Capsule"
     ],
-    "summary" : "The border silhouette bordered buttons use.",
-    "wwdcYear" : 2021
+    "summary": "The border silhouette bordered buttons use.",
+    "wwdcYear": 2021
   },
   {
-    "code" : "Text(\"NEW\")\n    .font(.caption.bold())\n    .padding(.horizontal, 10)\n    .padding(.vertical, 4)\n    .background(.pink, in: .capsule)\n    .foregroundStyle(.white)",
-    "discussion" : "Capsule rounds its corners to half of the shorter dimension, giving the classic pill silhouette used for tags, badges, and prominent buttons.",
-    "kind" : "Shape",
-    "name" : "Capsule",
-    "related" : [
+    "code": "Text(\"NEW\")\n    .font(.caption.bold())\n    .padding(.horizontal, 10)\n    .padding(.vertical, 4)\n    .background(.pink, in: .capsule)\n    .foregroundStyle(.white)",
+    "discussion": "Capsule rounds its corners to half of the shorter dimension, giving the classic pill silhouette used for tags, badges, and prominent buttons.",
+    "kind": "Shape",
+    "name": "Capsule",
+    "related": [
       "RoundedRectangle",
       "Circle"
     ],
-    "summary" : "A rectangle whose short sides are full semicircles.",
-    "wwdcYear" : 2019
+    "summary": "A rectangle whose short sides are full semicircles.",
+    "wwdcYear": 2019
   },
   {
-    "code" : "Circle()\n    .trim(from: 0, to: 0.72)\n    .stroke(.green, style: StrokeStyle(lineWidth: 8, lineCap: .round))\n    .rotationEffect(.degrees(-90))\n    .frame(width: 80, height: 80)",
-    "demoID" : "trimRing",
-    "discussion" : "Circle sizes itself to the smaller of its offered dimensions, staying perfectly round. It is the standard avatar mask and the basis of ring-style progress indicators via trimmed strokes.",
-    "kind" : "Shape",
-    "name" : "Circle",
-    "related" : [
+    "code": "Circle()\n    .trim(from: 0, to: 0.72)\n    .stroke(.green, style: StrokeStyle(lineWidth: 8, lineCap: .round))\n    .rotationEffect(.degrees(-90))\n    .frame(width: 80, height: 80)",
+    "demoID": "trimRing",
+    "discussion": "Circle sizes itself to the smaller of its offered dimensions, staying perfectly round. It is the standard avatar mask and the basis of ring-style progress indicators via trimmed strokes.",
+    "kind": "Shape",
+    "name": "Circle",
+    "related": [
       "Ellipse",
       "Capsule",
       ".clipShape()"
     ],
-    "summary" : "A circle inscribed in its frame.",
-    "wwdcYear" : 2019
+    "summary": "A circle inscribed in its frame.",
+    "wwdcYear": 2019
   },
   {
-    "code" : "ZStack {\n    ContainerRelativeShape()\n        .fill(.blue.opacity(0.2))\n    Text(\"Widget content\")\n}\n.padding(8)",
-    "discussion" : "Inside a container that defines a shape — most notably widgets — ContainerRelativeShape produces a concentric version of it, keeping nested corner radii optically correct without hardcoding values.",
-    "kind" : "Shape",
-    "name" : "ContainerRelativeShape",
-    "related" : [
+    "code": "ZStack {\n    ContainerRelativeShape()\n        .fill(.blue.opacity(0.2))\n    Text(\"Widget content\")\n}\n.padding(8)",
+    "discussion": "Inside a container that defines a shape — most notably widgets — ContainerRelativeShape produces a concentric version of it, keeping nested corner radii optically correct without hardcoding values.",
+    "kind": "Shape",
+    "name": "ContainerRelativeShape",
+    "related": [
       "RoundedRectangle"
     ],
-    "summary" : "Echoes the containing shape, inset appropriately.",
-    "wwdcYear" : 2020
+    "summary": "Echoes the containing shape, inset appropriately.",
+    "wwdcYear": 2020
   },
   {
-    "code" : "Ellipse()\n    .fill(.orange.opacity(0.6))\n    .frame(width: 160, height: 90)",
-    "discussion" : "Ellipse is Circle without the aspect-ratio guarantee: it fills both offered dimensions, producing an oval whenever they differ.",
-    "kind" : "Shape",
-    "name" : "Ellipse",
-    "related" : [
+    "code": "Ellipse()\n    .fill(.orange.opacity(0.6))\n    .frame(width: 160, height: 90)",
+    "discussion": "Ellipse is Circle without the aspect-ratio guarantee: it fills both offered dimensions, producing an oval whenever they differ.",
+    "kind": "Shape",
+    "name": "Ellipse",
+    "related": [
       "Circle"
     ],
-    "summary" : "An ellipse stretched to fill its frame.",
-    "wwdcYear" : 2019
+    "summary": "An ellipse stretched to fill its frame.",
+    "wwdcYear": 2019
   },
   {
-    "children" : [
+    "children": [
       {
-        "code" : "Path { p in\n    p.move(to: CGPoint(x: 0, y: 40))\n    p.addLine(to: CGPoint(x: 120, y: 0))\n    p.addLine(to: CGPoint(x: 120, y: 80))\n    p.closeSubpath()\n}\n.fill(.mint)",
-        "discussion" : "The closure receives an inout Path to mutate — the usual way to sketch one-off geometry inline in a view body.",
-        "name" : "Path(_:)",
-        "summary" : "Builds a path imperatively inside a closure."
+        "code": "Path { p in\n    p.move(to: CGPoint(x: 0, y: 40))\n    p.addLine(to: CGPoint(x: 120, y: 0))\n    p.addLine(to: CGPoint(x: 120, y: 80))\n    p.closeSubpath()\n}\n.fill(.mint)",
+        "discussion": "The closure receives an inout Path to mutate — the usual way to sketch one-off geometry inline in a view body.",
+        "name": "Path(_:)",
+        "summary": "Builds a path imperatively inside a closure."
       },
       {
-        "code" : "Path(ellipseIn: CGRect(x: 0, y: 0, width: 120, height: 70))\n    .stroke(.purple, lineWidth: 2)",
-        "name" : "Path(ellipseIn:)",
-        "summary" : "A ready-made ellipse path fitted to a rect."
+        "code": "Path(ellipseIn: CGRect(x: 0, y: 0, width: 120, height: 70))\n    .stroke(.purple, lineWidth: 2)",
+        "name": "Path(ellipseIn:)",
+        "summary": "A ready-made ellipse path fitted to a rect."
       },
       {
-        "code" : "Path(roundedRect: CGRect(x: 0, y: 0, width: 140, height: 80),\n     cornerRadius: 14, style: .continuous)\n    .fill(.teal.opacity(0.4))",
-        "name" : "Path(roundedRect:cornerRadius:style:)",
-        "summary" : "A rounded-rectangle path with one uniform radius."
+        "code": "Path(roundedRect: CGRect(x: 0, y: 0, width: 140, height: 80),\n     cornerRadius: 14, style: .continuous)\n    .fill(.teal.opacity(0.4))",
+        "name": "Path(roundedRect:cornerRadius:style:)",
+        "summary": "A rounded-rectangle path with one uniform radius."
       },
       {
-        "code" : "Path { p in\n    p.move(to: CGPoint(x: 20, y: 60))\n    p.addLine(to: CGPoint(x: 100, y: 20))\n}\n.stroke(.blue, lineWidth: 2)",
-        "discussion" : "Think pen-up: nothing is stroked until a segment follows. Every subpath begins with a move.",
-        "name" : "move(to:)",
-        "summary" : "Starts a new subpath at a point without drawing."
+        "code": "Path { p in\n    p.move(to: CGPoint(x: 20, y: 60))\n    p.addLine(to: CGPoint(x: 100, y: 20))\n}\n.stroke(.blue, lineWidth: 2)",
+        "discussion": "Think pen-up: nothing is stroked until a segment follows. Every subpath begins with a move.",
+        "name": "move(to:)",
+        "summary": "Starts a new subpath at a point without drawing."
       },
       {
-        "code" : "Path { p in\n    p.move(to: .zero)\n    p.addLine(to: CGPoint(x: 80, y: 0))\n    p.addLine(to: CGPoint(x: 80, y: 80))\n}\n.stroke(.indigo, lineWidth: 2)",
-        "name" : "addLine(to:)",
-        "summary" : "Draws a straight segment from the current point."
+        "code": "Path { p in\n    p.move(to: .zero)\n    p.addLine(to: CGPoint(x: 80, y: 0))\n    p.addLine(to: CGPoint(x: 80, y: 80))\n}\n.stroke(.indigo, lineWidth: 2)",
+        "name": "addLine(to:)",
+        "summary": "Draws a straight segment from the current point."
       }
     ],
-    "code" : "Path { p in\n    p.move(to: CGPoint(x: 20, y: 80))\n    p.addLine(to: CGPoint(x: 70, y: 20))\n    p.addQuadCurve(\n        to: CGPoint(x: 180, y: 80),\n        control: CGPoint(x: 130, y: 120)\n    )\n}\n.stroke(.blue, lineWidth: 3)",
-    "demoID" : "quadCurve",
-    "discussion" : "Path is the raw geometry type behind every shape: move a point, add lines, arcs, and Bézier curves, then fill or stroke the result. Custom Shape types build their output in a Path so it can scale to any rect.",
-    "kind" : "Shape",
-    "name" : "Path",
-    "related" : [
+    "code": "Path { p in\n    p.move(to: CGPoint(x: 20, y: 80))\n    p.addLine(to: CGPoint(x: 70, y: 20))\n    p.addQuadCurve(\n        to: CGPoint(x: 180, y: 80),\n        control: CGPoint(x: 130, y: 120)\n    )\n}\n.stroke(.blue, lineWidth: 3)",
+    "demoID": "quadCurve",
+    "discussion": "Path is the raw geometry type behind every shape: move a point, add lines, arcs, and Bézier curves, then fill or stroke the result. Custom Shape types build their output in a Path so it can scale to any rect.",
+    "kind": "Shape",
+    "name": "Path",
+    "related": [
       ".addQuadCurve()",
       "Shape",
       "Canvas"
     ],
-    "summary" : "An arbitrary outline built from lines, arcs, and curves.",
-    "wwdcYear" : 2019
+    "summary": "An arbitrary outline built from lines, arcs, and curves.",
+    "wwdcYear": 2019
   },
   {
-    "code" : "Rectangle()\n    .fill(.teal.gradient)\n    .frame(width: 160, height: 60)",
-    "discussion" : "Rectangle draws edge to edge in whatever space it is offered — a building block for backgrounds, bars, and custom controls. Like every shape it can be filled, stroked, or used as a clip mask.",
-    "kind" : "Shape",
-    "name" : "Rectangle",
-    "related" : [
+    "code": "Rectangle()\n    .fill(.teal.gradient)\n    .frame(width: 160, height: 60)",
+    "discussion": "Rectangle draws edge to edge in whatever space it is offered — a building block for backgrounds, bars, and custom controls. Like every shape it can be filled, stroked, or used as a clip mask.",
+    "kind": "Shape",
+    "name": "Rectangle",
+    "related": [
       "RoundedRectangle",
       "Circle",
       "Shape"
     ],
-    "summary" : "A rectangle filling its frame.",
-    "wwdcYear" : 2019
+    "summary": "A rectangle filling its frame.",
+    "wwdcYear": 2019
   },
   {
-    "code" : "RotatedShape(shape: Rectangle(), angle: .degrees(45))\n    .fill(.orange)\n    .frame(width: 100, height: 100)",
-    "discussion" : "RotatedShape wraps another shape and rotates its path around an anchor — unlike rotationEffect, the result is still a Shape, so it can be filled, stroked, or used as a clip.",
-    "kind" : "Shape",
-    "name" : "RotatedShape",
-    "related" : [
+    "code": "RotatedShape(shape: Rectangle(), angle: .degrees(45))\n    .fill(.orange)\n    .frame(width: 100, height: 100)",
+    "discussion": "RotatedShape wraps another shape and rotates its path around an anchor — unlike rotationEffect, the result is still a Shape, so it can be filled, stroked, or used as a clip.",
+    "kind": "Shape",
+    "name": "RotatedShape",
+    "related": [
       "Shape",
       ".rotationEffect()"
     ],
-    "summary" : "A shape rotated by a fixed angle.",
-    "wwdcYear" : 2019
+    "summary": "A shape rotated by a fixed angle.",
+    "wwdcYear": 2019
   },
   {
-    "children" : [
+    "children": [
       {
-        "code" : "RoundedRectangle(cornerRadius: 12, style: .continuous)\n    .fill(.blue.opacity(0.3))\n    .frame(width: 140, height: 80)",
-        "discussion" : "The common form: a single CGFloat radius, with .continuous smoothing the transition where the curve meets the straight edge.",
-        "name" : "RoundedRectangle(cornerRadius:style:)",
-        "summary" : "One radius shared by all four corners."
+        "code": "RoundedRectangle(cornerRadius: 12, style: .continuous)\n    .fill(.blue.opacity(0.3))\n    .frame(width: 140, height: 80)",
+        "discussion": "The common form: a single CGFloat radius, with .continuous smoothing the transition where the curve meets the straight edge.",
+        "name": "RoundedRectangle(cornerRadius:style:)",
+        "summary": "One radius shared by all four corners."
       },
       {
-        "code" : "RoundedRectangle(cornerSize: CGSize(width: 30, height: 12))\n    .stroke(.orange, lineWidth: 2)\n    .frame(width: 140, height: 80)",
-        "discussion" : "Giving the corner different width and height values produces elliptical corners — wider than they are tall, or the reverse.",
-        "name" : "RoundedRectangle(cornerSize:style:)",
-        "summary" : "A CGSize radius, so corners can curve unequally per axis."
+        "code": "RoundedRectangle(cornerSize: CGSize(width: 30, height: 12))\n    .stroke(.orange, lineWidth: 2)\n    .frame(width: 140, height: 80)",
+        "discussion": "Giving the corner different width and height values produces elliptical corners — wider than they are tall, or the reverse.",
+        "name": "RoundedRectangle(cornerSize:style:)",
+        "summary": "A CGSize radius, so corners can curve unequally per axis."
       }
     ],
-    "code" : "RoundedRectangle(cornerRadius: 16, style: .continuous)\n    .strokeBorder(.blue, lineWidth: 3)\n    .frame(width: 160, height: 90)",
-    "demoID" : "roundedRect",
-    "discussion" : "RoundedRectangle takes a corner radius or size, and a style — .continuous produces the smooth Apple-squircle curvature. The static shorthand .rect(cornerRadius:) makes it concise at clipShape and background call sites.",
-    "kind" : "Shape",
-    "name" : "RoundedRectangle",
-    "related" : [
+    "code": "RoundedRectangle(cornerRadius: 16, style: .continuous)\n    .strokeBorder(.blue, lineWidth: 3)\n    .frame(width: 160, height: 90)",
+    "demoID": "roundedRect",
+    "discussion": "RoundedRectangle takes a corner radius or size, and a style — .continuous produces the smooth Apple-squircle curvature. The static shorthand .rect(cornerRadius:) makes it concise at clipShape and background call sites.",
+    "kind": "Shape",
+    "name": "RoundedRectangle",
+    "related": [
       "UnevenRoundedRectangle",
       "Capsule",
       ".clipShape()"
     ],
-    "summary" : "A rectangle with uniformly rounded corners.",
-    "wwdcYear" : 2019
+    "summary": "A rectangle with uniformly rounded corners.",
+    "wwdcYear": 2019
   },
   {
-    "code" : "UnevenRoundedRectangle(\n    topLeadingRadius: 20,\n    bottomLeadingRadius: 0,\n    bottomTrailingRadius: 0,\n    topTrailingRadius: 20\n)\n.fill(.indigo)\n.frame(width: 160, height: 80)",
-    "discussion" : "Added at WWDC '22, UnevenRoundedRectangle rounds each corner independently — handy for tab-like cards and attached panels where only the top edge curves.",
-    "kind" : "Shape",
-    "name" : "UnevenRoundedRectangle",
-    "related" : [
+    "code": "UnevenRoundedRectangle(\n    topLeadingRadius: 20,\n    bottomLeadingRadius: 0,\n    bottomTrailingRadius: 0,\n    topTrailingRadius: 20\n)\n.fill(.indigo)\n.frame(width: 160, height: 80)",
+    "demoID": "unevenCorners",
+    "discussion": "Added at WWDC '22, UnevenRoundedRectangle rounds each corner independently — handy for tab-like cards and attached panels where only the top edge curves.",
+    "kind": "Shape",
+    "name": "UnevenRoundedRectangle",
+    "related": [
       "RoundedRectangle"
     ],
-    "summary" : "A rectangle with a different radius per corner.",
-    "wwdcYear" : 2022
+    "summary": "A rectangle with a different radius per corner.",
+    "wwdcYear": 2022
   }
 ]
