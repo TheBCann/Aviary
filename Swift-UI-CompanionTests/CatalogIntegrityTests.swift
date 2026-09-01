@@ -1,0 +1,87 @@
+//
+//  CatalogIntegrityTests.swift
+//  Swift-UI-CompanionTests
+//
+//  Validates the bundled JSON catalog as a whole — the compile-time
+//  checking we gave up by moving entries out of Swift source.
+//
+
+import Testing
+@testable import Swift_UI_Companion
+
+struct CatalogIntegrityTests {
+    let topics = Catalog.all
+
+    @Test func catalogDecodesAndIsComplete() {
+        #expect(topics.count >= 269)
+    }
+
+    @Test func everyKindIsRepresented() {
+        let kinds = Set(topics.map(\.kind))
+        #expect(kinds == Set(TopicKind.allCases))
+    }
+
+    @Test func topicIDsAreUnique() {
+        let ids = topics.map(\.id)
+        #expect(Set(ids).count == ids.count)
+    }
+
+    @Test func childIDsAreUniqueAndQualified() {
+        let children = topics.flatMap(\.children)
+        let ids = children.map(\.id)
+        #expect(Set(ids).count == ids.count)
+        // Decoding must have re-applied the parent qualifier.
+        #expect(children.allSatisfy { $0.parentID.isEmpty == false })
+    }
+
+    @Test func everyDemoIDHasARegisteredDemo() {
+        let unregistered = Set(
+            topics.compactMap(\.demoID).filter { DemoRegistry.view(for: $0) == nil }
+        )
+        #expect(unregistered.isEmpty, "demoIDs with no demo: \(unregistered)")
+    }
+
+    @Test func availabilityResolvesForEveryDeclaredPlatform() {
+        for topic in topics {
+            for platform in topic.platforms {
+                #expect(
+                    topic.introducedVersion(on: platform) != nil,
+                    "\(topic.name) has no version table entry for \(platform.rawValue) (year \(topic.wwdcYear))"
+                )
+            }
+        }
+    }
+
+    @Test func wwdcYearsAreWithinTheSupportedSpan() {
+        for topic in topics {
+            #expect(
+                FilterCriteria.yearSpan.contains(topic.wwdcYear),
+                "\(topic.name): \(topic.wwdcYear)"
+            )
+        }
+    }
+
+    @Test func entriesHaveSubstantiveContent() {
+        for topic in topics {
+            #expect(!topic.summary.isEmpty, "\(topic.name)")
+            #expect(!topic.discussion.isEmpty, "\(topic.name)")
+            #expect(!topic.code.isEmpty, "\(topic.name)")
+        }
+    }
+
+    /// Related links may intentionally dangle (the UI renders them as plain
+    /// text), but the set should only shrink — additions belong in the
+    /// catalog or should be renamed to an existing entry.
+    @Test func danglingRelatedLinksDoNotGrow() {
+        let ids = Set(topics.map(\.id))
+        let dangling = Set(
+            topics.flatMap { topic in
+                topic.related.filter { !ids.contains($0) }
+            }
+        )
+        #expect(
+            dangling.count <= 12,
+            "Dangling related links (\(dangling.count)): \(dangling.sorted())"
+        )
+    }
+}
