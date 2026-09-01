@@ -1,0 +1,932 @@
+[
+  {
+    "code": "import StoreKit\n\nContentBanner()\n    .appStoreOverlay(isPresented: $showingOverlay) {\n        SKOverlay.AppConfiguration(appIdentifier: \"1234567890\",\n                                   position: .bottom)\n    }",
+    "discussion": "The configuration closure returns an SKOverlay.AppConfiguration naming the recommended app and the banner position. Its classic use is App Clips promoting their full app, but any app can cross-promote a companion title. The overlay is system UI, so installation and account handling never touch your process.",
+    "framework": "StoreKit",
+    "kind": "Modifier",
+    "name": ".appStoreOverlay()",
+    "platforms": [
+      "iOS"
+    ],
+    "related": [
+      "ProductView"
+    ],
+    "summary": "Shows an SKOverlay banner recommending another App Store app without leaving the current app.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": ".chartBackground { proxy in\n    if let zeroY = proxy.position(forY: 0.0) {\n        Rectangle()\n            .fill(.red.opacity(0.05))\n            .frame(height: zeroY)\n    }\n}",
+    "discussion": "It mirrors .chartOverlay() but renders beneath the marks, which suits shaded zones, watermarks, or images that data should draw over. The proxy lets you anchor background elements to data coordinates so they stay put across resizing and domain changes. Marks, grid lines, and axis content all composite above whatever you draw here.",
+    "framework": "Swift Charts",
+    "kind": "Modifier",
+    "name": ".chartBackground()",
+    "related": [
+      "ChartProxy",
+      ".chartOverlay()",
+      ".chartPlotStyle()"
+    ],
+    "summary": "Draws custom content behind the chart's plot area, positioned via a ChartProxy.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": ".chartForegroundStyleScale([\n    \"North\": Color.blue,\n    \"South\": Color.orange\n])",
+    "discussion": "Passing key-value pairs pins each category to a chosen ShapeStyle, keeping series colors consistent across multiple charts and app themes. Domain and range overloads set the mapping indirectly when categories are dynamic. The legend automatically reflects whatever mapping you declare.",
+    "framework": "Swift Charts",
+    "kind": "Modifier",
+    "name": ".chartForegroundStyleScale()",
+    "related": [
+      ".chartLegend()",
+      "Chart"
+    ],
+    "summary": "Maps series values to explicit colors or styles instead of the automatic palette.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "Chart(sales) { sale in\n    BarMark(x: .value(\"Month\", sale.month),\n            y: .value(\"Revenue\", sale.revenue))\n    .foregroundStyle(by: .value(\"Region\", sale.region))\n}\n.chartLegend(position: .bottom, alignment: .leading)",
+    "discussion": "Legends appear automatically whenever a mark uses a by-value channel like .foregroundStyle(by:), and this modifier controls their placement and spacing or removes them with .hidden. A content-builder overload substitutes an entirely custom legend view when the swatch-plus-label default is not enough. Position options include top, bottom, leading, trailing, and overlay placements.",
+    "framework": "Swift Charts",
+    "kind": "Modifier",
+    "name": ".chartLegend()",
+    "related": [
+      "Chart",
+      ".chartForegroundStyleScale()"
+    ],
+    "summary": "Positions, restyles, or hides the legend a chart generates for its series.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": ".chartOverlay { proxy in\n    Color.clear.contentShape(Rectangle())\n        .gesture(DragGesture().onChanged { drag in\n            let date: Date? = proxy.value(atX: drag.location.x)\n            scrub(to: date)\n        })\n}",
+    "discussion": "This is where interactive behavior lives: an invisible hit-target view plus a gesture, converted through the proxy into data values, yields scrubbing, tooltips, and custom selection. Content is aligned to the plot area rather than the full chart frame, so axis regions are excluded from your coordinate math. For iOS 17 and later, the built-in .chartXSelection() covers the most common scrub case with far less code.",
+    "framework": "Swift Charts",
+    "kind": "Modifier",
+    "name": ".chartOverlay()",
+    "related": [
+      "ChartProxy",
+      ".chartBackground()",
+      ".chartXSelection()"
+    ],
+    "summary": "Layers custom views over the plot area with access to a ChartProxy for coordinate conversion.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": ".chartPlotStyle { plotArea in\n    plotArea\n        .frame(height: 240)\n        .background(.quaternary.opacity(0.3))\n}",
+    "discussion": "The builder receives the plot area as a plain view, so anything you can do to a view — frame it, background it, clip it — applies to just the region inside the axes. This is the sanctioned way to give the plot a fixed aspect ratio or height independent of labels and legends. Styling here does not affect axis label layout, which sizes itself around the result.",
+    "framework": "Swift Charts",
+    "kind": "Modifier",
+    "name": ".chartPlotStyle()",
+    "related": [
+      ".chartBackground()",
+      "Chart"
+    ],
+    "summary": "Applies view modifiers to the chart's plot area itself, such as fixed sizing, borders, or clipping.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "Chart(days) { d in\n    BarMark(x: .value(\"Day\", d.date, unit: .day),\n            y: .value(\"Steps\", d.steps))\n}\n.chartScrollableAxes(.horizontal)\n.chartXVisibleDomain(length: 3600 * 24 * 7)",
+    "discussion": "Combined with .chartXVisibleDomain(length:), it shows a fixed window of data — say one week of a year-long series — that the user drags through. Scroll position can be observed and controlled with the related chartScrollPosition modifiers, enabling jump-to-date controls. Axes stay pinned while the plot content scrolls beneath them.",
+    "framework": "Swift Charts",
+    "kind": "Modifier",
+    "name": ".chartScrollableAxes()",
+    "related": [
+      "Chart",
+      ".chartXScale()",
+      ".chartXSelection()"
+    ],
+    "summary": "Makes a chart scrollable along the given axes so large datasets can be panned.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "Chart(entries) { entry in\n    BarMark(x: .value(\"Day\", entry.day),\n            y: .value(\"Steps\", entry.steps))\n}\n.chartXAxis(.hidden)",
+    "discussion": "Passing .hidden removes the default axis entirely, while the content-builder overload replaces it with your own AxisMarks configuration. Because the default axis is generated from the data's type and domain, you only reach for this when the automatic choice of ticks or label formats falls short. Everything from stride-based date marks to fully custom label views is expressible in the builder.",
+    "framework": "Swift Charts",
+    "kind": "Modifier",
+    "name": ".chartXAxis()",
+    "related": [
+      "AxisMarks",
+      ".chartYAxis()",
+      "Chart"
+    ],
+    "summary": "Customizes or hides the horizontal axis of a chart.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "Chart(prices) { p in\n    LineMark(x: .value(\"Date\", p.date),\n             y: .value(\"Close\", p.close))\n}\n.chartXScale(domain: startDate...endDate)",
+    "discussion": "Pinning the domain keeps a chart's window stable while data streams in, and prevents autoscaling from exaggerating noise in small ranges. Overloads accept ranges for continuous data, arrays for categorical domains, and a ScaleType such as .log for logarithmic axes. The y counterpart .chartYScale() takes the same options.",
+    "framework": "Swift Charts",
+    "kind": "Modifier",
+    "name": ".chartXScale()",
+    "related": [
+      ".chartYScale()",
+      "Chart"
+    ],
+    "summary": "Overrides the horizontal scale's domain, range, or scale type instead of inferring them from data.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "@State private var selectedDate: Date?\n\nChart(prices) { p in\n    LineMark(x: .value(\"Date\", p.date),\n             y: .value(\"Close\", p.close))\n    if let selectedDate {\n        RuleMark(x: .value(\"Selected\", selectedDate))\n    }\n}\n.chartXSelection(value: $selectedDate)",
+    "discussion": "The binding is an optional of the axis value type, becoming nil when the finger lifts, so a RuleMark plus annotation conditioned on it produces the standard lollipop scrubber in a few lines. Range and y-axis variants exist for band selection and vertical charts. Before iOS 17 this required a hand-rolled .chartOverlay() gesture.",
+    "framework": "Swift Charts",
+    "kind": "Modifier",
+    "name": ".chartXSelection()",
+    "related": [
+      "RuleMark",
+      ".chartOverlay()",
+      "ChartProxy"
+    ],
+    "summary": "Adds built-in tap-and-drag selection along the x axis, writing the selected value into a binding.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "Chart(entries) { entry in\n    LineMark(x: .value(\"Day\", entry.day),\n             y: .value(\"Steps\", entry.steps))\n}\n.chartYAxis {\n    AxisMarks(position: .leading)\n}",
+    "discussion": "It mirrors .chartXAxis(): a Visibility argument toggles the whole axis, and the builder overload swaps in custom AxisMarks. A frequent use is AxisMarks(position: .leading) to move value labels to the left edge, since Swift Charts defaults y labels to trailing. Multiple AxisMarks declarations can render marks on both sides at once.",
+    "framework": "Swift Charts",
+    "kind": "Modifier",
+    "name": ".chartYAxis()",
+    "related": [
+      "AxisMarks",
+      ".chartXAxis()"
+    ],
+    "summary": "Customizes or hides the vertical axis of a chart.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "Chart(samples) { s in\n    LineMark(x: .value(\"Trial\", s.trial),\n             y: .value(\"Score\", s.score))\n}\n.chartYScale(domain: 0...100)",
+    "discussion": "A fixed y domain is the difference between comparable small-multiple charts and misleading ones, since autoscaled axes exaggerate whichever series is flattest. Domain values outside the data are respected, so you can force zero into view for honest bar baselines. Scale types like .log and .symmetricLog handle data spanning orders of magnitude.",
+    "framework": "Swift Charts",
+    "kind": "Modifier",
+    "name": ".chartYScale()",
+    "related": [
+      ".chartXScale()",
+      "Chart"
+    ],
+    "summary": "Fixes the vertical scale's domain or changes its type, such as switching to a logarithmic axis.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "Text(person.name)\n    .focusable()\n    .copyable([person.name])",
+    "discussion": "Introduced in macOS 13, this wires a focused view into the standard Edit menu so Command-C works without any NSPasteboard code. The payload closure is an autoclosure evaluated lazily at copy time, so you always hand over the current value. It pairs naturally with .cuttable() and .pasteDestination() to give a custom view full clipboard behavior.",
+    "kind": "Modifier",
+    "name": ".copyable()",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      ".cuttable()",
+      ".pasteDestination()",
+      "PasteButton",
+      "Transferable"
+    ],
+    "summary": "Registers Transferable items that the Copy menu command places on the pasteboard when the view has focus.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "Text(item.title)\n    .cuttable(for: String.self) {\n        remove(item)\n        return [item.title]\n    }",
+    "discussion": "Unlike .copyable(), the action closure is expected to remove the data from your model before returning it, matching the semantics users expect from Command-X. The payload type is declared up front so SwiftUI can validate the command against the pasteboard system. Available on macOS 13 and later.",
+    "kind": "Modifier",
+    "name": ".cuttable()",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      ".copyable()",
+      ".pasteDestination()"
+    ],
+    "summary": "Handles the Cut menu command for a focused view by returning the Transferable items to move to the pasteboard.",
+    "wwdcYear": 2022
+  },
+  {
+    "children": [
+      {
+        "code": ".manageSubscriptionsSheet(isPresented: $managing,\n                          subscriptionGroupID: \"21534970\")",
+        "name": ".manageSubscriptionsSheet(isPresented:subscriptionGroupID:)",
+        "summary": "Variant that limits the sheet to one subscription group when an app sells several."
+      }
+    ],
+    "code": "Button(\"Manage Subscription\") {\n    showingManage = true\n}\n.manageSubscriptionsSheet(isPresented: $showingManage)",
+    "discussion": "Keeping cancellation and plan changes in-app is both better UX and encouraged by review guidelines for subscription apps. The sheet reflects the signed-in App Store account's subscriptions for your app, and dismissal returns the user exactly where they were. An iOS 17 overload scopes the sheet to a single subscription group.",
+    "framework": "StoreKit",
+    "kind": "Modifier",
+    "name": ".manageSubscriptionsSheet()",
+    "platforms": [
+      "iOS"
+    ],
+    "related": [
+      ".refundRequestSheet()",
+      "SubscriptionStoreView"
+    ],
+    "summary": "Presents the App Store's subscription management sheet inside your app instead of bouncing to the App Store app.",
+    "wwdcYear": 2021
+  },
+  {
+    "children": [
+      {
+        "code": "Map(position: $position)\n    .mapControls { MapUserLocationButton() }",
+        "name": "MapUserLocationButton",
+        "summary": "A control that recenters the camera on the user and begins following their location."
+      },
+      {
+        "code": "Map(position: $position)\n    .mapControls { MapCompass() }",
+        "name": "MapCompass",
+        "summary": "The rotation compass that appears when the map heading deviates from north and resets it on tap."
+      },
+      {
+        "code": "Map(position: $position)\n    .mapControls { MapScaleView() }",
+        "name": "MapScaleView",
+        "summary": "A legend showing the current map scale, typically shown while zooming."
+      }
+    ],
+    "code": "Map(position: $position)\n    .mapControls {\n        MapCompass()\n        MapScaleView()\n        MapPitchToggle()\n    }",
+    "discussion": "The builder lists control views that MapKit positions in their platform-standard corners, replacing the default control set. Each control can be tuned with mapControlVisibility to always show, auto-hide, or stay hidden. For fully custom placement you can instead instantiate these controls anywhere in your own layout using a map scope namespace.",
+    "framework": "MapKit",
+    "kind": "Modifier",
+    "name": ".mapControls()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "Map",
+      "UserAnnotation",
+      "MapCameraPosition"
+    ],
+    "summary": "Declares which system map controls — compass, scale, location button, pitch toggle — overlay the map.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "Map {\n    Marker(\"Camp\", coordinate: camp)\n}\n.mapStyle(.hybrid(elevation: .realistic))",
+    "discussion": "Each style takes refinements — elevation: .realistic enables the 3D terrain and landmark treatment, pointsOfInterest filters which POI categories appear, and standard offers an emphasis option that mutes the basemap under data overlays. The style applies through the environment to the maps below the modifier. Imagery and hybrid styles change which map controls make sense, so revisit .mapControls() when switching.",
+    "framework": "MapKit",
+    "kind": "Modifier",
+    "name": ".mapStyle()",
+    "related": [
+      "Map",
+      ".mapControls()",
+      "Marker"
+    ],
+    "summary": "Selects the base cartography of a Map: standard, satellite imagery, or hybrid.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "Button(\"Redeem Code\") {\n    redeeming = true\n}\n.offerCodeRedemption(isPresented: $redeeming) { result in\n    print(result)\n}",
+    "discussion": "Offer codes let you distribute free or discounted subscription periods outside the App Store's standard pricing, and this sheet validates and redeems them without any custom entry UI. Redemption results surface through the completion closure, with the entitlement itself arriving via Transaction.updates. This is the modern SwiftUI replacement for the old SKPaymentQueue presentation call.",
+    "framework": "StoreKit",
+    "kind": "Modifier",
+    "name": ".offerCodeRedemption()",
+    "platforms": [
+      "iOS"
+    ],
+    "related": [
+      ".manageSubscriptionsSheet()",
+      "SubscriptionStoreView"
+    ],
+    "summary": "Presents the system sheet for redeeming subscription offer codes.",
+    "wwdcYear": 2022
+  },
+  {
+    "children": [
+      {
+        "code": "Text(item.title)\n    .onDrag {\n        NSItemProvider(object: item.title as NSString)\n    } preview: {\n        Label(item.title, systemImage: \"doc\")\n    }",
+        "name": ".onDrag(_:preview:)",
+        "summary": "Variant that supplies a SwiftUI view to use as the drag preview instead of a snapshot of the source."
+      }
+    ],
+    "code": "struct DragSource: View {\n    let url: URL\n    var body: some View {\n        Image(systemName: \"doc\")\n            .onDrag { NSItemProvider(object: url as NSURL) }\n    }\n}",
+    "discussion": "The closure runs when the drag begins and returns an NSItemProvider describing the data to move, which lets the destination be another app entirely. It predates the Transferable-based .draggable() modifier and remains useful when you need item-provider-level control such as file promises. An iOS 15 overload adds a custom preview view shown under the finger during the drag.",
+    "kind": "Modifier",
+    "name": ".onDrag()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      ".draggable()",
+      ".onDrop()",
+      "Transferable"
+    ],
+    "summary": "Marks a view as the source of a drag interaction by supplying an NSItemProvider payload.",
+    "wwdcYear": 2019
+  },
+  {
+    "children": [
+      {
+        "code": "GridCell(item: item)\n    .onDrop(of: [.image],\n            delegate: ReorderDelegate(item: item, items: $items))",
+        "name": ".onDrop(of:delegate:)",
+        "summary": "Delegate-based variant that reports drag entry, movement, exit, and the drop point for reordering interfaces."
+      }
+    ],
+    "code": "Rectangle()\n    .fill(isTargeted ? .blue.opacity(0.3) : .clear)\n    .onDrop(of: [.fileURL], isTargeted: $isTargeted) { providers in\n        handle(providers)\n    }",
+    "discussion": "The isTargeted binding flips to true while a compatible drag hovers over the view, which is the hook for highlight feedback. The perform closure receives NSItemProviders and returns a Bool indicating whether the drop was accepted; loading the actual data is asynchronous. For fine-grained control over entry, exit, and drop location, use the overload that takes a DropDelegate instead of closures.",
+    "kind": "Modifier",
+    "name": ".onDrop()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      ".onDrag()",
+      ".dropDestination()"
+    ],
+    "summary": "Turns a view into a drop target for dragged content matching a set of uniform type identifiers.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "ProductView(id: \"com.example.pro\")\n    .onInAppPurchaseCompletion { product, result in\n        if case .success(.success(let verification)) = result {\n            await entitlements.process(verification)\n        }\n    }",
+    "discussion": "The async closure receives the Product and a Result wrapping Product.PurchaseResult, so a successful flow still requires you to unwrap the verification result and finish the transaction. Attaching it high in the hierarchy centralizes entitlement processing for every ProductView, StoreView, and SubscriptionStoreView below. Related modifiers let you customize purchase options or take over the purchase action entirely.",
+    "framework": "StoreKit",
+    "kind": "Modifier",
+    "name": ".onInAppPurchaseCompletion()",
+    "related": [
+      "ProductView",
+      "SubscriptionStoreView"
+    ],
+    "summary": "Observes the outcome of purchases started by StoreKit views beneath the modified view.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "Map(position: $position)\n    .onMapCameraChange(frequency: .onEnd) { context in\n        visibleRegion = context.region\n    }",
+    "discussion": "The frequency parameter chooses between .continuous updates during gestures and .onEnd delivery once movement settles, the latter being right for triggering data fetches for the visible region. The context exposes region, camera, and rect so you can pick whichever representation your query layer wants. It complements the MapCameraPosition binding, which handles programmatic positioning rather than observation.",
+    "framework": "MapKit",
+    "kind": "Modifier",
+    "name": ".onMapCameraChange()",
+    "related": [
+      "Map",
+      "MapCameraPosition",
+      ".mapControls()"
+    ],
+    "summary": "Reports map camera movement, delivering the new region, camera, and visible rect in a context value.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "List(urls, id: \\.self) { Text($0.absoluteString) }\n    .pasteDestination(for: URL.self) { pasted in\n        urls.append(contentsOf: pasted)\n    }",
+    "discussion": "SwiftUI automatically enables or disables the Edit menu's Paste item based on whether the pasteboard currently holds the declared payload type. An optional validator closure can filter or transform incoming items before your action sees them. This completes the macOS 13 clipboard trio alongside .copyable() and .cuttable().",
+    "kind": "Modifier",
+    "name": ".pasteDestination()",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      "PasteButton",
+      ".copyable()",
+      ".cuttable()"
+    ],
+    "summary": "Accepts the Paste menu command on a focused view, delivering pasteboard contents decoded as a Transferable type.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "VideoScrubber()\n    .persistentSystemOverlays(.hidden)",
+    "discussion": "It takes a Visibility value and expresses a preference, not a command — the system can still show the overlays when it deems them necessary. Typical use is full-bleed media playback or immersive canvases where the Home indicator would distract. The setting applies to the whole hierarchy under the modified view.",
+    "kind": "Modifier",
+    "name": ".persistentSystemOverlays()",
+    "platforms": [
+      "iOS"
+    ],
+    "related": [
+      ".defersSystemGestures()"
+    ],
+    "summary": "Requests that persistent system UI such as the Home indicator be hidden while the view is shown.",
+    "wwdcYear": 2022
+  },
+  {
+    "children": [
+      {
+        "code": "AlbumView()\n    .photosPicker(isPresented: $picking,\n                  selection: $items,\n                  maxSelectionCount: 4,\n                  matching: .any(of: [.images, .screenshots]))",
+        "name": ".photosPicker(isPresented:selection:maxSelectionCount:matching:)",
+        "summary": "Multi-selection variant with a cap on how many assets the user can pick."
+      }
+    ],
+    "code": "@State private var selection: PhotosPickerItem?\n\nvar body: some View {\n    LibraryGrid()\n        .photosPicker(isPresented: $showingPicker,\n                      selection: $selection,\n                      matching: .images)\n}",
+    "discussion": "The picker runs out of process, so the app only ever receives what the user explicitly selects and needs no library permission for picking. Filters built from PHPickerFilter values such as .images or .screenshots constrain what appears, and a maxSelectionCount overload enables multi-select. Selections land in PhotosPickerItem values that you load asynchronously.",
+    "framework": "PhotosUI",
+    "kind": "Modifier",
+    "name": ".photosPicker()",
+    "platforms": [
+      "iOS",
+      "macOS",
+      "watchOS"
+    ],
+    "related": [
+      "PhotosPicker",
+      "PhotosPickerItem"
+    ],
+    "summary": "Presents the system photo library picker from a boolean binding rather than an inline PhotosPicker button.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "Button {\n    toggleFavorite()\n} label: {\n    Image(systemName: \"star\")\n}\n.popoverTip(FavoriteTip())",
+    "discussion": "The popover appears only while the tip's rules and the app-wide TipKit configuration say it is eligible, so the modifier can stay attached permanently without spamming users. Dismissal, frequency control, and persistence are handled by TipKit's data store rather than your own state. Prefer it over a hand-rolled .popover() for feature education because eligibility is centralized.",
+    "framework": "TipKit",
+    "kind": "Modifier",
+    "name": ".popoverTip()",
+    "related": [
+      "TipView",
+      "Tip",
+      ".popover()"
+    ],
+    "summary": "Anchors a TipKit tip to a control as a popover with an arrow pointing at it.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "ProductView(id: \"com.example.pro.lifetime\")\n    .productViewStyle(.large)",
+    "discussion": "Built-in styles include .compact, .regular, and .large, trading density for prominence. The modifier flows through the environment, so applying it to a container restyles every ProductView and StoreView row inside. Custom styles are possible by conforming to the ProductViewStyle protocol and composing the provided configuration.",
+    "framework": "StoreKit",
+    "kind": "Modifier",
+    "name": ".productViewStyle()",
+    "related": [
+      "ProductView",
+      "StoreView"
+    ],
+    "summary": "Chooses the layout treatment for StoreKit product views, from compact rows to large promotional cards.",
+    "wwdcYear": 2023
+  },
+  {
+    "children": [
+      {
+        "code": "Button(\"Preview All\") { selected = attachments.first }\n    .quickLookPreview($selected, in: attachments)",
+        "name": ".quickLookPreview(_:in:)",
+        "summary": "Previews an item within a collection, enabling arrow navigation between all items."
+      }
+    ],
+    "code": "import QuickLook\n\nstruct AttachmentRow: View {\n    @State private var previewURL: URL?\n    let url: URL\n    var body: some View {\n        Button(\"Preview\") { previewURL = url }\n            .quickLookPreview($previewURL)\n    }\n}",
+    "discussion": "Setting the bound URL triggers the preview and the system clears it back to nil on dismissal, so presentation state stays in your model. It handles every format Quick Look supports — PDFs, images, video, USDZ models — with zero viewer code, and requires importing QuickLook. A collection overload previews a whole set of items with built-in next and previous navigation.",
+    "framework": "QuickLook",
+    "kind": "Modifier",
+    "name": ".quickLookPreview()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      ".fileImporter()"
+    ],
+    "summary": "Presents the system Quick Look preview UI for the file URL in a binding, dismissing when the binding returns to nil.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "Button(\"Report a Problem\") {\n    showingRefund = true\n}\n.refundRequestSheet(for: transaction.id,\n                    isPresented: $showingRefund) { result in\n    log(result)\n}",
+    "discussion": "The sheet is the sanctioned way to let users report a problem with a purchase without leaving the app; Apple adjudicates the request, and your app learns the outcome through the completion handler and later transaction updates. You supply the numeric transaction ID from a verified StoreKit transaction. Offering it prominently can reduce chargebacks and support load.",
+    "framework": "StoreKit",
+    "kind": "Modifier",
+    "name": ".refundRequestSheet()",
+    "platforms": [
+      "iOS"
+    ],
+    "related": [
+      ".manageSubscriptionsSheet()"
+    ],
+    "summary": "Presents Apple's refund request flow for a specific transaction identifier.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "SubscriptionStoreView(groupID: groupID)\n    .storeButton(.visible, for: .redeemCode)\n    .storeButton(.hidden, for: .cancellation)",
+    "discussion": "The first argument is a Visibility and the second a button kind, so the same modifier both opts into optional buttons and suppresses default ones such as the cancellation control. Several kinds exist, including .restorePurchases, .redeemCode, .policies, and .signIn. Apply it repeatedly to configure multiple button kinds on one store view.",
+    "framework": "StoreKit",
+    "kind": "Modifier",
+    "name": ".storeButton()",
+    "related": [
+      "SubscriptionStoreView",
+      "StoreView"
+    ],
+    "summary": "Shows or hides auxiliary StoreKit buttons like Restore Purchases, Redeem Code, or policy links.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "SubscriptionStoreView(groupID: groupID)\n    .subscriptionStoreControlStyle(.buttons)",
+    "discussion": "The .prominentPicker style highlights the selected plan with a single subscribe button, .picker is a flatter variant, and .buttons gives each plan its own purchase button. Which style converts best depends on how many plans the group offers, so the modifier makes experimenting cheap. It only affects subscription store views beneath it in the hierarchy.",
+    "framework": "StoreKit",
+    "kind": "Modifier",
+    "name": ".subscriptionStoreControlStyle()",
+    "related": [
+      "SubscriptionStoreView"
+    ],
+    "summary": "Selects how SubscriptionStoreView presents its plan options, such as a picker or stacked buy buttons.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "var body: some View {\n    Gauge(value: progress) { Text(\"Goal\") }\n        .widgetURL(URL(string: \"habit://today\"))\n}",
+    "discussion": "Small widgets are a single tap target, and this modifier defines the URL that arrives via .onOpenURL() when the user taps them. Medium and large widgets can instead embed multiple Link views, with .widgetURL() acting as the fallback for the remaining area. Only one widgetURL is honored per widget view hierarchy.",
+    "kind": "Modifier",
+    "name": ".widgetURL()",
+    "platforms": [
+      "iOS",
+      "macOS",
+      "watchOS"
+    ],
+    "related": [
+      ".onOpenURL()"
+    ],
+    "summary": "Assigns the deep-link URL a widget or watch complication opens in the app when tapped.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "Map {\n    Annotation(\"HQ\", coordinate: hq, anchor: .bottom) {\n        Image(systemName: \"building.2\")\n            .padding(6)\n            .background(.thinMaterial, in: Circle())\n    }\n}",
+    "discussion": "Where Marker is fixed system chrome, Annotation renders any view hierarchy you give it — badges, avatars, live-updating gauges — pinned to the coordinate. The anchor parameter controls which point of your view sits on the coordinate, defaulting to center but often set to .bottom for pin-like shapes. Titles participate in the map's label layout engine to avoid collisions.",
+    "framework": "MapKit",
+    "kind": "View",
+    "name": "Annotation",
+    "related": [
+      "Map",
+      "Marker",
+      "UserAnnotation"
+    ],
+    "summary": "Places an arbitrary SwiftUI view at a map coordinate, with a label and configurable anchor.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "Chart(prices) { p in\n    AreaMark(\n        x: .value(\"Date\", p.date),\n        y: .value(\"Close\", p.close)\n    )\n    .foregroundStyle(.linearGradient(colors: [.teal, .clear],\n                                     startPoint: .top,\n                                     endPoint: .bottom))\n}",
+    "discussion": "By default the fill runs from zero up to y, and stacked areas emerge automatically when series share x values. Initializers taking yStart and yEnd instead draw bands, which is the standard technique for confidence intervals or min-max ranges. Gradient foreground styles fading to clear are a common treatment for a single-series area.",
+    "framework": "Swift Charts",
+    "kind": "Type",
+    "name": "AreaMark",
+    "related": [
+      "Chart",
+      "LineMark",
+      "RuleMark"
+    ],
+    "summary": "A Swift Charts mark that fills the region between a baseline and the data values.",
+    "wwdcYear": 2022
+  },
+  {
+    "children": [
+      {
+        "code": "AxisMarks { _ in\n    AxisGridLine(stroke: StrokeStyle(dash: [2, 3]))\n}",
+        "name": "AxisGridLine",
+        "summary": "Draws the grid line crossing the plot at an axis value, with optional stroke styling."
+      },
+      {
+        "code": "AxisMarks { _ in\n    AxisTick()\n    AxisValueLabel()\n}",
+        "name": "AxisTick",
+        "summary": "Draws the short tick outside the plot edge at an axis value."
+      },
+      {
+        "code": "AxisMarks(values: .automatic) { _ in\n    AxisValueLabel(format: .currency(code: \"USD\"))\n}",
+        "name": "AxisValueLabel",
+        "summary": "Renders the text label for an axis value, accepting format styles for dates and numbers."
+      }
+    ],
+    "code": ".chartXAxis {\n    AxisMarks(values: .stride(by: .month)) { value in\n        AxisGridLine()\n        AxisTick()\n        AxisValueLabel(format: .dateTime.month(.narrow))\n    }\n}",
+    "discussion": "The values parameter controls where marks land — automatic, explicit arrays, or strides like .stride(by: .month) for dates. Its content closure receives each resolved AxisValue, letting you mix AxisGridLine, AxisTick, and AxisValueLabel per position, even conditionally. A position parameter moves the whole axis, such as putting y labels on the leading edge.",
+    "framework": "Swift Charts",
+    "kind": "Type",
+    "name": "AxisMarks",
+    "related": [
+      ".chartXAxis()",
+      ".chartYAxis()"
+    ],
+    "summary": "Declares the grid lines, ticks, and labels for one chart axis inside a chartXAxis or chartYAxis builder.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "Chart(sales) { sale in\n    BarMark(\n        x: .value(\"Month\", sale.month),\n        y: .value(\"Revenue\", sale.revenue)\n    )\n    .foregroundStyle(by: .value(\"Region\", sale.region))\n}",
+    "discussion": "Bars stack automatically when multiple data points share a category, and .foregroundStyle(by:) splits them into colored series with a generated legend. Swapping which axis gets the categorical value flips between vertical and horizontal bar charts. Fixed-dimension initializers control bar width or height explicitly when the default banding is not what you want.",
+    "framework": "Swift Charts",
+    "kind": "Type",
+    "name": "BarMark",
+    "related": [
+      "Chart",
+      "RectangleMark",
+      ".chartXAxis()",
+      "PlottableValue"
+    ],
+    "summary": "A Swift Charts mark that draws rectangular bars from plottable x and y values.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": ".chartOverlay { proxy in\n    GeometryReader { geo in\n        Rectangle().fill(.clear).contentShape(Rectangle())\n            .onTapGesture { location in\n                let day: Date? = proxy.value(atX: location.x)\n                select(day)\n            }\n    }\n}",
+    "discussion": "The proxy's value(atX:) and value(atY:) methods convert a gesture location into the nearest data-space value, while position(forX:) and position(forY:) go the other way for drawing custom markers. It is handed to the builders of .chartOverlay() and .chartBackground(), and also exposes the plot area's size and frame. This is the foundation of custom hit testing when the built-in selection modifiers are not enough.",
+    "framework": "Swift Charts",
+    "kind": "Type",
+    "name": "ChartProxy",
+    "related": [
+      ".chartOverlay()",
+      ".chartBackground()",
+      ".chartXSelection()"
+    ],
+    "summary": "Translates between chart data values and view coordinates inside chart overlay and background builders.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "Chart(readings) { reading in\n    LineMark(\n        x: .value(\"Time\", reading.date),\n        y: .value(\"Temp\", reading.celsius)\n    )\n    .interpolationMethod(.catmullRom)\n}",
+    "discussion": "Points sharing a series value are joined in x order, and .interpolationMethod() switches between linear segments, step lines, and smooth curves like Catmull-Rom. Multiple series can come either from separate LineMark groups or a single mark differentiated with .foregroundStyle(by:) or series:. Combining it with PointMark overlays symbols on the same data.",
+    "framework": "Swift Charts",
+    "kind": "Type",
+    "name": "LineMark",
+    "related": [
+      "Chart",
+      "PointMark",
+      "AreaMark"
+    ],
+    "summary": "A Swift Charts mark that connects data points into a line, one line per series.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "@State private var scene: MKLookAroundScene?\n\nvar body: some View {\n    LookAroundPreview(scene: $scene)\n        .frame(height: 220)\n        .task {\n            let request = MKLookAroundSceneRequest(coordinate: place)\n            scene = try? await request.scene\n        }\n}",
+    "discussion": "You obtain an MKLookAroundScene asynchronously from MKLookAroundSceneRequest — a nil result means no coverage at that spot — and hand it to the preview via a binding or initial value. The embedded card supports panning, and tapping expands into the immersive Look Around experience without extra code. Coverage is limited to regions where Apple has captured imagery.",
+    "framework": "MapKit",
+    "kind": "View",
+    "name": "LookAroundPreview",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "Map",
+      "Marker"
+    ],
+    "summary": "Embeds an interactive Look Around street-level scene for a location, expandable to the full-screen viewer.",
+    "wwdcYear": 2023
+  },
+  {
+    "children": [
+      {
+        "code": "position = .camera(\n    MapCamera(centerCoordinate: peak,\n              distance: 1200, heading: 90, pitch: 60)\n)",
+        "name": "MapCameraPosition.camera()",
+        "summary": "Positions the camera explicitly with a MapCamera, including distance, heading, and pitch."
+      },
+      {
+        "code": "position = .userLocation(fallback: .automatic)",
+        "name": "MapCameraPosition.userLocation()",
+        "summary": "Follows the user's location, falling back to another position until it is available."
+      }
+    ],
+    "code": "@State private var position: MapCameraPosition = .region(\n    MKCoordinateRegion(\n        center: sanFrancisco,\n        span: MKCoordinateSpan(latitudeDelta: 0.05,\n                               longitudeDelta: 0.05))\n)\n\nMap(position: $position)",
+    "discussion": "Static constructors cover the useful cases: .region for a coordinate span, .camera for full control including pitch and heading via MapCamera, .item to frame an MKMapItem, .userLocation with a fallback, and .automatic to frame the map's content. Bound to Map(position:), it is two-way — user panning flips the value's positionedByUser flag and setting a new value animates the camera. Assigning .automatic again reframes whatever content the map currently shows.",
+    "framework": "MapKit",
+    "kind": "Type",
+    "name": "MapCameraPosition",
+    "related": [
+      "Map",
+      ".onMapCameraChange()",
+      "Marker",
+      "UserAnnotation"
+    ],
+    "summary": "Describes where a SwiftUI Map's camera should be, from explicit regions to follow-the-user modes.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "Map {\n    MapCircle(center: dropZone, radius: 500)\n        .foregroundStyle(.orange.opacity(0.25))\n        .mapOverlayLevel(level: .aboveRoads)\n}",
+    "discussion": "Because the radius is specified in real-world meters, the drawn size tracks the camera's zoom, which suits geofence and coverage visualizations. Fill and stroke come from foregroundStyle and stroke modifiers, and .mapOverlayLevel(level:) chooses whether it draws above roads or above labels. It conforms to MapContent, so it composes freely with markers and other overlays.",
+    "framework": "MapKit",
+    "kind": "View",
+    "name": "MapCircle",
+    "related": [
+      "Map",
+      "MapPolygon",
+      "MapPolyline"
+    ],
+    "summary": "Renders a filled circle overlay of a given radius in meters around a center coordinate.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "Map {\n    MapPolygon(coordinates: campusBoundary)\n        .foregroundStyle(.green.opacity(0.2))\n}",
+    "discussion": "The polygon closes itself between the last and first coordinates, and also initializes directly from an existing MKPolygon for interop with older MapKit code. Semi-transparent foreground styles are the usual choice so the base map remains readable underneath. Zone boundaries, districts, and property outlines are its typical jobs.",
+    "framework": "MapKit",
+    "kind": "View",
+    "name": "MapPolygon",
+    "related": [
+      "Map",
+      "MapCircle",
+      "MapPolyline"
+    ],
+    "summary": "Fills an arbitrary polygonal region on the map defined by its vertex coordinates.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "Map {\n    MapPolyline(coordinates: routeCoordinates)\n        .stroke(.blue, lineWidth: 4)\n}",
+    "discussion": "It accepts raw coordinate arrays, an MKPolyline, or the polyline off an MKRoute, making turn-by-turn route rendering a one-liner after a directions request. The .stroke modifier takes any ShapeStyle plus line width, and StrokeStyle overloads add dashes and caps. Geodesic contours are supported via the contourStyle initializer parameter.",
+    "framework": "MapKit",
+    "kind": "View",
+    "name": "MapPolyline",
+    "related": [
+      "Map",
+      "MapPolygon",
+      "MapCircle"
+    ],
+    "summary": "Draws a stroked path over the map through a sequence of coordinates or an MKRoute.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "MapReader { proxy in\n    Map()\n        .onTapGesture { screenPoint in\n            if let coordinate = proxy.convert(screenPoint, from: .local) {\n                addPin(at: coordinate)\n            }\n        }\n}",
+    "discussion": "The proxy's convert(_:from:) methods translate a tap location into a CLLocationCoordinate2D and back, which is the missing piece for drop-a-pin interactions. It wraps the map the way GeometryReader wraps ordinary views, passing the proxy into its content closure. Conversions respect the current camera, so results stay correct mid-gesture.",
+    "framework": "MapKit",
+    "kind": "View",
+    "name": "MapReader",
+    "related": [
+      "Map",
+      "Marker",
+      "MapCameraPosition"
+    ],
+    "summary": "Provides a MapProxy for converting between screen points and map coordinates around a Map.",
+    "wwdcYear": 2023
+  },
+  {
+    "children": [
+      {
+        "code": "Map {\n    Marker(item: coffeeShopItem)\n}",
+        "name": "Marker(item:)",
+        "summary": "Creates a marker from an MKMapItem, adopting the place's name and category styling."
+      }
+    ],
+    "code": "Map {\n    Marker(\"Ferry Building\", systemImage: \"ferry\",\n           coordinate: CLLocationCoordinate2D(latitude: 37.7955,\n                                              longitude: -122.3937))\n        .tint(.teal)\n}",
+    "discussion": "Markers get the standard Apple Maps look with a title and an optional glyph — an SF Symbol, monogram, or image — and accept .tint for color. They conform to MapContent rather than View, living only inside a Map's content builder. Initializers also accept an MKMapItem, inheriting the place's name and point-of-interest styling.",
+    "framework": "MapKit",
+    "kind": "View",
+    "name": "Marker",
+    "related": [
+      "Map",
+      "Annotation",
+      "MapCameraPosition",
+      ".mapStyle()"
+    ],
+    "summary": "A system-styled balloon pin placed at a coordinate inside a SwiftUI Map's content builder.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "struct LegacyPane: NSViewControllerRepresentable {\n    func makeNSViewController(context: Context) -> NSViewController {\n        InspectorController()\n    }\n    func updateNSViewController(_ controller: NSViewController,\n                                context: Context) {}\n}",
+    "discussion": "The shape mirrors UIViewControllerRepresentable: makeNSViewController constructs the controller, updateNSViewController synchronizes it with current SwiftUI state, and an optional Coordinator receives AppKit delegate traffic. It is the standard escape hatch for AppKit-only functionality like NSTextView-based editors or PDFView wrappers. Keep expensive setup in make and treat update as idempotent.",
+    "kind": "Protocol",
+    "name": "NSViewControllerRepresentable",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      "NSViewRepresentable",
+      "UIViewControllerRepresentable"
+    ],
+    "summary": "Bridges an AppKit view controller into SwiftUI on macOS.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "if let item = selection {\n    if let data = try? await item.loadTransferable(type: Data.self),\n       let image = UIImage(data: data) {\n        avatar = image\n    }\n}",
+    "discussion": "The item deliberately withholds the asset data until you call loadTransferable(type:), which decodes into any compatible Transferable type such as Data or a custom movie wrapper. This keeps large originals out of memory until needed and preserves the picker's privacy model. The itemIdentifier is only populated when the picker was configured with photo library access.",
+    "framework": "PhotosUI",
+    "kind": "Type",
+    "name": "PhotosPickerItem",
+    "platforms": [
+      "iOS",
+      "macOS",
+      "watchOS"
+    ],
+    "related": [
+      "PhotosPicker",
+      ".photosPicker()",
+      "Transferable"
+    ],
+    "summary": "An opaque token for one asset the user chose in the photos picker, loaded on demand via Transferable.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "let x = PlottableValue.value(\"Quarter\", quarter.name)\nlet y = PlottableValue.value(\"Revenue\", quarter.revenue)\n\nBarMark(x: x, y: y)",
+    "discussion": "Every mark parameter written as .value(\"Label\", someValue) is constructing a PlottableValue, and the label becomes the dimension's name in generated axis titles and VoiceOver output. The wrapped value must conform to Plottable, which numeric types, strings, and dates do out of the box. Custom types can adopt Plottable to plot domain models directly.",
+    "framework": "Swift Charts",
+    "kind": "Type",
+    "name": "PlottableValue",
+    "related": [
+      "BarMark",
+      "LineMark",
+      "Chart"
+    ],
+    "summary": "Pairs a data value with the label Swift Charts uses for axes, legends, and accessibility.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "Chart(specimens) { s in\n    PointMark(\n        x: .value(\"Height\", s.height),\n        y: .value(\"Weight\", s.weight)\n    )\n    .symbol(by: .value(\"Species\", s.species))\n}",
+    "discussion": "Beyond position, points can encode extra dimensions: .symbol(by:) varies the glyph per category, .symbolSize(by:) scales area by a value, and .foregroundStyle(by:) colors by series. Those channel modifiers make a two-axis scatter plot carry four or five variables legibly. It also layers well over LineMark to emphasize the underlying samples.",
+    "framework": "Swift Charts",
+    "kind": "Type",
+    "name": "PointMark",
+    "related": [
+      "Chart",
+      "LineMark",
+      ".chartLegend()"
+    ],
+    "summary": "A Swift Charts mark that plots individual data points, the basis of scatter plots.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "Chart(bins) { bin in\n    RectangleMark(\n        xStart: .value(\"Start\", bin.start),\n        xEnd: .value(\"End\", bin.end),\n        yStart: .value(\"Low\", bin.low),\n        yEnd: .value(\"High\", bin.high)\n    )\n}",
+    "discussion": "With start and end values on both axes it shades arbitrary regions, which covers heatmap cells, highlighted time windows, and 2D histogram bins. Supplying categorical values for both axes instead produces a grid of cells sized by the axis bands. Pair it with a value-based .foregroundStyle(by:) to get a color scale across cells.",
+    "framework": "Swift Charts",
+    "kind": "Type",
+    "name": "RectangleMark",
+    "related": [
+      "Chart",
+      "BarMark"
+    ],
+    "summary": "A Swift Charts mark filling a rectangular region defined by x and y ranges.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "Chart(readings) { r in\n    LineMark(x: .value(\"Day\", r.day), y: .value(\"Value\", r.value))\n    RuleMark(y: .value(\"Threshold\", 80))\n        .lineStyle(StrokeStyle(lineWidth: 1, dash: [4]))\n        .annotation(position: .top) { Text(\"Limit\") }\n}",
+    "discussion": "Fixing only y produces a horizontal reference line spanning the plot width; fixing only x produces a vertical one, the usual companion to a selection gesture. Giving both a start and end constrains the rule to a segment, useful for range indicators. The .annotation(position:) modifier hangs labels off the rule.",
+    "framework": "Swift Charts",
+    "kind": "Type",
+    "name": "RuleMark",
+    "related": [
+      "Chart",
+      ".chartXSelection()",
+      "AreaMark"
+    ],
+    "summary": "A Swift Charts mark drawing a horizontal or vertical line across the plot, ideal for thresholds and annotations.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "Chart(shares) { share in\n    SectorMark(\n        angle: .value(\"Users\", share.count),\n        innerRadius: .ratio(0.6),\n        angularInset: 1.5\n    )\n    .foregroundStyle(by: .value(\"Platform\", share.platform))\n}",
+    "discussion": "Each data point contributes a slice proportional to its angle value, with innerRadius turning a pie into a donut and angularInset adding separation between slices. It arrived in the 2023 Charts update, finally covering part-to-whole charts natively. Slices pick up series colors and legends through .foregroundStyle(by:) like any other mark.",
+    "framework": "Swift Charts",
+    "kind": "Type",
+    "name": "SectorMark",
+    "related": [
+      "Chart",
+      "BarMark",
+      ".chartLegend()"
+    ],
+    "summary": "A Swift Charts mark that renders pie and donut slices from an angle value.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "StoreView(ids: [\n    \"com.example.tipjar.small\",\n    \"com.example.tipjar.large\"\n])",
+    "discussion": "You pass the product identifiers and StoreKit fetches metadata, localizes prices, and handles purchases without any custom transaction UI. It is the quickest path to a tip jar or a small catalog of non-consumables, while ProductView covers single-product placement and SubscriptionStoreView covers subscription groups. Purchase outcomes can be observed with .onInAppPurchaseCompletion().",
+    "framework": "StoreKit",
+    "kind": "View",
+    "name": "StoreView",
+    "related": [
+      "ProductView",
+      "SubscriptionStoreView",
+      ".productViewStyle()"
+    ],
+    "summary": "Lists multiple in-app purchase products with system-rendered pricing and buy buttons.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "SubscriptionStoreView(groupID: \"21534970\") {\n    MarketingHeader()\n}\n.storeButton(.visible, for: .restorePurchases)\n.subscriptionStoreControlStyle(.prominentPicker)",
+    "discussion": "Given a subscription group ID, it loads the products, renders plan options with localized pricing and introductory offers, and runs the whole purchase flow. A trailing view builder supplies your marketing header, and companion modifiers control which auxiliary buttons and control styles appear. It also understands the subscriber's current status, showing upgrade and downgrade choices appropriately.",
+    "framework": "StoreKit",
+    "kind": "View",
+    "name": "SubscriptionStoreView",
+    "related": [
+      "StoreView",
+      "ProductView",
+      ".subscriptionStoreControlStyle()",
+      ".storeButton()"
+    ],
+    "summary": "A complete StoreKit merchandising screen for an auto-renewable subscription group, including plan picking and purchase.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "struct RenameTip: Tip {\n    var title: Text { Text(\"Rename Anywhere\") }\n    var message: Text? { Text(\"Double-click a name to edit it in place.\") }\n    var image: Image? { Image(systemName: \"pencil\") }\n}",
+    "discussion": "A conforming struct supplies title, optional message and image, and can declare rules built on parameters and events so the tip shows only when it is relevant — for example after a feature was used three times. Nothing displays until the app calls Tips.configure() at launch, which sets up the persistent store tracking impressions and dismissals. Calling invalidate(reason:) retires a tip once the user performs the action it teaches.",
+    "framework": "TipKit",
+    "kind": "Protocol",
+    "name": "Tip",
+    "related": [
+      "TipView",
+      ".popoverTip()"
+    ],
+    "summary": "Defines a piece of feature education: its content plus the rules and options governing when it may appear.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "struct FavoriteTip: Tip {\n    var title: Text { Text(\"Save Favorites\") }\n    var message: Text? { Text(\"Tap the star to keep it handy.\") }\n}\n\nTipView(FavoriteTip(), arrowEdge: .top)",
+    "discussion": "The view renders the tip's title, message, image, and any actions using the system tip appearance, and disappears automatically once the tip is invalidated or its display rules stop matching. An arrowEdge parameter draws a pointer toward the feature being taught. Inline placement suits tips about content regions, while .popoverTip() suits specific controls.",
+    "framework": "TipKit",
+    "kind": "View",
+    "name": "TipView",
+    "related": [
+      ".popoverTip()",
+      "Tip"
+    ],
+    "summary": "Displays a TipKit tip inline, pushing surrounding content aside rather than floating above it.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "struct SafariView: UIViewControllerRepresentable {\n    let url: URL\n    func makeUIViewController(context: Context) -> SFSafariViewController {\n        SFSafariViewController(url: url)\n    }\n    func updateUIViewController(_ vc: SFSafariViewController,\n                                context: Context) {}\n}",
+    "discussion": "You implement makeUIViewController to create the controller once and updateUIViewController to push SwiftUI state changes into it on every relevant update. A Coordinator object bridges delegate callbacks back into SwiftUI, typically holding bindings or closures. SwiftUI manages the controller's lifecycle, containment, and sizing within the surrounding layout.",
+    "kind": "Protocol",
+    "name": "UIViewControllerRepresentable",
+    "platforms": [
+      "iOS",
+      "tvOS"
+    ],
+    "related": [
+      "UIViewRepresentable",
+      "NSViewControllerRepresentable"
+    ],
+    "summary": "Wraps a UIKit view controller so it can participate in a SwiftUI view hierarchy.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Map {\n    UserAnnotation()\n}\n.mapControls {\n    MapUserLocationButton()\n}",
+    "discussion": "Adding it to the map content is what opts a SwiftUI Map into rendering the location puck; location authorization must already be granted through CoreLocation. A content-builder initializer swaps the default puck for a custom view that receives the current UserLocation. It pairs with MapUserLocationButton and the .userLocation camera position for follow-me behavior.",
+    "framework": "MapKit",
+    "kind": "View",
+    "name": "UserAnnotation",
+    "related": [
+      "Map",
+      ".mapControls()",
+      "MapCameraPosition",
+      "Annotation"
+    ],
+    "summary": "Shows the user's live location on the map with the system's pulsing indicator.",
+    "wwdcYear": 2023
+  }
+]

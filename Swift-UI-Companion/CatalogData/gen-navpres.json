@@ -1,0 +1,932 @@
+[
+  {
+    "code": ".alert(\"Reset Library?\", isPresented: $confirmingReset) {\n    Button(\"Reset\", role: .destructive, action: resetLibrary)\n    Button(\"Cancel\", role: .cancel) { }\n}\n.dialogIcon(Image(systemName: \"externaldrive.badge.exclamationmark\"))",
+    "discussion": "macOS alerts badge your app icon by default; supplying an Image here — often an SF Symbol tinted for the situation — makes the dialog's subject clearer without custom windows. Apply it to the view presenting the alert, alongside the alert modifier itself.",
+    "kind": "Modifier",
+    "name": ".dialogIcon()",
+    "related": [
+      ".alert()",
+      ".confirmationDialog()",
+      ".dialogSeverity()"
+    ],
+    "summary": "Replaces the app icon shown in a macOS alert or confirmation dialog with a custom image.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": ".alert(\"Erase All Annotations?\", isPresented: $confirmingErase) {\n    Button(\"Erase\", role: .destructive, action: eraseAnnotations)\n    Button(\"Cancel\", role: .cancel) { }\n}\n.dialogSeverity(.critical)",
+    "discussion": "Setting .critical adopts the caution styling AppKit reserves for destructive or irreversible operations, signaling weight beyond button roles alone. Keep it for genuinely dangerous confirmations so the styling retains meaning.",
+    "kind": "Modifier",
+    "name": ".dialogSeverity()",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      ".alert()",
+      ".dialogIcon()"
+    ],
+    "summary": "Marks a macOS dialog as standard or critical, changing its system presentation.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "@AppStorage(\"suppressReplaceWarning\") private var suppressReplaceWarning = false\n\nexportButton\n    .alert(\"Replace Existing File?\", isPresented: $confirmingReplace) {\n        Button(\"Replace\", action: performExport)\n        Button(\"Cancel\", role: .cancel) { }\n    }\n    .dialogSuppressionToggle(isSuppressed: $suppressReplaceWarning)",
+    "discussion": "The binding records the user's preference; your presenting code is responsible for consulting it and skipping the dialog next time, typically via AppStorage. A labeled overload customizes the checkbox text when the default wording does not fit.",
+    "kind": "Modifier",
+    "name": ".dialogSuppressionToggle()",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      ".alert()",
+      "@AppStorage",
+      ".dialogSeverity()"
+    ],
+    "summary": "Adds a do-not-ask-again checkbox to a macOS dialog, bound to your suppression state.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": ".fileImporter(isPresented: $importing,\n              allowedContentTypes: [.folder, .item]) { open($0) }\n.fileDialogBrowserOptions([.includeHiddenFiles, .displayFileExtensions])",
+    "discussion": "The FileDialogBrowserOptions option set includes .includeHiddenFiles, .enumeratePackages, and .displayFileExtensions, covering the needs of developer-oriented and pro apps that must see inside bundles. Options combine as a set, so you can enable several behaviors in one call.",
+    "kind": "Modifier",
+    "name": ".fileDialogBrowserOptions()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      ".fileImporter()",
+      ".fileDialogImportsUnresolvedAliases()"
+    ],
+    "summary": "Tunes the file browser inside a dialog, such as showing hidden files or entering packages.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": ".fileImporter(isPresented: $importing,\n              allowedContentTypes: [.pdf]) { handle($0) }\n.fileDialogConfirmationLabel(\"Add to Library\")",
+    "discussion": "Changing Open or Save to task language such as Add to Library clarifies what actually happens after confirmation. Passing nil or omitting the modifier restores the platform's default label, and the text should stay short since it lives on a button.",
+    "kind": "Modifier",
+    "name": ".fileDialogConfirmationLabel()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      ".fileImporter()",
+      ".fileDialogMessage()"
+    ],
+    "summary": "Replaces the confirm button title of a file dialog with custom text.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": ".fileExporter(isPresented: $exporting,\n              document: bookmarksDoc,\n              contentType: .json,\n              defaultFilename: \"Bookmarks\") { _ in }\n.fileDialogCustomizationID(\"bookmarksExport\")",
+    "discussion": "macOS remembers panel geometry and browsing state keyed by this identifier, so an import dialog and an export dialog can each restore their own last position and directory. Use distinct identifiers for distinct tasks rather than one shared value.",
+    "kind": "Modifier",
+    "name": ".fileDialogCustomizationID()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      ".fileExporter()",
+      ".fileDialogDefaultDirectory()"
+    ],
+    "summary": "Gives a file dialog a stable identity so its size and location persist per purpose.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": ".fileImporter(isPresented: $importing,\n              allowedContentTypes: [.epub]) { handle($0) }\n.fileDialogDefaultDirectory(.downloadsDirectory)",
+    "discussion": "This seeds fileImporter, fileExporter, and fileMover dialogs attached to the same view hierarchy; the system still remembers the user's last visited location on subsequent presentations. The URL static accessors like .downloadsDirectory make common starting points one-liners.",
+    "kind": "Modifier",
+    "name": ".fileDialogDefaultDirectory()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      ".fileImporter()",
+      ".fileExporter()",
+      ".fileDialogMessage()"
+    ],
+    "summary": "Suggests the directory a file dialog opens in the first time it appears.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": ".fileImporter(isPresented: $importing,\n              allowedContentTypes: [.item]) { inspect($0) }\n.fileDialogImportsUnresolvedAliases(true)",
+    "discussion": "By default choosing an alias hands you the target; backup, sync, and file-management tools often need the alias file as-is, which this modifier enables. It applies to the importer dialogs presented from the modified hierarchy.",
+    "kind": "Modifier",
+    "name": ".fileDialogImportsUnresolvedAliases()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      ".fileImporter()",
+      ".fileDialogBrowserOptions()"
+    ],
+    "summary": "Makes a file dialog return alias and symlink files themselves instead of resolving them.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": ".fileImporter(isPresented: $importing,\n              allowedContentTypes: [.pdf, .epub]) { handle($0) }\n.fileDialogMessage(\"Choose a book to add. PDFs keep their printed contents pages.\")",
+    "discussion": "The message appears within the open or save panel — prominently on macOS — and is the right place to state constraints like expected formats or what the app will do with the selection. It accepts a localized string key or Text, so it participates in normal localization.",
+    "kind": "Modifier",
+    "name": ".fileDialogMessage()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      ".fileImporter()",
+      ".fileDialogConfirmationLabel()"
+    ],
+    "summary": "Adds an explanatory message line inside a file dialog.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": ".fileExporter(isPresented: $exporting,\n              document: notesDocument,\n              contentType: .plainText,\n              defaultFilename: \"Meeting Notes\") { result in\n    if case .failure(let error) = result { presentError(error) }\n}",
+    "discussion": "The original overloads take a FileDocument or ReferenceFileDocument plus a content type and suggested filename; 2023 added overloads that export any Transferable item or collection without adopting the document protocols. The completion hands back the written URL, with the system handling overwrite prompts and sandbox mediation.",
+    "kind": "Modifier",
+    "name": ".fileExporter()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      ".fileImporter()",
+      ".fileMover()",
+      "ShareLink",
+      "Transferable"
+    ],
+    "summary": "Presents a save dialog that writes a document or item to a user-chosen location.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": ".fileExporter(isPresented: $exporting,\n              document: reportDoc,\n              contentType: .pdf,\n              defaultFilename: \"Quarterly Report\") { _ in }\n.fileExporterFilenameLabel(\"Export As:\")",
+    "discussion": "The macOS save panel prefixes its name field with Save As by default; this modifier substitutes wording that matches your operation, like Export As. It only affects exporter presentations from the modified hierarchy and takes localized text.",
+    "kind": "Modifier",
+    "name": ".fileExporterFilenameLabel()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      ".fileExporter()",
+      ".fileDialogConfirmationLabel()"
+    ],
+    "summary": "Customizes the label next to the filename field in an export dialog.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": ".fileImporter(isPresented: $importing,\n              allowedContentTypes: [.pdf],\n              allowsMultipleSelection: true) { result in\n    if case .success(let urls) = result {\n        addToLibrary(urls)\n    }\n}",
+    "discussion": "You constrain choices with UTType content types and receive security-scoped URLs in a Result; call startAccessingSecurityScopedResource before reading files outside your sandbox. The allowsMultipleSelection form delivers an array, and the picker itself is the system's, so sandboxing and provider integration come free.",
+    "kind": "Modifier",
+    "name": ".fileImporter()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      ".fileExporter()",
+      ".fileMover()",
+      ".dropDestination()"
+    ],
+    "summary": "Presents the system document picker for choosing one or more files to open.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": ".fileMover(isPresented: $movingDraft, file: draftURL) { result in\n    if case .success(let newURL) = result {\n        archivedURL = newURL\n    }\n}",
+    "discussion": "Unlike fileExporter, the file already exists — commonly in your app's temporary or documents directory — and the system moves it rather than writing new content. A multi-file overload accepts a collection of URLs, and the completion reports where each item landed.",
+    "kind": "Modifier",
+    "name": ".fileMover()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      ".fileImporter()",
+      ".fileExporter()"
+    ],
+    "summary": "Presents a dialog that relocates an existing file to a destination the user picks.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "WindowGroup(\"Reader\") {\n    ReaderWindow()\n}\n.handlesExternalEvents(matching: [\"reader\"])",
+    "discussion": "The scene form's matching set decides whether an event routes to an existing window or spawns a new one in multi-window apps; the view form's preferring and allowing sets arbitrate between open windows. Conditions match against the event's URL and activity identifiers, enabling dedicated viewer windows for particular links.",
+    "kind": "Modifier",
+    "name": ".handlesExternalEvents()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "WindowGroup",
+      ".onOpenURL()",
+      ".onContinueUserActivity()"
+    ],
+    "summary": "Declares which incoming URLs and activities a scene or view prefers to receive.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "CanvasView(document: $document, selection: $selection)\n    .inspector(isPresented: $showsInspector) {\n        ShapeAttributesPane(selection: $selection)\n    }\n    .toolbar {\n        Button(\"Inspector\", systemImage: \"sidebar.trailing\") { showsInspector.toggle() }\n    }",
+    "discussion": "The inspector is adaptive: a trailing column beside the content on Mac and regular-width iPad, and a resizable sheet in compact widths. It participates in the navigation structure rather than floating above it, so place it on the view whose selection it describes and toggle it with a Boolean binding.",
+    "kind": "Modifier",
+    "name": ".inspector()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      ".inspectorColumnWidth()",
+      "NavigationSplitView",
+      ".sheet()"
+    ],
+    "summary": "Presents a trailing inspector pane that shows detail about the current selection.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": ".inspector(isPresented: $showsInspector) {\n    AttributesPane(selection: $selection)\n        .inspectorColumnWidth(min: 220, ideal: 260, max: 340)\n}",
+    "discussion": "Apply it inside the inspector content: a single value fixes the pane, while min:ideal:max: allows dragging within bounds, with the user's chosen width persisted by the system. The width applies only when the inspector renders as a column; the compact sheet form ignores it.",
+    "kind": "Modifier",
+    "name": ".inspectorColumnWidth()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      ".inspector()",
+      ".navigationSplitViewColumnWidth()"
+    ],
+    "summary": "Sets a fixed or user-resizable width for an inspector's column presentation.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "NavigationLink(value: photo) {\n    PhotoThumbnail(photo: photo)\n        .matchedTransitionSource(id: photo.id, in: gallery)\n}\n.navigationDestination(for: Photo.self) { photo in\n    PhotoDetail(photo: photo)\n        .navigationTransition(.zoom(sourceID: photo.id, in: gallery))\n}",
+    "discussion": "Tag the source cell with an identifier and a namespace, then pass the same pair to navigationTransition(.zoom(sourceID:in:)) on the destination; the system morphs between the two views during push and pop. The same source marking also powers zoomed sheet and full-screen-cover presentations, and the drag-to-dismiss gesture returns to the tagged origin.",
+    "kind": "Modifier",
+    "name": ".matchedTransitionSource()",
+    "related": [
+      ".navigationTransition()",
+      "@Namespace",
+      ".matchedGeometryEffect()"
+    ],
+    "summary": "Marks a view as the visual origin of a zoom navigation or presentation transition.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "PaymentStepView(order: order)\n    .navigationBarBackButtonHidden(true)\n    .toolbar {\n        ToolbarItem(placement: .cancellationAction) {\n            Button(\"Cancel\", action: abandonCheckout)\n        }\n    }",
+    "discussion": "Useful for flows that must not be casually escaped, such as a multi-step checkout, where you supply your own cancel or done affordance instead. Hiding the button also disables the interactive back-swipe on that screen, so pair it with an explicit exit path to avoid trapping the user.",
+    "kind": "Modifier",
+    "name": ".navigationBarBackButtonHidden()",
+    "related": [
+      "NavigationStack",
+      ".toolbar()"
+    ],
+    "summary": "Hides the automatic back button for the current navigation stack level.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "LegacyReaderView()\n    .navigationBarHidden(true)",
+    "deprecated": true,
+    "discussion": "Deprecated in favor of the placement-based API — toolbarVisibility(.hidden, for: .navigationBar) — which composes with other bars and animates consistently. Existing code still works, but the replacement also covers tab bars and bottom bars through the same call shape.",
+    "kind": "Modifier",
+    "name": ".navigationBarHidden()",
+    "platforms": [
+      "iOS",
+      "tvOS",
+      "watchOS"
+    ],
+    "related": [
+      ".toolbarVisibility()",
+      ".toolbar()"
+    ],
+    "summary": "The legacy switch for hiding the navigation bar on the current screen.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "LegacyListView()\n    .navigationBarItems(\n        leading: Button(\"Close\", action: close),\n        trailing: EditButton()\n    )",
+    "deprecated": true,
+    "discussion": "Superseded by the toolbar modifier with ToolbarItem placements, which understands semantic roles and works across platforms rather than hardcoding two bar positions. Migrating usually means mapping leading: to .topBarLeading or .cancellationAction and trailing: to .primaryAction.",
+    "kind": "Modifier",
+    "name": ".navigationBarItems()",
+    "platforms": [
+      "iOS",
+      "tvOS"
+    ],
+    "related": [
+      ".toolbar()",
+      "ToolbarItem",
+      "EditButton"
+    ],
+    "summary": "The original way to install leading and trailing navigation bar buttons.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "List(albums) { AlbumRow(album: $0) }\n    .navigationTitle(\"Albums\")\n    .navigationBarTitleDisplayMode(.inline)",
+    "discussion": "Pass .large for the prominent title that collapses on scroll, .inline for a compact centered title, or .automatic to inherit from the previous stack level. Because inheritance is the default, setting an explicit mode on a root view also shapes what pushed children start from.",
+    "kind": "Modifier",
+    "name": ".navigationBarTitleDisplayMode()",
+    "platforms": [
+      "iOS",
+      "watchOS"
+    ],
+    "related": [
+      ".navigationTitle()",
+      ".toolbarTitleDisplayMode()"
+    ],
+    "summary": "Chooses between the large and inline navigation bar title appearance on iOS and watchOS.",
+    "wwdcYear": 2020
+  },
+  {
+    "children": [
+      {
+        "code": ".navigationDestination(for: Recipe.self) { recipe in\n    RecipeDetail(recipe: recipe)\n}",
+        "name": "navigationDestination(for:)",
+        "summary": "Maps a Hashable value type to its pushed destination view."
+      },
+      {
+        "code": ".navigationDestination(isPresented: $showingSettings) {\n    SettingsView()\n}",
+        "name": "navigationDestination(isPresented:)",
+        "summary": "Pushes a fixed destination whenever a Boolean binding turns true."
+      },
+      {
+        "code": ".navigationDestination(item: $inspectedRecipe) { recipe in\n    RecipeDetail(recipe: recipe)\n}",
+        "name": "navigationDestination(item:)",
+        "summary": "Pushes a destination built from an optional item while it is non-nil (iOS 17)."
+      }
+    ],
+    "code": "NavigationStack {\n    List(recipes) { recipe in\n        NavigationLink(recipe.name, value: recipe)\n    }\n    .navigationDestination(for: Recipe.self) { recipe in\n        RecipeDetail(recipe: recipe)\n    }\n}",
+    "discussion": "The for:destination: form associates a Hashable value type with a destination builder, so NavigationLink(value:) and NavigationPath appends resolve to real views lazily at push time. Later variants accept a Boolean binding or an optional item binding, covering imperative pushes without inventing sentinel values. Place it inside the stack's content, not on the lazy views of a List row, so the stack can find it.",
+    "kind": "Modifier",
+    "name": ".navigationDestination()",
+    "related": [
+      "NavigationStack",
+      "NavigationPath",
+      "NavigationLink"
+    ],
+    "summary": "Declares the view a NavigationStack pushes for a given data value, presentation flag, or optional item.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "TextEditorPane(text: $draft.text)\n    .navigationTitle(draft.name)\n    .navigationDocument(draft.fileURL)",
+    "discussion": "On macOS this produces the classic titlebar proxy icon that can be dragged or command-clicked to reveal the file's location; on iPadOS it enriches the title menu and drag interactions. It also feeds sharing metadata, so a Transferable or URL declared here travels with system share affordances tied to the title.",
+    "kind": "Modifier",
+    "name": ".navigationDocument()",
+    "related": [
+      ".navigationTitle()",
+      ".navigationSubtitle()",
+      "ShareLink"
+    ],
+    "summary": "Associates a document URL with the navigation title for proxy icons and title menus.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "NavigationSplitView {\n    Sidebar()\n        .navigationSplitViewColumnWidth(min: 180, ideal: 220, max: 300)\n} content: {\n    ThreadList()\n        .navigationSplitViewColumnWidth(320)\n} detail: {\n    MessageView()\n}",
+    "discussion": "Apply it to a column's root view: a single value pins the column, while the min:ideal:max: form lets the user drag the divider within your bounds on macOS and iPadOS. The system persists the user's chosen width between the limits, so prefer the flexible form unless the layout truly requires a constant.",
+    "kind": "Modifier",
+    "name": ".navigationSplitViewColumnWidth()",
+    "related": [
+      "NavigationSplitView",
+      ".inspectorColumnWidth()"
+    ],
+    "summary": "Sets a fixed or flexible width for one column of a NavigationSplitView.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "NavigationSplitView {\n    MailboxList(selection: $mailbox)\n} detail: {\n    MessageView(mailbox: mailbox)\n}\n.navigationSplitViewStyle(.balanced)",
+    "discussion": "The .balanced style keeps the detail column at reduced width when the sidebar is visible, while .prominentDetail keeps detail full-size and overlays the leading columns. Apply it to the NavigationSplitView itself; .automatic resolves per platform and size class.",
+    "kind": "Modifier",
+    "name": ".navigationSplitViewStyle()",
+    "related": [
+      "NavigationSplitView",
+      "NavigationSplitViewVisibility"
+    ],
+    "summary": "Selects how a NavigationSplitView arranges and weights its columns.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "DocumentList(folder: folder)\n    .navigationTitle(folder.name)\n    .navigationSubtitle(\"\\(folder.items.count) documents\")",
+    "discussion": "Long a macOS-only affordance shown under the window title, the subtitle came to iPhone and iPad in the 2025 release, where it renders below the large or inline title. It suits live status like item counts or sync state, keeping the title itself stable for orientation.",
+    "kind": "Modifier",
+    "name": ".navigationSubtitle()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      ".navigationTitle()",
+      ".navigationDocument()"
+    ],
+    "summary": "Adds a secondary line of text beneath the navigation title.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "NavigationView {\n    LegacyRootList()\n}\n.navigationViewStyle(.stack)",
+    "deprecated": true,
+    "discussion": "The .stack style was the widespread fix for NavigationView unexpectedly splitting into columns on iPad. Both the modifier and its styles are deprecated along with NavigationView itself: NavigationStack expresses stack behavior and NavigationSplitView expresses columns, each with clearer state models.",
+    "kind": "Modifier",
+    "name": ".navigationViewStyle()",
+    "related": [
+      "NavigationView",
+      "NavigationStack",
+      "NavigationSplitView"
+    ],
+    "summary": "Selected the column or stack layout of the deprecated NavigationView container.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "ContentView()\n    .onContinueUserActivity(\"com.shelf.viewingRecipe\") { activity in\n        guard let idString = activity.userInfo?[\"id\"] as? String,\n              let id = UUID(uuidString: idString) else { return }\n        selectedRecipeID = id\n    }",
+    "discussion": "This is the receiving side of Handoff and Spotlight results: match the activity type string you advertised, unpack userInfo, and steer navigation or selection accordingly. Register it high in the scene's hierarchy so the handler exists whenever the activity arrives.",
+    "kind": "Modifier",
+    "name": ".onContinueUserActivity()",
+    "related": [
+      ".userActivity()",
+      ".onOpenURL()"
+    ],
+    "summary": "Handles an incoming NSUserActivity of a specific type, typically to restore the state it describes.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "ContentView()\n    .onOpenURL { url in\n        guard url.scheme == \"shelf\",\n              let id = UUID(uuidString: url.lastPathComponent) else { return }\n        path.append(DocumentRoute(id: id))\n    }",
+    "discussion": "The closure fires on the scene that receives the URL, making it the natural place to translate deep links into navigation state, for example appending to a NavigationPath. Validate the URL's structure before acting on it, since anything on the system can send one.",
+    "kind": "Modifier",
+    "name": ".onOpenURL()",
+    "related": [
+      "openURL",
+      "NavigationPath",
+      ".handlesExternalEvents()"
+    ],
+    "summary": "Registers a handler for URLs that launch or foreground the app, such as custom schemes and universal links.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": ".sheet(isPresented: $showsNowPlaying) {\n    NowPlayingControls(player: player)\n        .presentationBackground(.thinMaterial)\n}",
+    "discussion": "Unlike stacking a background modifier inside the sheet, this styles the presentation container itself, filling the full sheet shape and letting content underneath show through translucent materials. The view-builder overload accepts arbitrary content such as gradients, aligned within the presentation's bounds.",
+    "kind": "Modifier",
+    "name": ".presentationBackground()",
+    "related": [
+      ".sheet()",
+      "Material",
+      ".presentationCornerRadius()"
+    ],
+    "summary": "Replaces a presentation's default background with a shape style or custom view.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": ".sheet(isPresented: $showsSearch) {\n    PlaceSearch(results: $results)\n        .presentationDetents([.height(88), .medium, .large])\n        .presentationBackgroundInteraction(.enabled(upThrough: .medium))\n}",
+    "discussion": "By default a sheet blocks the content beneath it; .enabled(upThrough:) keeps the background interactive while the sheet rests at or below a given detent, the pattern behind persistent map or player sheets. Full .enabled removes the dimming barrier at every detent, so reserve it for presentations that truly behave like palettes.",
+    "kind": "Modifier",
+    "name": ".presentationBackgroundInteraction()",
+    "related": [
+      ".presentationDetents()",
+      ".sheet()",
+      "PresentationDetent"
+    ],
+    "summary": "Allows touches to pass through to the view behind a presented sheet.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": ".popover(isPresented: $showsLegend) {\n    ChartLegend(series: series)\n        .presentationCompactAdaptation(.popover)\n}",
+    "discussion": "A popover normally becomes a sheet on iPhone; passing .popover keeps the true popover chrome even in compact width, while .fullScreenCover or .none pick other adaptations. The two-axis overload distinguishes horizontally and vertically compact environments for finer control.",
+    "kind": "Modifier",
+    "name": ".presentationCompactAdaptation()",
+    "related": [
+      ".popover()",
+      ".sheet()"
+    ],
+    "summary": "Chooses how a popover or other presentation adapts in compact size classes.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": ".sheet(isPresented: $showsComments) {\n    CommentList(post: post)\n        .presentationDetents([.medium, .large])\n        .presentationContentInteraction(.scrolls)\n}",
+    "discussion": "With multiple detents, an upward drag resizes the sheet by default and only then scrolls; .scrolls flips that priority so embedded scroll views feel native, expanding the sheet only after content reaches its top. Use .resizes to keep the default behavior explicit.",
+    "kind": "Modifier",
+    "name": ".presentationContentInteraction()",
+    "related": [
+      ".presentationDetents()",
+      ".sheet()"
+    ],
+    "summary": "Decides whether swipes inside a sheet scroll its content or resize the sheet first.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": ".sheet(isPresented: $showsDetails) {\n    TicketDetails(ticket: ticket)\n        .presentationDetents([.medium])\n        .presentationCornerRadius(32)\n}",
+    "discussion": "The value shapes the presentation container's top corners, letting a design system align sheets with its own radius language instead of the platform default. Passing nil restores the system radius, which is useful when only certain sheets deviate.",
+    "kind": "Modifier",
+    "name": ".presentationCornerRadius()",
+    "related": [
+      ".presentationBackground()",
+      ".sheet()"
+    ],
+    "summary": "Overrides the corner radius of a sheet or other resizable presentation.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": ".sheet(isPresented: $showsFilters) {\n    FilterList(filters: $filters)\n        .presentationDetents([.medium, .large])\n        .presentationDragIndicator(.visible)\n}",
+    "discussion": "The system shows the indicator automatically in some configurations; forcing .visible signals resizability when your sheet content otherwise hides the hint, and .hidden cleans up sheets that are not meant to be dragged. Set it on the sheet's content alongside the detents it advertises.",
+    "kind": "Modifier",
+    "name": ".presentationDragIndicator()",
+    "related": [
+      ".presentationDetents()",
+      ".sheet()",
+      "PresentationDetent"
+    ],
+    "summary": "Shows or hides the grabber capsule at the top of a resizable sheet.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": ".toolbar {\n    ToolbarItem { Button(\"Edit\", action: beginEditing) }\n    ToolbarItem {\n        Button(\"Delete\", systemImage: \"trash\", role: .destructive, action: remove)\n    }\n    .sharedBackgroundVisibility(.hidden)\n}",
+    "discussion": "Applied to a ToolbarItem, passing .hidden removes the item from the merged Liquid Glass capsule so it renders on its own, which visually separates a destructive or special-purpose action. It complements ToolbarSpacer: the spacer splits groups spatially, while this modifier changes whether an item carries the group background at all.",
+    "kind": "Modifier",
+    "name": ".sharedBackgroundVisibility()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "ToolbarItem",
+      "ToolbarSpacer",
+      ".glassEffect()"
+    ],
+    "summary": "Detaches a toolbar item from the shared glass background of its neighbors.",
+    "wwdcYear": 2025
+  },
+  {
+    "code": "NavigationSplitView {\n    Sidebar()\n        .toolbar(removing: .sidebarToggle)\n} detail: {\n    DetailView()\n}",
+    "discussion": "NavigationSplitView and other containers insert default items automatically; this modifier opts out of a specific one by kind instead of hiding the whole bar. Removing .sidebarToggle is the common case for apps that manage column visibility with their own control.",
+    "kind": "Modifier",
+    "name": ".toolbar(removing:)",
+    "related": [
+      ".toolbar()",
+      "ToolbarItem",
+      "NavigationSplitView"
+    ],
+    "summary": "Removes a system-provided default toolbar item, such as the sidebar toggle.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "NavigationStack {\n    FullBleedMap(region: $region)\n        .toolbarBackgroundVisibility(.hidden, for: .navigationBar)\n}",
+    "discussion": "Hiding the background yields edge-to-edge content with bar items floating above it, which suits map and photo screens; the items remain interactive even though the material is gone. It replaces the visibility overload of toolbarBackground with a more discoverable name.",
+    "kind": "Modifier",
+    "name": ".toolbarBackgroundVisibility()",
+    "related": [
+      ".toolbarBackground()",
+      ".toolbarVisibility()"
+    ],
+    "summary": "Controls whether a bar draws its background material independently of its content.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "NavigationStack {\n    ArtworkGrid()\n        .toolbarBackground(.black, for: .navigationBar)\n        .toolbarColorScheme(.dark, for: .navigationBar)\n}",
+    "discussion": "Typically paired with a dark toolbarBackground so bar text and buttons switch to light glyphs regardless of the surrounding scheme. The change applies only to the named bars, such as .navigationBar or .tabBar, leaving the content view's scheme untouched.",
+    "kind": "Modifier",
+    "name": ".toolbarColorScheme()",
+    "related": [
+      ".toolbarBackground()",
+      ".toolbar()",
+      "ToolbarPlacement"
+    ],
+    "summary": "Forces a light or dark color scheme onto a specific toolbar region.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "NavigationStack {\n    DocumentCanvas(document: $document)\n        .navigationTitle(document.name)\n        .toolbarRole(.editor)\n}",
+    "discussion": "Roles such as .editor move the title to the leading edge on iPadOS and regroup items the way document editors expect, while .browser mirrors Safari-style arrangement. The role is a hint about meaning rather than explicit layout, so the same declaration adapts sensibly across platforms.",
+    "kind": "Modifier",
+    "name": ".toolbarRole()",
+    "related": [
+      ".toolbar()",
+      ".toolbarTitleDisplayMode()"
+    ],
+    "summary": "Tells the system what semantic job the toolbar performs so it can adjust layout and title placement.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "List(albums) { AlbumRow(album: $0) }\n    .navigationTitle(\"Albums\")\n    .toolbarTitleDisplayMode(.inlineLarge)",
+    "discussion": "Unlike the iOS-only navigationBarTitleDisplayMode, this modifier is declared for iOS, macOS, and watchOS and adds the .inlineLarge mode, which keeps a large title pinned inline the way document apps often present it. Modes still inherit down the navigation hierarchy from the first explicit setting.",
+    "kind": "Modifier",
+    "name": ".toolbarTitleDisplayMode()",
+    "related": [
+      ".navigationBarTitleDisplayMode()",
+      ".navigationTitle()"
+    ],
+    "summary": "Controls title prominence in the toolbar with a single cross-platform API.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": ".navigationTitle(document.name)\n.toolbarTitleMenu {\n    RenameButton()\n    Button(\"Duplicate\", systemImage: \"plus.square.on.square\") { duplicate() }\n    Button(\"Move...\", systemImage: \"folder\") { showMoveSheet = true }\n}",
+    "discussion": "The title gains a chevron and taps reveal your menu content, which is the conventional home for document-scoped commands like rename, duplicate, or move. RenameButton placed here automatically wires into the title's inline rename experience when a rename action is available.",
+    "kind": "Modifier",
+    "name": ".toolbarTitleMenu()",
+    "related": [
+      "RenameButton",
+      ".navigationTitle()",
+      ".toolbarRole()"
+    ],
+    "summary": "Attaches a menu of actions to the navigation title itself.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "ReaderView(chapter: chapter)\n    .toolbarVisibility(isImmersed ? .hidden : .visible, for: .navigationBar)\n    .toolbarVisibility(.hidden, for: .tabBar)",
+    "discussion": "This is the 2024 rename of the toolbar(_:for:) visibility overload, reading more clearly at the call site. It is the supported way to build immersive reading or media screens: hide bars while the user is engaged, then restore them without touching UIKit appearance APIs.",
+    "kind": "Modifier",
+    "name": ".toolbarVisibility()",
+    "related": [
+      ".toolbar()",
+      "ToolbarPlacement",
+      ".navigationBarHidden()"
+    ],
+    "summary": "Shows or hides entire system bars such as the navigation bar or tab bar for the current view.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "RecipeDetail(recipe: recipe)\n    .userActivity(\"com.shelf.viewingRecipe\") { activity in\n        activity.title = recipe.name\n        activity.userInfo = [\"id\": recipe.id.uuidString]\n        activity.isEligibleForHandoff = true\n    }",
+    "discussion": "While the modified view is visible, the system keeps an activity of the given type current, and your closure populates its title, userInfo, and web page URL. The isActive variant scopes advertising to one view among several candidates, such as the selected tab.",
+    "kind": "Modifier",
+    "name": ".userActivity()",
+    "related": [
+      ".onContinueUserActivity()",
+      ".onOpenURL()"
+    ],
+    "summary": "Advertises the current screen as an NSUserActivity for Handoff, Spotlight, and window restoration.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": ".alert(isPresented: $showingImportError) {\n    Alert(title: Text(\"Import Failed\"),\n          message: Text(importError.localizedDescription),\n          dismissButton: .default(Text(\"OK\")))\n}",
+    "deprecated": true,
+    "discussion": "Alert values were returned from the early alert(isPresented:content:) modifier, with Alert.Button factories like .default, .destructive, and .cancel. The type is deprecated in favor of the modern alert modifiers that take a view builder of role-annotated Buttons, which support more than two actions and text fields.",
+    "kind": "Type",
+    "name": "Alert",
+    "related": [
+      ".alert()",
+      ".confirmationDialog()"
+    ],
+    "summary": "The original value type describing an alert's title, message, and up to two buttons.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": ".toolbar(id: \"editor\") {\n    ToolbarItem(id: \"fonts\", placement: .secondaryAction) {\n        FontPickerButton(selection: $font)\n    }\n    .defaultCustomization(.hidden)\n}",
+    "discussion": "Adopted automatically when you give toolbar items stable ids inside a toolbar(id:) declaration, this protocol adds knobs like defaultCustomization(_:options:) for items hidden by default and customizationBehavior(_:) for items that must not be removed. Item ids are persisted, so keep them stable across app versions or user layouts silently reset.",
+    "kind": "Protocol",
+    "name": "CustomizableToolbarContent",
+    "related": [
+      "ToolbarContent",
+      "ToolbarItem",
+      ".toolbar()"
+    ],
+    "summary": "Toolbar content that users can rearrange, remove, and re-add through system toolbar customization.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "struct MiniPlayerDetent: CustomPresentationDetent {\n    static func height(in context: Context) -> CGFloat? {\n        max(80, context.maxDetentValue * 0.12)\n    }\n}",
+    "discussion": "Implement the static height(in:) requirement and return a height derived from context values like maxDetentValue and dynamic type size, or nil to opt out in the current environment. Because the context updates with layout changes, a custom detent can stay proportional or clamp itself as the window resizes.",
+    "kind": "Protocol",
+    "name": "CustomPresentationDetent",
+    "related": [
+      "PresentationDetent",
+      ".presentationDetents()"
+    ],
+    "summary": "Computes a sheet detent height from the live presentation context.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": ".searchable(text: $query)\n.toolbar {\n    DefaultToolbarItem(kind: .search, placement: .bottomBar)\n    ToolbarItem(placement: .topBarTrailing) {\n        Button(\"Filter\", systemImage: \"line.3.horizontal.decrease\", action: showFilters)\n    }\n}",
+    "discussion": "Some items are created by the framework rather than your code; DefaultToolbarItem gives you a handle to place one — most commonly kind .search from a searchable modifier — relative to your other items. This is how an app decides whether search floats in the bottom bar or sits with trailing actions under the 2025 toolbar design.",
+    "kind": "Type",
+    "name": "DefaultToolbarItem",
+    "related": [
+      "ToolbarItem",
+      ".searchable()",
+      "ToolbarSpacer"
+    ],
+    "summary": "Repositions a system-supplied toolbar item, such as the search field, within your own toolbar layout.",
+    "wwdcYear": 2025
+  },
+  {
+    "code": "@Environment(\\.dismissWindow) private var dismissWindow\n\nButton(\"Close Statistics\") {\n    dismissWindow(id: \"stats\")\n}",
+    "discussion": "The counterpart to openWindow: calling it with an id, a value, or both closes the matching window from anywhere in the app, not just from inside that window. It only affects scenes created from WindowGroup or Window declarations, and does nothing when no match exists.",
+    "kind": "Environment Value",
+    "name": "dismissWindow",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "openWindow",
+      "Window",
+      "WindowGroup"
+    ],
+    "summary": "An action that closes a window scene by identifier or value.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "@Environment(\\.isPresented) private var isPresented\n\nvar body: some View {\n    SettingsForm()\n        .toolbar {\n            if isPresented {\n                ToolbarItem(placement: .confirmationAction) {\n                    Button(\"Done\") { dismiss() }\n                }\n            }\n        }\n}",
+    "discussion": "Reading it lets shared components adapt — for example showing a Done button only when hosted in a sheet rather than pushed onto a stack. It complements the dismiss action, which performs the dismissal that this value merely detects.",
+    "kind": "Environment Value",
+    "name": "isPresented",
+    "related": [
+      "dismiss",
+      ".sheet()",
+      "presentationMode"
+    ],
+    "summary": "A Boolean environment value reporting whether the current view sits inside an active presentation.",
+    "wwdcYear": 2021
+  },
+  {
+    "children": [
+      {
+        "code": "if let snapshot = path.codable {\n    let data = try JSONEncoder().encode(snapshot)\n    try data.write(to: stateFileURL)\n}",
+        "name": "NavigationPath.CodableRepresentation",
+        "summary": "A Codable snapshot of the path, available when every pushed value is Codable."
+      }
+    ],
+    "code": "@State private var path = NavigationPath()\n\nvar body: some View {\n    NavigationStack(path: $path) {\n        List(recipes) { recipe in\n            NavigationLink(recipe.name, value: recipe)\n        }\n        .navigationDestination(for: Recipe.self) { RecipeDetail(recipe: $0) }\n    }\n}",
+    "discussion": "NavigationPath lets you push values of different Hashable types onto one stack without spelling out a common element type, and mutating it (append, removeLast) pushes or pops views bound through navigationDestination. When every element is also Codable, the codable property yields a serializable snapshot you can persist and restore, which is the backbone of state-restorable deep linking.",
+    "kind": "Type",
+    "name": "NavigationPath",
+    "related": [
+      "NavigationStack",
+      "NavigationLink",
+      ".navigationDestination()"
+    ],
+    "summary": "A type-erased, heterogeneous stack of values that drives programmatic navigation in a NavigationStack.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "@State private var column = NavigationSplitViewColumn.sidebar\n\nvar body: some View {\n    NavigationSplitView(preferredCompactColumn: $column) {\n        LibraryList()\n    } detail: {\n        ReaderView()\n    }\n}",
+    "discussion": "When a split view collapses to a single column on iPhone or in narrow iPad windows, the preferredCompactColumn binding decides whether the sidebar, content, or detail column is frontmost. Writing to the binding also lets you drive the collapsed navigation programmatically, for example jumping straight to detail after a selection arrives from a deep link.",
+    "kind": "Type",
+    "name": "NavigationSplitViewColumn",
+    "related": [
+      "NavigationSplitView",
+      "NavigationSplitViewVisibility"
+    ],
+    "summary": "Identifies a column of a NavigationSplitView, used to choose which column a compact layout prefers.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "@State private var visibility = NavigationSplitViewVisibility.doubleColumn\n\nvar body: some View {\n    NavigationSplitView(columnVisibility: $visibility) {\n        Sidebar()\n    } detail: {\n        DetailView()\n    }\n}",
+    "discussion": "Bind a NavigationSplitViewVisibility to the columnVisibility parameter to observe and control column state programmatically: .all, .doubleColumn, .detailOnly, or .automatic. The system still animates the user's sidebar toggling through the same binding, so your state stays in sync with gestures and toolbar buttons.",
+    "kind": "Type",
+    "name": "NavigationSplitViewVisibility",
+    "related": [
+      "NavigationSplitView",
+      ".navigationSplitViewStyle()"
+    ],
+    "summary": "A value describing which columns of a NavigationSplitView are currently shown.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "@Environment(\\.newDocument) private var newDocument\n\nButton(\"New Markdown File\") {\n    newDocument(MarkdownFile(template: .meetingNotes))\n}",
+    "discussion": "Call it with a FileDocument or ReferenceFileDocument initial value to programmatically mirror the File > New menu command, for instance from a launcher or template picker. The scene system owns the resulting window lifecycle just as it does for user-initiated documents.",
+    "kind": "Environment Value",
+    "name": "newDocument",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      "DocumentGroup",
+      "openDocument"
+    ],
+    "summary": "An action that creates a fresh untitled document window in a DocumentGroup app.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "@Environment(\\.openDocument) private var openDocument\n\nButton(\"Open Recent\") {\n    Task { try await openDocument(at: recentURL) }\n}",
+    "discussion": "Within a DocumentGroup app, this async action routes through the scene machinery so the file opens in a proper document window with undo, autosave, and recents integration. It throws when the document cannot be opened, so call it with try await and surface failures to the user.",
+    "kind": "Environment Value",
+    "name": "openDocument",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      "DocumentGroup",
+      "newDocument",
+      ".fileImporter()"
+    ],
+    "summary": "An action that asks a document-based app to open the file at a URL in its own window.",
+    "wwdcYear": 2022
+  },
+  {
+    "children": [
+      {
+        "code": ".presentationDetents([.height(240)])",
+        "name": "PresentationDetent.height()",
+        "summary": "A detent at an exact point height."
+      },
+      {
+        "code": ".presentationDetents([.fraction(0.3), .large])",
+        "name": "PresentationDetent.fraction()",
+        "summary": "A detent at a fraction of the available presentation height."
+      },
+      {
+        "code": ".presentationDetents([.custom(MiniPlayerDetent.self), .large])",
+        "name": "PresentationDetent.custom()",
+        "summary": "A detent computed by a CustomPresentationDetent type."
+      }
+    ],
+    "code": ".sheet(isPresented: $showsRoute) {\n    RouteSummary(route: route)\n        .presentationDetents([.height(180), .medium, .large], selection: $detent)\n}",
+    "discussion": "Detents passed to presentationDetents give a sheet its set of stops: .medium and .large are the system sizes, while .height, .fraction, and .custom produce exact, proportional, or fully computed stops. Supplying more than one detent makes the sheet user-resizable between them, with an optional selection binding to track or set the active stop.",
+    "kind": "Type",
+    "name": "PresentationDetent",
+    "related": [
+      ".presentationDetents()",
+      "CustomPresentationDetent",
+      ".presentationDragIndicator()"
+    ],
+    "summary": "A resting height for a resizable sheet, either system-defined or computed.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "@Environment(\\.presentationMode) private var presentationMode\n\nButton(\"Done\") {\n    presentationMode.wrappedValue.dismiss()\n}",
+    "deprecated": true,
+    "discussion": "Before iOS 15 this binding was the only route to programmatic dismissal, via presentationMode.wrappedValue.dismiss(). It is formally deprecated: read isPresented to detect presentation and call the dismiss action to leave one, both of which are simpler and update more predictably.",
+    "kind": "Environment Value",
+    "name": "presentationMode",
+    "related": [
+      "dismiss",
+      "isPresented"
+    ],
+    "summary": "The legacy environment binding for detecting and dismissing the enclosing presentation.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "@ToolbarContentBuilder\nprivate var editingItems: some ToolbarContent {\n    ToolbarItem(placement: .confirmationAction) {\n        Button(\"Done\", action: commit)\n    }\n    if hasChanges {\n        ToolbarItem(placement: .cancellationAction) {\n            Button(\"Revert\", role: .destructive, action: revert)\n        }\n    }\n}",
+    "discussion": "Annotating a computed property or function with @ToolbarContentBuilder lets you factor toolbar declarations out of body and reuse them across screens, with support for conditionals just like ViewBuilder. It produces some ToolbarContent, keeping placements type-checked rather than stringly assembled.",
+    "kind": "Type",
+    "name": "ToolbarContentBuilder",
+    "related": [
+      "ToolbarContent",
+      "ToolbarItem",
+      "ToolbarItemGroup"
+    ],
+    "summary": "The result builder that assembles ToolbarItem and ToolbarItemGroup values for the toolbar modifier.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": ".toolbar {\n    ToolbarItem(placement: .primaryAction) {\n        Button(\"Save\", systemImage: \"square.and.arrow.down\") { save() }\n    }\n    ToolbarItem(placement: .cancellationAction) {\n        Button(\"Cancel\", role: .cancel) { dismiss() }\n    }\n}",
+    "discussion": "The placement argument describes intent — .primaryAction, .confirmationAction, .principal, .keyboard — and each platform maps that intent to a physical position, so one declaration lays out correctly on iPhone, iPad, and Mac. Giving an item an explicit id makes it participate in user-customizable toolbars declared with toolbar(id:).",
+    "kind": "Type",
+    "name": "ToolbarItem",
+    "related": [
+      "ToolbarItemGroup",
+      "ToolbarItemPlacement",
+      ".toolbar()",
+      "ToolbarContent"
+    ],
+    "summary": "Wraps a single view for placement inside a toolbar's semantic layout system.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": ".toolbar {\n    ToolbarItemGroup(placement: .bottomBar) {\n        Button(\"Markup\", systemImage: \"pencil.tip.crop.circle\", action: markup)\n        Spacer()\n        Button(\"Share\", systemImage: \"square.and.arrow.up\", action: share)\n    }\n}",
+    "discussion": "Grouping avoids repeating the placement for every button and keeps related controls adjacent when the system rearranges bars for size classes. A Spacer inside a .bottomBar group is the idiomatic way to spread actions across the bottom toolbar's full width.",
+    "kind": "Type",
+    "name": "ToolbarItemGroup",
+    "related": [
+      "ToolbarItem",
+      ".toolbar()",
+      "ToolbarSpacer"
+    ],
+    "summary": "Places several views into a toolbar as one unit sharing a single placement.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": ".toolbar {\n    ToolbarItem(placement: .principal) {\n        SyncStatusBadge(state: syncState)\n    }\n    ToolbarItem(placement: .keyboard) {\n        Button(\"Done\") { isEditorFocused = false }\n    }\n}",
+    "discussion": "Placements split into semantic roles (.primaryAction, .destructiveAction, .confirmationAction, .cancellationAction, .principal, .status) and positional ones (.topBarLeading, .topBarTrailing, .bottomBar, .keyboard). Preferring the semantic roles lets the same toolbar adapt across platforms, including sheets where confirmation and cancellation land in platform-correct corners.",
+    "kind": "Type",
+    "name": "ToolbarItemPlacement",
+    "related": [
+      "ToolbarItem",
+      "ToolbarPlacement"
+    ],
+    "summary": "The set of semantic positions a toolbar item can request.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "GalleryDetail(photo: photo)\n    .toolbarVisibility(.hidden, for: .tabBar)\n    .toolbarBackground(.ultraThinMaterial, for: .navigationBar)",
+    "discussion": "This type parameterizes the for: argument of toolbar visibility, background, and color scheme modifiers, distinguishing whole bars rather than items within them. Values like .tabBar and .windowToolbar let one view opt specific chrome in or out without affecting the others.",
+    "kind": "Type",
+    "name": "ToolbarPlacement",
+    "related": [
+      ".toolbar()",
+      ".toolbarBackground()",
+      ".toolbarVisibility()"
+    ],
+    "summary": "Identifies which bar — navigation bar, tab bar, bottom bar, or window toolbar — a bar-level modifier targets.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": ".toolbar {\n    ToolbarItem { Button(\"Undo\", systemImage: \"arrow.uturn.backward\", action: undo) }\n    ToolbarItem { Button(\"Redo\", systemImage: \"arrow.uturn.forward\", action: redo) }\n    ToolbarSpacer(.fixed)\n    ToolbarItem { Button(\"Inspector\", systemImage: \"sidebar.trailing\", action: toggleInspector) }\n}",
+    "discussion": "Under the 2025 design, adjacent toolbar items merge onto one glass capsule; a ToolbarSpacer breaks that grouping so unrelated actions read as separate clusters. Use .fixed for a small deliberate gap between neighbors and .flexible to push groups apart across the available width.",
+    "kind": "Type",
+    "name": "ToolbarSpacer",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "ToolbarItem",
+      "ToolbarItemGroup",
+      ".glassEffect()"
+    ],
+    "summary": "Inserts fixed or flexible space between toolbar items, splitting their shared Liquid Glass background.",
+    "wwdcYear": 2025
+  }
+]

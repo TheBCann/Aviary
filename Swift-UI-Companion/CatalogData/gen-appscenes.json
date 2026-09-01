@@ -1,0 +1,567 @@
+[
+  {
+    "code": "Window(\"Player\", id: \"player\") {\n    PlayerView()\n}\n.commandsReplaced {\n    CommandMenu(\"Playback\") {\n        Button(\"Play\", action: play)\n    }\n}",
+    "discussion": "Where .commands() adds to the existing set and .commandsRemoved() deletes it, this modifier does both at once: the scene's implicit contributions disappear and only your builder's content remains. Reach for it when a scene's stock menu items are actively wrong for your app rather than merely incomplete.",
+    "kind": "Modifier",
+    "name": ".commandsReplaced()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      ".commands()",
+      ".commandsRemoved()",
+      "CommandMenu"
+    ],
+    "summary": "A scene modifier that discards a scene's default commands and substitutes the ones you build.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "Window(\"Debug Console\", id: \"console\") {\n    ConsoleView()\n}\n.defaultLaunchBehavior(.suppressed)",
+    "discussion": ".presented makes the scene the one shown on a fresh launch, while .suppressed keeps it closed until explicitly opened with openWindow, which is exactly what secondary tools and settings-adjacent windows want. Without it, the system falls back to its own heuristics about which scene leads.",
+    "kind": "Modifier",
+    "name": ".defaultLaunchBehavior()",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      ".restorationBehavior()",
+      "openWindow"
+    ],
+    "summary": "A scene modifier that states whether a scene should present at app launch by default.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "Window(\"Activity\", id: \"activity\") {\n    ActivityMonitorView()\n}\n.defaultPosition(.bottomTrailing)",
+    "discussion": "The UnitPoint maps onto the visible screen area, so .bottomTrailing tucks the window into the lower-right corner and .center centers it. Like .defaultSize(), it is only a hint for the first presentation; restored windows come back wherever the user left them.",
+    "kind": "Modifier",
+    "name": ".defaultPosition()",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      ".defaultSize()",
+      "Window"
+    ],
+    "summary": "A scene modifier that proposes where on screen a new window should first appear, expressed as a UnitPoint.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "WindowGroup {\n    LibraryView()\n}\n.defaultSize(width: 1000, height: 650)",
+    "discussion": "The value only seeds the initial layout: once the user resizes the window, the system persists their choice and ignores the default on subsequent launches. Because it attaches to the Scene, each WindowGroup or Window can declare its own starting geometry independently.",
+    "kind": "Modifier",
+    "name": ".defaultSize()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      ".defaultPosition()",
+      ".windowResizability()",
+      "WindowGroup"
+    ],
+    "summary": "A scene modifier that suggests the size a window should have the first time it appears.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "ContentView()\n    .presentedWindowStyle(.hiddenTitleBar)",
+    "discussion": "It configures presentation for windows that originate from the modified hierarchy rather than restyling the current window, which keeps the styling declaration close to the code that triggers the presentation. The scene-level .windowStyle() remains the right tool for windows a scene creates directly.",
+    "kind": "Modifier",
+    "name": ".presentedWindowStyle()",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      ".windowStyle()",
+      ".presentedWindowToolbarStyle()"
+    ],
+    "summary": "A view modifier that sets the window style for windows created from this view's context.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "ContentView()\n    .presentedWindowToolbarStyle(.unified)",
+    "discussion": "It mirrors .windowToolbarStyle() but travels with the presenting view instead of the scene, covering windows spawned from within the hierarchy. The same WindowToolbarStyle values apply: .unified, .unifiedCompact, and .expanded.",
+    "kind": "Modifier",
+    "name": ".presentedWindowToolbarStyle()",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      ".windowToolbarStyle()",
+      ".presentedWindowStyle()"
+    ],
+    "summary": "A view modifier that sets the toolbar style for windows created from this view's context.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "Window(\"Welcome\", id: \"welcome\") {\n    WelcomeView()\n}\n.restorationBehavior(.disabled)",
+    "discussion": "Passing .disabled opts a scene out of state restoration, so a window such as a one-time welcome screen does not reappear just because it was open at quit. It is part of the macOS 15 launch-behavior refinements and combines well with .defaultLaunchBehavior() for windows that should appear exactly once.",
+    "kind": "Modifier",
+    "name": ".restorationBehavior()",
+    "related": [
+      ".defaultLaunchBehavior()",
+      "Window"
+    ],
+    "summary": "A scene modifier that controls whether the system restores a scene's windows across app relaunches.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "Window(\"Scratchpad\", id: \"scratch\") {\n    ScratchpadView()\n}\n.windowStyle(.plain)\n.windowBackgroundDragBehavior(.enabled)",
+    "discussion": "It is the natural companion to .windowStyle(.plain) and hidden title bars, where there is no visible bar left to grab. With .enabled, drags that start on non-interactive background regions relocate the window instead of being swallowed by content.",
+    "kind": "Modifier",
+    "name": ".windowBackgroundDragBehavior()",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      ".windowStyle()",
+      "WindowInteractionBehavior",
+      "WindowDragGesture"
+    ],
+    "summary": "A scene modifier that lets users move a window by dragging anywhere on its background.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "Window(\"Mini Player\", id: \"mini\") {\n    MiniPlayerView()\n}\n.windowFullScreenBehavior(.disabled)",
+    "discussion": "Disabling it turns the green traffic-light control into a plain zoom for windows whose layout makes no sense at full screen, such as compact companions or fixed-size tools. Like the other window-behavior modifiers introduced in macOS 15, it accepts a WindowInteractionBehavior value and attaches to the Scene.",
+    "kind": "Modifier",
+    "name": ".windowFullScreenBehavior()",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      ".windowMinimizeBehavior()",
+      "WindowInteractionBehavior"
+    ],
+    "summary": "A scene modifier that controls whether a window can enter macOS full-screen mode.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "Window(\"Timer\", id: \"timer\") {\n    TimerHUD()\n}\n.windowLevel(.floating)",
+    "discussion": "Passing .floating keeps a panel above ordinary document windows even when it is not key, which suits HUDs, tool palettes, and status overlays. It is part of the macOS 15 window-customization set and pairs naturally with .windowStyle(.plain) and .windowBackgroundDragBehavior() for fully bespoke windows.",
+    "kind": "Modifier",
+    "name": ".windowLevel()",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      "WindowLevel",
+      ".windowBackgroundDragBehavior()",
+      "Window"
+    ],
+    "summary": "A scene modifier that places a window in an elevated layer, such as floating above standard windows.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "UtilityWindow(\"Inspector\", id: \"inspector\") {\n    InspectorPane()\n}\n.windowMinimizeBehavior(.disabled)",
+    "discussion": "Utility panels and floating HUDs often should not land in the Dock, and .windowMinimizeBehavior(.disabled) removes that affordance while leaving the rest of the chrome intact. It takes a WindowInteractionBehavior value, the same type used by the related full-screen and background-drag modifiers.",
+    "kind": "Modifier",
+    "name": ".windowMinimizeBehavior()",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      ".windowFullScreenBehavior()",
+      "WindowInteractionBehavior",
+      "UtilityWindow"
+    ],
+    "summary": "A scene modifier that enables or disables the minimize control on a window.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "Window(\"About\", id: \"about\") {\n    AboutView()\n        .frame(width: 420, height: 260)\n}\n.windowResizability(.contentSize)",
+    "discussion": "With .contentSize the window is pinned to exactly the sizes the root view reports, which is how you get a fixed-size utility window without AppKit; .contentMinSize enforces only the lower bound and lets the user grow the window freely. It attaches to the Scene, so combine it with .defaultSize() to control both the initial and the permitted geometry.",
+    "kind": "Modifier",
+    "name": ".windowResizability()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "WindowResizability",
+      ".defaultSize()",
+      "Window"
+    ],
+    "summary": "A scene modifier that derives a window's allowed resize range from its content sizing.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "WindowGroup {\n    CanvasView()\n}\n.windowStyle(.hiddenTitleBar)",
+    "discussion": "Attached to a WindowGroup or Window on macOS, it swaps the stock title bar for alternatives such as .hiddenTitleBar, letting content flow into the top edge of the window. The WWDC 2024 cycle added .plain, which strips standard decoration entirely for fully custom surfaces. Because it applies at the scene level, every window the scene spawns shares the same style.",
+    "kind": "Modifier",
+    "name": ".windowStyle()",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      ".windowToolbarStyle()",
+      "WindowStyle",
+      "WindowGroup"
+    ],
+    "summary": "A scene modifier that chooses the chrome treatment for every window a scene creates.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "WindowGroup {\n    BrowserView()\n        .toolbar {\n            ToolbarItem { Button(\"Add\", action: addFeed) }\n        }\n}\n.windowToolbarStyle(.unifiedCompact)",
+    "discussion": "It decides whether the title sits inline beside toolbar items (.unified and .unifiedCompact) or on its own row above them (.expanded). Apply it to the scene alongside .windowStyle(); the toolbar items themselves still come from the .toolbar modifier inside the window's content.",
+    "kind": "Modifier",
+    "name": ".windowToolbarStyle()",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      ".windowStyle()",
+      "WindowToolbarStyle",
+      ".toolbar()"
+    ],
+    "summary": "A scene modifier that controls how a macOS window's toolbar merges with its title bar.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "@main\nstruct WorkoutApp: App {\n    @WKApplicationDelegateAdaptor(AppDelegate.self) var delegate\n    var body: some Scene {\n        WindowGroup { ContentView() }\n    }\n}",
+    "discussion": "It is the watch counterpart of @UIApplicationDelegateAdaptor, giving access to lifecycle callbacks SwiftUI does not surface, such as background refresh delivery and remote notification registration. Declare it once on the App type and the system instantiates and retains the delegate.",
+    "kind": "Property Wrapper",
+    "name": "@WKApplicationDelegateAdaptor",
+    "platforms": [
+      "watchOS"
+    ],
+    "related": [
+      "@UIApplicationDelegateAdaptor",
+      "@NSApplicationDelegateAdaptor",
+      "App"
+    ],
+    "summary": "A property wrapper that installs a WKApplicationDelegate into a SwiftUI-lifecycle watchOS app.",
+    "wwdcYear": 2022
+  },
+  {
+    "children": [
+      {
+        "code": ".backgroundTask(.appRefresh(\"com.example.sync\")) {\n    await SyncEngine.shared.run()\n}",
+        "name": "BackgroundTask.appRefresh()",
+        "summary": "Identifies a scheduled app-refresh task by its identifier string."
+      },
+      {
+        "code": ".backgroundTask(.urlSession(\"com.example.downloads\")) {\n    await Downloads.shared.processEvents()\n}",
+        "name": "BackgroundTask.urlSession()",
+        "summary": "Identifies wake-ups for a background URLSession with the given identifier."
+      }
+    ],
+    "code": "WindowGroup { ContentView() }\n    .backgroundTask(.appRefresh(\"com.example.sync\")) {\n        await SyncEngine.shared.run()\n    }",
+    "discussion": "Its factory members carry both the task identifier and, through generics, the request and response types the handler exchanges with the system. The identifier must match what you scheduled through the BackgroundTasks framework for the handler to fire.",
+    "kind": "Type",
+    "name": "BackgroundTask",
+    "related": [
+      ".backgroundTask()"
+    ],
+    "summary": "The value type identifying which kind of system background task a .backgroundTask() handler serves.",
+    "wwdcYear": 2022
+  },
+  {
+    "children": [
+      {
+        "code": "CommandGroup(after: .newItem) {\n    Button(\"New Tag…\", action: newTag)\n}",
+        "name": "CommandGroupPlacement.newItem",
+        "summary": "The File menu region holding New Window and other creation commands."
+      },
+      {
+        "code": "CommandGroup(replacing: .appInfo) {\n    Button(\"About Ledger\", action: showAbout)\n}",
+        "name": "CommandGroupPlacement.appInfo",
+        "summary": "The application menu region containing the About command."
+      },
+      {
+        "code": "CommandGroup(replacing: .help) {\n    Link(\"Ledger Manual\", destination: manualURL)\n}",
+        "name": "CommandGroupPlacement.help",
+        "summary": "The Help menu region for documentation commands."
+      }
+    ],
+    "code": "CommandGroup(replacing: .newItem) {\n    Button(\"New Board\", action: newBoard)\n        .keyboardShortcut(\"n\")\n}",
+    "discussion": "Each static value names a semantic region of the standard menus, so placements keep working even as the system rearranges platform menu layout. Common anchors include .newItem for the File menu's creation block, .appInfo for the About item, and .help for the Help menu.",
+    "kind": "Type",
+    "name": "CommandGroupPlacement",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "CommandGroup",
+      ".commands()"
+    ],
+    "summary": "A set of anchors identifying the standard menu locations that CommandGroup can target.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": ".commands {\n    ImportFromDevicesCommands()\n}",
+    "discussion": "With it in place, users can insert photos or scans captured on a nearby iPhone or iPad directly into the app. The imported content arrives through the standard importsItemProviders machinery on the focused view.",
+    "kind": "Type",
+    "name": "ImportFromDevicesCommands",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      ".commands()",
+      "CommandGroup"
+    ],
+    "summary": "A commands bundle that adds Continuity Camera import items to the File menu on macOS.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": ".commands {\n    InspectorCommands()\n}",
+    "discussion": "It arrived alongside the inspector presentation API in the 2023 cycle and toggles the trailing inspector column of the focused window. Adopting it gives your inspector the same View-menu treatment and key equivalent as system apps.",
+    "kind": "Type",
+    "name": "InspectorCommands",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "SidebarCommands",
+      ".commands()"
+    ],
+    "summary": "A commands bundle that adds the standard show/hide inspector menu item and shortcut.",
+    "wwdcYear": 2023
+  },
+  {
+    "children": [
+      {
+        "code": ".menuBarExtraStyle(.menu)",
+        "name": "MenuBarExtraStyle.menu",
+        "summary": "Presents the content as a standard pull-down menu."
+      },
+      {
+        "code": ".menuBarExtraStyle(.window)",
+        "name": "MenuBarExtraStyle.window",
+        "summary": "Presents the content as a floating window of arbitrary views."
+      }
+    ],
+    "code": "MenuBarExtra(\"CPU\", systemImage: \"gauge\") {\n    CPUMeterView()\n}\n.menuBarExtraStyle(.window)",
+    "discussion": "The .menu style flattens the extra's content into ordinary menu items, while .window hosts a live SwiftUI hierarchy in a panel anchored to the status item. Choose .window whenever the content needs controls or layout that menu items cannot express.",
+    "kind": "Style",
+    "name": "MenuBarExtraStyle",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      "MenuBarExtra",
+      ".menuBarExtraStyle()"
+    ],
+    "summary": "The protocol behind the presentation styles a MenuBarExtra can adopt.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "@SceneBuilder\nvar body: some Scene {\n    WindowGroup { ContentView() }\n    Settings { SettingsView() }\n}",
+    "discussion": "It is what allows an App to list a WindowGroup, a Settings scene, and a MenuBarExtra one after another and have them compose into a single some Scene. You mostly meet it when factoring scene composition into helper properties, which need the explicit @SceneBuilder attribute.",
+    "kind": "Type",
+    "name": "SceneBuilder",
+    "related": [
+      "App",
+      "Scene",
+      "WindowGroup"
+    ],
+    "summary": "The result builder that assembles an App body from multiple scene declarations.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": ".commands {\n    TextEditingCommands()\n}",
+    "discussion": "Apps whose windows host text views add it so Edit-menu functionality like Find and spell-checking commands route to the focused text control. It complements rather than duplicates the automatic cut/copy/paste items the system already supplies.",
+    "kind": "Type",
+    "name": "TextEditingCommands",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "TextFormattingCommands",
+      "TextEditor",
+      ".commands()"
+    ],
+    "summary": "A built-in commands bundle providing the standard text editing menu, including find and spelling items.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": ".commands {\n    TextFormattingCommands()\n}",
+    "discussion": "It contributes font, bold/italic/underline, and related formatting items that act on the focused text view. Include it only when your app actually supports rich text, since an inert Format menu reads as broken to users.",
+    "kind": "Type",
+    "name": "TextFormattingCommands",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "TextEditingCommands",
+      ".commands()"
+    ],
+    "summary": "A built-in commands bundle that adds the standard Format menu for rich-text styling.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": ".commands {\n    ToolbarCommands()\n}",
+    "discussion": "It contributes the View menu entries users expect for toolbar management, including customization when the window's toolbar allows it. Like the other prefabricated Commands types, it is declared inside a scene's .commands() builder.",
+    "kind": "Type",
+    "name": "ToolbarCommands",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "SidebarCommands",
+      ".toolbar()",
+      ".commands()"
+    ],
+    "summary": "A built-in commands bundle that adds the standard toolbar show/hide and customize menu items.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "UtilityWindow(\"Color Palette\", id: \"palette\") {\n    PaletteView()\n}\n.keyboardShortcut(\"p\", modifiers: [.command, .option])",
+    "discussion": "Utility windows float with compact panel chrome and are meant to be toggled rather than multiplied, so like Window the scene has a stable identifier and at most one instance. Pairing the scene with .keyboardShortcut() gives users a standard show/hide toggle for the panel.",
+    "kind": "Scene",
+    "name": "UtilityWindow",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      "Window",
+      "WindowGroup",
+      ".windowMinimizeBehavior()"
+    ],
+    "summary": "A scene that presents a single auxiliary panel window styled for tool and inspector duty on macOS.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "Window(\"Palette\", id: \"palette\") {\n    PaletteView()\n}\n.windowBackgroundDragBehavior(.enabled)\n.windowMinimizeBehavior(.disabled)",
+    "discussion": "One type serves several macOS 15 scene modifiers — background dragging, minimize, and full screen — so behaviors compose uniformly. .automatic defers to what the window style would normally allow, which lets custom styles pick sensible defaults.",
+    "kind": "Type",
+    "name": "WindowInteractionBehavior",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      ".windowBackgroundDragBehavior()",
+      ".windowMinimizeBehavior()",
+      ".windowFullScreenBehavior()"
+    ],
+    "summary": "The value type used to enable or disable a class of window interaction, with .automatic, .enabled, and .disabled cases.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "Window(\"Now Playing\", id: \"nowPlaying\") {\n    NowPlayingHUD()\n}\n.windowLevel(.floating)",
+    "discussion": "It backs the .windowLevel() scene modifier; .floating keeps a panel above standard document windows, which suits timers, HUDs, and picture-in-picture-style companions. Elevated windows still participate normally in the app's activation and key-window logic.",
+    "kind": "Type",
+    "name": "WindowLevel",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      ".windowLevel()",
+      "Window"
+    ],
+    "summary": "The value type naming the layering tier a window occupies relative to other windows.",
+    "wwdcYear": 2024
+  },
+  {
+    "children": [
+      {
+        "code": ".windowResizability(.contentSize)",
+        "name": "WindowResizability.contentSize",
+        "summary": "Pins the window's resize range to the content's minimum and maximum sizes."
+      },
+      {
+        "code": ".windowResizability(.contentMinSize)",
+        "name": "WindowResizability.contentMinSize",
+        "summary": "Enforces the content's minimum size but allows unlimited growth."
+      }
+    ],
+    "code": "Settings {\n    SettingsView()\n        .frame(minWidth: 480, minHeight: 320)\n}\n.windowResizability(.contentMinSize)",
+    "discussion": "Its statics are consumed by the .windowResizability() scene modifier: .contentSize clamps the window to the content's reported minimum and maximum, .contentMinSize enforces only the minimum, and .automatic defers to platform defaults. The content's frame constraints therefore become the single source of truth for window geometry.",
+    "kind": "Type",
+    "name": "WindowResizability",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      ".windowResizability()",
+      ".defaultSize()"
+    ],
+    "summary": "The value type describing how a window's resize limits derive from its content.",
+    "wwdcYear": 2022
+  },
+  {
+    "children": [
+      {
+        "code": ".windowStyle(.titleBar)",
+        "name": "WindowStyle.titleBar",
+        "summary": "The standard window with a visible title bar."
+      },
+      {
+        "code": ".windowStyle(.hiddenTitleBar)",
+        "name": "WindowStyle.hiddenTitleBar",
+        "summary": "Hides the title bar so content extends to the window's top edge."
+      },
+      {
+        "code": ".windowStyle(.plain)",
+        "name": "WindowStyle.plain",
+        "summary": "Removes all standard window decoration for a fully custom surface."
+      }
+    ],
+    "code": "WindowGroup {\n    StageView()\n}\n.windowStyle(.plain)",
+    "discussion": "Concrete styles are exposed as static members, so call sites write .hiddenTitleBar rather than naming the underlying types. The family spans the default titled window, title-bar-suppressed windows, and, since macOS 15, fully undecorated plain windows.",
+    "kind": "Style",
+    "name": "WindowStyle",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      ".windowStyle()",
+      ".presentedWindowStyle()"
+    ],
+    "summary": "The protocol unifying the window chrome styles consumed by .windowStyle().",
+    "wwdcYear": 2020
+  },
+  {
+    "children": [
+      {
+        "code": ".windowToolbarStyle(.unified)",
+        "name": "WindowToolbarStyle.unified",
+        "summary": "Title and toolbar share a single standard-height row."
+      },
+      {
+        "code": ".windowToolbarStyle(.unifiedCompact)",
+        "name": "WindowToolbarStyle.unifiedCompact",
+        "summary": "The merged row at a reduced height for dense tool windows."
+      },
+      {
+        "code": ".windowToolbarStyle(.expanded)",
+        "name": "WindowToolbarStyle.expanded",
+        "summary": "The title occupies its own row above the toolbar items."
+      }
+    ],
+    "code": "WindowGroup {\n    DocumentView()\n}\n.windowToolbarStyle(.expanded)",
+    "discussion": "Its concrete styles trade vertical space against title prominence: .unified merges the title and toolbar on one row, .unifiedCompact tightens that row further, and .expanded gives the title its own row above the items. All are selected through static-member syntax at the call site.",
+    "kind": "Style",
+    "name": "WindowToolbarStyle",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      ".windowToolbarStyle()",
+      ".toolbar()"
+    ],
+    "summary": "The protocol behind the toolbar layout styles consumed by .windowToolbarStyle().",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "@main\nstruct CoffeeApp: App {\n    var body: some Scene {\n        WindowGroup { ContentView() }\n        WKNotificationScene(\n            controller: ReminderController.self,\n            category: \"reminder\"\n        )\n    }\n}",
+    "discussion": "It binds a WKUserNotificationHostingController subclass to the category string from the notification payload, and the controller supplies the SwiftUI body shown when the notification expands. Declare one scene per category alongside the main WindowGroup in the App body.",
+    "kind": "Scene",
+    "name": "WKNotificationScene",
+    "platforms": [
+      "watchOS"
+    ],
+    "related": [
+      "App",
+      "WindowGroup"
+    ],
+    "summary": "A watchOS scene that renders a custom long-look notification interface for one notification category.",
+    "wwdcYear": 2020
+  }
+]

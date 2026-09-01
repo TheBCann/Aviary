@@ -1,0 +1,652 @@
+[
+  {
+    "code": "struct BuildStatus: View {\n    @Environment(\\.accessibilityDifferentiateWithoutColor) private var noColor\n    let passed: Bool\n    var body: some View {\n        if noColor {\n            Image(systemName: passed ? \"checkmark.circle\" : \"xmark.octagon\")\n        } else {\n            Circle().fill(passed ? .green : .red).frame(width: 10, height: 10)\n        }\n    }\n}",
+    "discussion": "Red-versus-green status dots are invisible to many users; when this setting is on, add glyphs, patterns, or text so the distinction survives without hue. It maps to the system Differentiate Without Color switch, and honoring it usually improves the design for everyone.",
+    "kind": "Environment Value",
+    "name": "accessibilityDifferentiateWithoutColor",
+    "related": [
+      "colorSchemeContrast",
+      "accessibilityInvertColors"
+    ],
+    "summary": "True when the user asks interfaces to convey meaning through shape and symbols rather than color alone.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "struct TrailerPlayer: View {\n    @Environment(\\.accessibilityDimFlashingLights) private var dimFlashes\n    var body: some View {\n        CustomVideoSurface(item: trailer)\n            .preferredFlashMitigation(dimFlashes ? .enabled : .none)\n    }\n}",
+    "discussion": "System video players dim detected flash sequences automatically when this setting is enabled; apps with custom playback pipelines should read the flag and either apply their own mitigation or warn before strobe-heavy content. It joined the accessibility environment values in the 2023 cycle.",
+    "kind": "Environment Value",
+    "name": "accessibilityDimFlashingLights",
+    "related": [
+      "VideoPlayer",
+      "accessibilityPlayAnimatedImages"
+    ],
+    "summary": "True when the user asks that video with flashing or strobing effects be dimmed during playback.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "struct ChartContainer: View {\n    @Environment(\\.accessibilityEnabled) private var assistiveTech\n    var body: some View {\n        RevenueChart(data: data)\n            .overlay(alignment: .bottom) {\n                if assistiveTech { AudioGraphHint() }\n            }\n    }\n}",
+    "discussion": "This is a broader signal than the per-technology flags: it is true for VoiceOver, Switch Control, and similar tools. Unusually for an environment value, it is settable, which UI tests and previews exploit to force accessibility-active code paths. Use the specific flags when behavior should differ by technology.",
+    "kind": "Environment Value",
+    "name": "accessibilityEnabled",
+    "related": [
+      "accessibilityVoiceOverEnabled",
+      "accessibilitySwitchControlEnabled"
+    ],
+    "summary": "Indicates whether an assistive technology that reads the accessibility tree is currently active.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "struct CoverArt: View {\n    @Environment(\\.accessibilityInvertColors) private var inverted\n    var body: some View {\n        AlbumImage(album: album)\n            .overlay(inverted ? Color.clear : gradientOverlay)\n    }\n}",
+    "discussion": "Smart Invert flips UI colors but expects apps to protect imagery; photos, video, and brand artwork should be marked or handled so they are not inverted into negatives. Reading this flag lets custom-rendered content such as Canvas drawings pick palettes that remain sensible under inversion.",
+    "kind": "Environment Value",
+    "name": "accessibilityInvertColors",
+    "related": [
+      "colorScheme",
+      "accessibilityDifferentiateWithoutColor"
+    ],
+    "summary": "True when the system is displaying colors inverted, typically via Smart Invert.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "struct GIFCell: View {\n    @Environment(\\.accessibilityPlayAnimatedImages) private var autoplay\n    var body: some View {\n        AnimatedImageView(asset: asset, playing: autoplay)\n            .overlay { if !autoplay { PlayBadge() } }\n    }\n}",
+    "discussion": "This reflects the system-wide Play Animated Images setting introduced in the 2023 accessibility pass. Apps that render their own animated image formats should show a still first frame with an explicit play control when the value is false, since only system components respect the setting for free.",
+    "kind": "Environment Value",
+    "name": "accessibilityPlayAnimatedImages",
+    "related": [
+      "Image",
+      "AsyncImage",
+      "accessibilityDimFlashingLights"
+    ],
+    "summary": "False when the user has asked that animated images like GIFs not play automatically.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "struct HUDBackground: View {\n    @Environment(\\.accessibilityReduceTransparency) private var reduceTransparency\n    var body: some View {\n        RoundedRectangle(cornerRadius: 16)\n            .fill(reduceTransparency ? AnyShapeStyle(Color(.systemBackground)) : AnyShapeStyle(.ultraThinMaterial))\n    }\n}",
+    "discussion": "System materials handle this automatically by turning opaque, but hand-rolled translucent overlays, glass cards, and custom vibrancy need to check the flag themselves. Swapping a material for a solid fill when it is on preserves legibility for users who find blurred layers hard to parse.",
+    "kind": "Environment Value",
+    "name": "accessibilityReduceTransparency",
+    "related": [
+      "Material",
+      "backgroundMaterial",
+      "accessibilityReduceMotion"
+    ],
+    "summary": "True when the user prefers opaque backgrounds instead of blur and translucency effects.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "struct QuietButtonStyle: ButtonStyle {\n    @Environment(\\.accessibilityShowButtonShapes) private var showShapes\n    func makeBody(configuration: Configuration) -> some View {\n        configuration.label\n            .padding(.horizontal, 12)\n            .background(showShapes ? AnyShapeStyle(.quaternary) : AnyShapeStyle(.clear), in: Capsule())\n    }\n}",
+    "discussion": "Borderless text buttons can be indistinguishable from labels; with this setting on, apps should add underlines, borders, or filled backgrounds so tappable things look tappable. System button styles respond automatically, so the flag matters mainly for custom ButtonStyle implementations.",
+    "kind": "Environment Value",
+    "name": "accessibilityShowButtonShapes",
+    "related": [
+      "Button",
+      ".buttonStyle()",
+      "ButtonStyle"
+    ],
+    "summary": "True when the user asks buttons to display visible shapes such as underlines or bordered backgrounds.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "struct EditorToolbar: View {\n    @Environment(\\.accessibilitySwitchControlEnabled) private var switchControl\n    var body: some View {\n        if switchControl {\n            Menu(\"Format\") { formatActions }\n        } else {\n            HStack { formatActions }\n        }\n    }\n}",
+    "discussion": "Switch Control users step through focusable elements sequentially, so interfaces with dozens of tiny targets become fatiguing; this flag lets you consolidate actions into fewer, larger controls when it is on. Like the VoiceOver flag, it should adjust interaction economics, not hide functionality.",
+    "kind": "Environment Value",
+    "name": "accessibilitySwitchControlEnabled",
+    "related": [
+      "accessibilityVoiceOverEnabled",
+      "accessibilityEnabled"
+    ],
+    "summary": "True while Switch Control is actively scanning the interface for switch-based navigation.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "struct PromoCarousel: View {\n    @Environment(\\.accessibilityVoiceOverEnabled) private var voiceOver\n    var body: some View {\n        CarouselView(items: promos, autoAdvances: !voiceOver)\n    }\n}",
+    "discussion": "Most VoiceOver support should come from proper labels and traits rather than branching, but this flag is legitimate for behavioral swaps: pausing auto-advancing carousels, extending toast durations, or replacing hover-revealed controls with always-visible ones. Reacting to it via onChange also lets you re-announce important state when the reader starts.",
+    "kind": "Environment Value",
+    "name": "accessibilityVoiceOverEnabled",
+    "related": [
+      "accessibilityReduceMotion",
+      "accessibilitySwitchControlEnabled"
+    ],
+    "summary": "True while the VoiceOver screen reader is running.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "PhotoGrid(photos: photos)\n    .allowedDynamicRange(.constrainedHigh)\n\nPhotoDetail(photo: selected)\n    .allowedDynamicRange(.high)",
+    "discussion": "HDR photos can bloom brighter than surrounding UI, which is often unwanted in mixed layouts like grids; writing a constrained range keeps highlights in check while a photo detail view can allow full HDR. The value is an optional Image.DynamicRange, with nil deferring to system policy.",
+    "kind": "Environment Value",
+    "name": "allowedDynamicRange",
+    "related": [
+      "Image",
+      "AsyncImage"
+    ],
+    "summary": "The image dynamic range (standard, constrained high, or high) permitted for content in this environment.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "Text(\"Estimated arrival: 12 minutes\")\n    .lineLimit(1)\n    .allowsTightening(true)\n    .truncationMode(.tail)",
+    "discussion": "Tightening is a gentler first resort than scaling or truncation: the system pulls letters marginally closer to rescue a line that barely overflows. It is off by default, and the .allowsTightening() modifier writes the flag into the environment for everything beneath it.",
+    "kind": "Environment Value",
+    "name": "allowsTightening",
+    "related": [
+      "truncationMode",
+      "minimumScaleFactor",
+      "Text"
+    ],
+    "summary": "Whether text may compress inter-character spacing slightly to fit a line before truncating.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "struct TitleBarLabel: View {\n    @Environment(\\.appearsActive) private var appearsActive\n    var body: some View {\n        Label(\"Project\", systemImage: \"folder\")\n            .foregroundStyle(appearsActive ? .primary : .secondary)\n    }\n}",
+    "discussion": "Introduced as the modern replacement for the macOS-only controlActiveState, this single Bool answers the question most views actually ask: should I draw at full strength or dimmed because my window is in the background. It reads naturally in cross-platform code since it exists everywhere and simply stays true on platforms without background windows.",
+    "kind": "Environment Value",
+    "name": "appearsActive",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      "controlActiveState",
+      "scenePhase"
+    ],
+    "summary": "A Boolean indicating whether the enclosing window should render its content with an active appearance.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "Form {\n    TextField(\"License key\", text: $key)\n    TextField(\"Server slug\", text: $slug)\n}\n.autocorrectionDisabled()",
+    "discussion": "Codes, usernames, and search fields for exact identifiers are the classic places to disable correction, and doing it through the environment covers every field in a form at once. The value began life as disableAutocorrection and was renamed to read positively; the modern modifier is .autocorrectionDisabled().",
+    "kind": "Environment Value",
+    "name": "autocorrectionDisabled",
+    "related": [
+      "TextField",
+      "TextEditor",
+      ".onSubmit()"
+    ],
+    "summary": "Whether text input views in this environment should suppress autocorrection suggestions.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "struct OverlayLabel: View {\n    @Environment(\\.backgroundMaterial) private var material\n    var body: some View {\n        Text(\"Now Playing\")\n            .foregroundStyle(material != nil ? .secondary : .primary)\n    }\n}",
+    "discussion": "When you background a container with a blur material, SwiftUI records it here so descendant content can switch to vibrant rendering that stays legible over the blur. Reading the optional Material tells a reusable component whether it sits on glass and should, for example, prefer hierarchical foreground styles over hard-coded colors.",
+    "kind": "Environment Value",
+    "name": "backgroundMaterial",
+    "related": [
+      "Material",
+      ".background()",
+      "accessibilityReduceTransparency"
+    ],
+    "summary": "The material, if any, that an ancestor placed behind the current view's subtree.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "struct PriorityDot: View {\n    @Environment(\\.backgroundProminence) private var prominence\n    var body: some View {\n        Circle()\n            .fill(prominence == .increased ? AnyShapeStyle(.white) : AnyShapeStyle(.orange))\n            .frame(width: 8, height: 8)\n    }\n}",
+    "discussion": "When a List row is selected with the accent-colored highlight, content inside it receives an increased background prominence, and tinted text or icons that would vanish against the accent color should switch to white or primary. Reading this value is how custom row accessories match the automatic behavior of Text and Label.",
+    "kind": "Environment Value",
+    "name": "backgroundProminence",
+    "related": [
+      "List",
+      ".foregroundStyle()",
+      ".tint()"
+    ],
+    "summary": "Signals when a view sits on a prominent background, such as a selected list row, so foreground colors can adapt.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "Image(systemName: \"battery.100percent.bolt\")\n    .symbolRenderingMode(.palette)\n    .foregroundStyle(.white, .green)\n    .backgroundStyle(.green.gradient.opacity(0.3))",
+    "discussion": "Written by the .backgroundStyle() modifier, this value feeds the .background shape style that multi-layer SF Symbols and some system controls use for their backdrop layer. It is type-erased to AnyShapeStyle, so gradients and materials work as well as flat colors.",
+    "kind": "Environment Value",
+    "name": "backgroundStyle",
+    "related": [
+      ".background()",
+      ".foregroundStyle()",
+      "ShapeStyle"
+    ],
+    "summary": "An optional shape style that fills the background layer of symbols and styled content in this environment.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "HStack {\n    Button(\"-\") { volume -= 1 }\n    Button(\"+\") { volume += 1 }\n}\n.buttonRepeatBehavior(.enabled)",
+    "discussion": "Enabling repeat turns an ordinary Button into a press-and-hold stepper, firing the action at an accelerating cadence, which suits increment controls and media scrubbing. The .buttonRepeatBehavior() modifier writes the value, and custom PrimitiveButtonStyle implementations can read it to honor the same contract.",
+    "kind": "Environment Value",
+    "name": "buttonRepeatBehavior",
+    "related": [
+      "Button",
+      "Stepper",
+      ".buttonStyle()"
+    ],
+    "summary": "Whether buttons in this environment repeatedly trigger their action while held down.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "struct InspectorHeader: View {\n    @Environment(\\.controlActiveState) private var activeState\n    var body: some View {\n        Text(\"Layers\")\n            .opacity(activeState == .inactive ? 0.5 : 1.0)\n    }\n}",
+    "deprecated": true,
+    "discussion": "AppKit conventions dim window chrome and controls when a window loses key status, and this value let SwiftUI views on the Mac follow suit with cases like key, active, and inactive. It was deprecated in the 2024 cycle in favor of the simpler cross-platform appearsActive Bool. Use it only when targeting older macOS releases.",
+    "kind": "Environment Value",
+    "name": "controlActiveState",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      "appearsActive",
+      "scenePhase"
+    ],
+    "summary": "Reports whether the containing macOS window is key, merely active, or inactive so controls can dim appropriately.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Picker(\"Minutes\", selection: $minutes) {\n    ForEach(1..<60) { Text(\"\\($0)\") }\n}\n.pickerStyle(.wheel)\n.environment(\\.defaultWheelPickerItemHeight, 36)",
+    "discussion": "Wheel pickers on the watch size their rows from this environment metric, and custom item views can read it to align decorations with the selection band. Writing a larger value through .environment() gives chunkier rows for glanceable pickers like timer durations.",
+    "kind": "Environment Value",
+    "name": "defaultWheelPickerItemHeight",
+    "platforms": [
+      "watchOS"
+    ],
+    "related": [
+      "Picker",
+      ".pickerStyle()"
+    ],
+    "summary": "The standard row height for items in wheel-style pickers on watchOS.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "struct EditorFooter: View {\n    @Environment(\\.documentConfiguration) private var config\n    var body: some View {\n        if let url = config?.fileURL {\n            Text(url.lastPathComponent)\n                .font(.caption)\n        }\n    }\n}",
+    "discussion": "Views inside a document scene often need the on-disk location for features like Reveal in Finder or a title bar subtitle, and this optional configuration exposes fileURL plus whether the document opened editable. It is nil outside document-based scenes, making it a cheap way to detect that context.",
+    "kind": "Environment Value",
+    "name": "documentConfiguration",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "DocumentGroup",
+      "openDocument",
+      "newDocument"
+    ],
+    "summary": "Describes the document backing the current DocumentGroup scene, including its file URL and editability.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "List {\n    Section(\"Today\") {\n        ForEach(todayItems) { Text($0.title) }\n    }\n    .headerProminence(.increased)\n}",
+    "discussion": "Increased prominence renders List section headers in bold, larger type, matching the sectioned look of apps like Settings' subpages. The .headerProminence() modifier sets it per section or per list, and custom container styles can read the Prominence value to draw their own headers consistently.",
+    "kind": "Environment Value",
+    "name": "headerProminence",
+    "related": [
+      "Section",
+      "List",
+      "defaultMinListHeaderHeight"
+    ],
+    "summary": "The visual weight (standard or increased) that section headers in this environment should adopt.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "struct StatusRow: View {\n    @Environment(\\.imageScale) private var scale\n    var body: some View {\n        Label(\"Synced\", systemImage: \"checkmark.icloud\")\n            .imageScale(scale == .small ? .medium : scale)\n    }\n}",
+    "discussion": "This value controls how SF Symbols and other template images scale relative to surrounding text, and it is written by the .imageScale() modifier on any ancestor. Because it travels through the environment, a toolbar or list style can bump every symbol up or down without touching individual Image views. It only affects symbol-like images; fixed-size bitmaps ignore it.",
+    "kind": "Environment Value",
+    "name": "imageScale",
+    "related": [
+      "Image",
+      "Label",
+      "symbolVariants"
+    ],
+    "summary": "The relative size (small, medium, or large) applied to symbol images within the current environment.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "struct WorkoutClock: View {\n    @Environment(\\.isLuminanceReduced) private var dimmed\n    var body: some View {\n        Text(elapsed, format: .time(pattern: dimmed ? .minuteSecond : .hourMinuteSecond))\n            .foregroundStyle(dimmed ? .secondary : .primary)\n    }\n}",
+    "discussion": "On Apple Watch this flips when the wrist drops and the always-on display takes over; well-behaved apps thin out bright fills, hide per-second updates, and avoid large white regions. The same signal drives iPhone StandBy night dimming. Combine it with TimelineView so update frequency drops along with luminance.",
+    "kind": "Environment Value",
+    "name": "isLuminanceReduced",
+    "platforms": [
+      "iOS",
+      "watchOS"
+    ],
+    "related": [
+      "TimelineView",
+      "scenePhase",
+      "RedactionReasons"
+    ],
+    "summary": "True when the display is in a dimmed always-on state, asking content to reduce brightness and detail.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "ScrollView {\n    ChartsPage()\n}\n.scrollDisabled(isReordering)",
+    "discussion": "The .scrollDisabled() modifier flips this flag for every ScrollView, List, and TextEditor beneath it, which is handy when embedding a scrollable control inside a paging container that should own the gesture. Programmatic scrolling and layout are unaffected; only interactive scrolling is gated.",
+    "kind": "Environment Value",
+    "name": "isScrollEnabled",
+    "related": [
+      "ScrollView",
+      "List",
+      "TextEditor"
+    ],
+    "summary": "Whether scrollable containers in this environment respond to user-initiated scrolling.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "struct SummaryCell: View {\n    @Environment(\\.lineLimit) private var lineLimit\n    var body: some View {\n        Text(article.abstract)\n            .lineLimit(lineLimit ?? 3)\n    }\n}",
+    "discussion": "A nil value means unlimited, and any ancestor's .lineLimit() call narrows it for the subtree. Custom text-heavy components can read the limit to decide whether to offer a Show More affordance, since the environment tells them the constraint without measuring.",
+    "kind": "Environment Value",
+    "name": "lineLimit",
+    "related": [
+      ".lineLimit()",
+      "truncationMode",
+      "minimumScaleFactor"
+    ],
+    "summary": "The optional maximum number of lines that text in this environment may occupy.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "ScrollView {\n    Text(chapterBody)\n        .font(.body)\n}\n.lineSpacing(6)",
+    "discussion": "Unlike font line height, this is purely additive space between adjacent lines, and zero is the default. Long-form reading views often set it once on their container so every paragraph, caption, and quote below shares the same rhythm.",
+    "kind": "Environment Value",
+    "name": "lineSpacing",
+    "related": [
+      "Text",
+      ".font()"
+    ],
+    "summary": "The extra vertical distance, in points, inserted between lines of wrapped text in this environment.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "struct NotesList: View {\n    @Environment(\\.managedObjectContext) private var context\n    @FetchRequest(sortDescriptors: [SortDescriptor(\\Note.created)])\n    private var notes: FetchedResults<Note>\n    func addNote() {\n        let note = Note(context: context)\n        note.created = .now\n        try? context.save()\n    }\n}",
+    "discussion": "Injected at the app root with .environment(\\.managedObjectContext, container.viewContext), this value is what @FetchRequest silently reads to execute its query. Views mutate and save through the same context so undo grouping and merge policies stay coherent. It predates SwiftData, which replaces this pattern with modelContext.",
+    "kind": "Environment Value",
+    "name": "managedObjectContext",
+    "related": [
+      "@FetchRequest",
+      "modelContext"
+    ],
+    "summary": "The Core Data managed object context that fetch requests and data mutations in this view hierarchy use.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "SidebarArtwork(item: nowPlaying)\n    .background(.regularMaterial)\n    .materialActiveAppearance(.active)",
+    "discussion": "Materials normally desaturate when their window deactivates; this value overrides that coupling, so a media sidebar can stay vivid in background windows or a preview can deliberately show the inactive look. Write it with the matching .materialActiveAppearance() modifier and read it in custom chrome that mimics material behavior.",
+    "kind": "Environment Value",
+    "name": "materialActiveAppearance",
+    "related": [
+      "Material",
+      "appearsActive",
+      "backgroundMaterial"
+    ],
+    "summary": "Controls whether materials in this environment render in their active or inactive (dimmed) appearance.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "struct ActionsMenu: View {\n    var body: some View {\n        Menu(\"Actions\") {\n            Button(\"Duplicate\") { }\n            Button(\"Delete\", role: .destructive) { }\n        }\n        .menuOrder(.fixed)\n    }\n}",
+    "discussion": "iOS sometimes reverses menu items so the first action lands nearest the user's finger; MenuOrder lets you read or pin that behavior with cases like fixed and priority alongside automatic. The .menuOrder() modifier sets it for a subtree, and custom menu-like components can read the value to match platform behavior.",
+    "kind": "Environment Value",
+    "name": "menuOrder",
+    "related": [
+      "Menu",
+      ".contextMenu()",
+      "menuIndicatorVisibility"
+    ],
+    "summary": "The preferred ordering strategy for items in menus presented from this environment.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "HStack {\n    ForEach(stats) { stat in\n        Text(stat.formatted)\n            .lineLimit(1)\n            .minimumScaleFactor(0.6)\n    }\n}",
+    "discussion": "A value of 1 forbids shrinking; 0.5 lets text compress to half size to avoid an ellipsis. It travels through the environment so a row of stat tiles can share the same shrink policy, keeping mixed-length numbers visually consistent. Combine it with a line limit, since unconstrained text simply wraps instead of scaling.",
+    "kind": "Environment Value",
+    "name": "minimumScaleFactor",
+    "related": [
+      "lineLimit",
+      "Text",
+      "allowsTightening"
+    ],
+    "summary": "The smallest fraction of the original font size that text may shrink to before truncating.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "struct EmptyHint: View {\n    @Environment(\\.multilineTextAlignment) private var alignment\n    var body: some View {\n        Text(\"Drop PDFs here to add them to your library.\")\n            .multilineTextAlignment(alignment)\n    }\n}",
+    "discussion": "This TextAlignment value only matters once text wraps: single-line text is positioned by its frame, but the second and later lines follow this alignment. It flows down the environment from the .multilineTextAlignment() modifier, so a whole card layout can center its wrapped copy with one line at the container level.",
+    "kind": "Environment Value",
+    "name": "multilineTextAlignment",
+    "related": [
+      ".multilineTextAlignment()",
+      "Text",
+      "LayoutDirection"
+    ],
+    "summary": "The environment value backing multiline text alignment, controlling how wrapped lines align within a Text view.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "struct SetupFooter: View {\n    @Environment(\\.openSettings) private var openSettings\n    var body: some View {\n        Button(\"Configure Sync…\") {\n            openSettings()\n        }\n    }\n}",
+    "discussion": "Before this existed, opening the settings window from a button required AppKit selectors; the OpenSettingsAction makes it a one-line call that finds or creates the Settings scene. SettingsLink wraps the same behavior as a ready-made control, so reach for this action when the trigger is not a simple button, such as an onboarding flow ending in configuration.",
+    "kind": "Environment Value",
+    "name": "openSettings",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      "Settings",
+      "SettingsLink",
+      "MenuBarExtra"
+    ],
+    "summary": "A macOS action that opens the app's Settings scene programmatically.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "struct BuyRow: View {\n    @Environment(\\.purchase) private var purchase\n    let product: Product\n    var body: some View {\n        Button(\"Unlock Pro — \\(product.displayPrice)\") {\n            Task {\n                let result = try? await purchase(product)\n                if case .success(let verification) = result { await handle(verification) }\n            }\n        }\n    }\n}",
+    "discussion": "This PurchaseAction lets fully custom paywalls start transactions without embedding StoreKit's prebuilt views, presenting the system confirmation sheet from the current scene. It is async and throwing, returning a PurchaseResult you inspect for success, pending, or cancellation. Purchase options such as quantity or promo offers pass through the call.",
+    "framework": "StoreKit",
+    "kind": "Environment Value",
+    "name": "purchase",
+    "related": [
+      "ProductView",
+      "requestReview"
+    ],
+    "summary": "A StoreKit action that initiates the purchase flow for a Product from any view.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "struct SidebarRow: View {\n    @Environment(\\.rename) private var rename\n    var body: some View {\n        Text(\"Untitled Playlist\")\n            .contextMenu {\n                Button(\"Rename\") { rename?() }\n            }\n    }\n}",
+    "discussion": "This is the plumbing behind RenameButton: the button simply invokes whatever action an ancestor registered with .renameAction(). Reading the value yourself lets a context menu item or keyboard shortcut start the same rename flow, typically focusing a text field. It is nil when no rename behavior has been configured.",
+    "kind": "Environment Value",
+    "name": "rename",
+    "related": [
+      "RenameButton",
+      ".contextMenu()"
+    ],
+    "summary": "An optional RenameAction that triggers the rename handler defined by a renameAction modifier higher in the hierarchy.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "struct SuggestionRow: View {\n    @Environment(\\.searchSuggestionsPlacement) private var placement\n    let term: String\n    var body: some View {\n        if placement == .menu {\n            Text(term)\n        } else {\n            Label(term, systemImage: \"magnifyingglass\")\n        }\n    }\n}",
+    "discussion": "The same searchable view hierarchy can surface suggestions differently by platform and container: a toolbar search field on macOS shows a menu, while iOS replaces the content area. Reading this value inside the suggestions builder lets you provide compact rows for menu placement and richer cells for content placement.",
+    "kind": "Environment Value",
+    "name": "searchSuggestionsPlacement",
+    "related": [
+      ".searchable()",
+      "isSearching",
+      "dismissSearch"
+    ],
+    "summary": "Where the current context displays search suggestions, such as inline menu or dedicated content area.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "struct WeatherWidgetView: View {\n    @Environment(\\.showsWidgetContainerBackground) private var hasBackground\n    var body: some View {\n        TemperatureReadout(reading: reading)\n            .font(hasBackground ? .title2 : .largeTitle)\n            .containerBackground(.thinMaterial, for: .widget)\n    }\n}",
+    "discussion": "Since the 2023 widget redesign, the same widget renders both with and without its containerBackground depending on context. When this is false, content should expand into the reclaimed padding and avoid drawing its own competing backdrop. Pair it with widgetContentMargins for exact spacing.",
+    "framework": "WidgetKit",
+    "kind": "Environment Value",
+    "name": "showsWidgetContainerBackground",
+    "platforms": [
+      "iOS",
+      "macOS",
+      "watchOS"
+    ],
+    "related": [
+      "widgetFamily",
+      "widgetContentMargins",
+      "widgetRenderingMode"
+    ],
+    "summary": "Whether the widget's container background is currently visible, which it is not in contexts like StandBy or the watch smart stack.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "struct CornerGauge: View {\n    @Environment(\\.showsWidgetLabel) private var hasLabel\n    var body: some View {\n        Gauge(value: hydration) { Image(systemName: \"drop\") }\n            .widgetLabel { Text(\"\\(Int(hydration * 100))%\") }\n            .overlay { if !hasLabel { Text(\"\\(Int(hydration * 100))\") } }\n    }\n}",
+    "discussion": "Corner complications on watch faces can render a curved label supplied by the widgetLabel modifier; this flag tells the view whether that label is actually being shown so it can drop duplicate text from its main body. It keeps the same widget code correct across corner, circular, and inline placements.",
+    "framework": "WidgetKit",
+    "kind": "Environment Value",
+    "name": "showsWidgetLabel",
+    "platforms": [
+      "watchOS"
+    ],
+    "related": [
+      "widgetFamily",
+      "Gauge"
+    ],
+    "summary": "True when a watchOS accessory widget has an attached text label, as on the corner complication slots.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "struct LegacyCheck: View {\n    @Environment(\\.sizeCategory) private var category\n    var body: some View {\n        Text(category.isAccessibilityCategory ? \"XL layout\" : \"Standard\")\n    }\n}",
+    "deprecated": true,
+    "discussion": "This was the first-generation way to read the user's preferred text size, exposing the UIKit-style ContentSizeCategory enum. Apple deprecated it in the 2021 cycle in favor of dynamicTypeSize, whose cases are comparable with range operators and easier to branch on. Existing code still compiles, but new code should not adopt it.",
+    "kind": "Environment Value",
+    "name": "sizeCategory",
+    "related": [
+      "dynamicTypeSize"
+    ],
+    "summary": "The original Dynamic Type content size category value, superseded by dynamicTypeSize.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "NavigationLink(\"Projects\", value: Folder.projects)\n    .springLoadingBehavior(.enabled)\n    .dropDestination(for: DocumentItem.self) { items, _ in\n        move(items, to: .projects)\n    }",
+    "discussion": "Spring loading is the drag-and-drop nicety where hovering a dragged item over a navigation link or button briefly flashes it and then activates it, letting users drill into a destination mid-drag. The behavior is opt-in per subtree through the .springLoadingBehavior() modifier, and this value exposes the setting to custom controls.",
+    "kind": "Environment Value",
+    "name": "springLoadingBehavior",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      ".draggable()",
+      ".dropDestination()",
+      "NavigationLink"
+    ],
+    "summary": "Controls whether controls in this environment spring-load, activating when a drag hovers over them.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "struct AdaptiveIcon: View {\n    @Environment(\\.symbolRenderingMode) private var mode\n    var body: some View {\n        Image(systemName: \"wifi.exclamationmark\")\n            .symbolRenderingMode(mode ?? .hierarchical)\n    }\n}",
+    "discussion": "The .symbolRenderingMode() modifier writes here, and every SF Symbol below inherits the mode unless overridden. Reading the optional value is useful in custom label styles that need to decide how many foreground styles to supply, since palette mode consumes multiple styles while monochrome uses one.",
+    "kind": "Environment Value",
+    "name": "symbolRenderingMode (environment)",
+    "related": [
+      ".symbolRenderingMode()",
+      "symbolVariants",
+      "Image"
+    ],
+    "summary": "The environment slot holding the symbol rendering mode (monochrome, hierarchical, palette, or multicolor) for this subtree.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "HStack {\n    Image(systemName: \"heart\")\n    Image(systemName: \"star\")\n}\n.symbolVariant(.fill)\n.symbolVariant(.circle)",
+    "discussion": "Containers use this to restyle symbols wholesale: tab bars on iOS famously request the fill variant of every item's icon this way. The .symbolVariant() modifier composes values into the environment, and Image resolves the final symbol name from the combination, so you can write plain base names like heart and let context choose heart.fill.",
+    "kind": "Environment Value",
+    "name": "symbolVariants",
+    "related": [
+      "Image",
+      ".symbolRenderingMode()",
+      "imageScale"
+    ],
+    "summary": "The symbol variant (fill, circle, slash, and so on) that SF Symbols in this environment resolve to.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "struct MiniPlayer: View {\n    @Environment(\\.tabViewBottomAccessoryPlacement) private var placement\n    var body: some View {\n        if placement == .inline {\n            HStack { Text(track.title); PlayPauseButton() }\n        } else {\n            ExpandedPlayerBar(track: track)\n        }\n    }\n}",
+    "discussion": "With the 2025 design, a bottom accessory like a mini player can collapse into the tab bar region as the user scrolls; this optional placement value is read inside the accessory content to swap between a compact inline rendering and the full expanded one. It complements tabBarMinimizeBehavior, which controls when the collapse happens.",
+    "kind": "Environment Value",
+    "name": "tabViewBottomAccessoryPlacement",
+    "platforms": [
+      "iOS"
+    ],
+    "related": [
+      "TabView",
+      ".tabBarMinimizeBehavior()",
+      ".tabViewStyle()"
+    ],
+    "summary": "Tells a TabView bottom accessory whether it is currently inline with the collapsed tab bar or expanded above it.",
+    "wwdcYear": 2025
+  },
+  {
+    "code": "Form {\n    Section(\"Server Address\") {\n        TextField(\"Host\", text: $host)\n    }\n    .textCase(nil)\n}",
+    "discussion": "Form section headers on iOS historically uppercase themselves through exactly this mechanism, and passing nil with .textCase(nil) is the well-known trick to stop them. The transform applies at render time, leaving the underlying string untouched, so accessibility and copy operations still see the original casing.",
+    "kind": "Environment Value",
+    "name": "textCase",
+    "related": [
+      "Text",
+      "Form",
+      "Section"
+    ],
+    "summary": "An optional transform that forces text in this environment to render uppercased or lowercased.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "VStack(alignment: .leading) {\n    Text(\"/Users/dev/Projects/Companion/Sources/App.swift\")\n    Text(\"/Users/dev/Projects/Companion/Tests/AppTests.swift\")\n}\n.lineLimit(1)\n.truncationMode(.middle)",
+    "discussion": "Middle truncation is the classic choice for file paths, where both the start and the extension matter, and setting it via the environment lets a whole column of labels share the behavior. The .truncationMode() modifier writes this value, and Text consults it whenever line-limited content overflows.",
+    "kind": "Environment Value",
+    "name": "truncationMode",
+    "related": [
+      "Text",
+      "lineLimit",
+      "allowsTightening"
+    ],
+    "summary": "Determines where Text drops characters when a line cannot fit: at the head, middle, or tail.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "struct MapWidgetView: View {\n    @Environment(\\.widgetContentMargins) private var margins\n    var body: some View {\n        ZStack(alignment: .topLeading) {\n            RouteMap(route: route).padding(margins.leading * -1)\n            Text(route.name).padding(.top, margins.top)\n        }\n    }\n}",
+    "discussion": "With automatic margins enabled, the system pads widget content differently per platform and context; this EdgeInsets value reveals those margins so a view can extend selected elements, like a full-bleed map, to the true edge while keeping text inside the safe region. It complements the contentMarginsDisabled widget configuration modifier.",
+    "framework": "WidgetKit",
+    "kind": "Environment Value",
+    "name": "widgetContentMargins",
+    "platforms": [
+      "iOS",
+      "macOS",
+      "watchOS"
+    ],
+    "related": [
+      "showsWidgetContainerBackground",
+      "widgetFamily"
+    ],
+    "summary": "The default content insets the system applies around widget content in the current context.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "struct StatsWidgetView: View {\n    @Environment(\\.widgetFamily) private var family\n    var body: some View {\n        switch family {\n        case .systemSmall: CompactStats()\n        case .accessoryCircular: GaugeStat()\n        default: FullStats()\n        }\n    }\n}",
+    "discussion": "A single widget view typically serves several families, and this value is how it branches between a glanceable small layout and a data-rich large one. Accessory families added for the Lock Screen and watch complications also arrive through the same enum, so exhaustive switches future-proof the layout.",
+    "framework": "WidgetKit",
+    "kind": "Environment Value",
+    "name": "widgetFamily",
+    "platforms": [
+      "iOS",
+      "macOS",
+      "watchOS"
+    ],
+    "related": [
+      "widgetRenderingMode",
+      "widgetContentMargins",
+      "showsWidgetContainerBackground"
+    ],
+    "summary": "The widget size family (small, medium, large, or an accessory style) that the current widget view is rendering for.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "struct RingView: View {\n    @Environment(\\.widgetRenderingMode) private var mode\n    var body: some View {\n        ActivityRing(progress: progress)\n            .foregroundStyle(mode == .fullColor ? AnyShapeStyle(.orange) : AnyShapeStyle(.primary))\n    }\n}",
+    "discussion": "Lock Screen widgets render vibrant (desaturated over the wallpaper) and watch complications can render accented, both of which flatten custom colors; reading this mode lets the view drop color-coded meaning and lean on opacity hierarchies instead. StandBy and tinted Home Screens make handling non-full-color modes increasingly important.",
+    "framework": "WidgetKit",
+    "kind": "Environment Value",
+    "name": "widgetRenderingMode",
+    "platforms": [
+      "iOS",
+      "macOS",
+      "watchOS"
+    ],
+    "related": [
+      "widgetFamily",
+      "showsWidgetContainerBackground"
+    ],
+    "summary": "How the system is rendering the current widget: full color, vibrant, or accented.",
+    "wwdcYear": 2022
+  }
+]

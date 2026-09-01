@@ -1,0 +1,923 @@
+[
+  {
+    "code": "Button(\"Follow\") { follow() }\n    .buttonStyle(.borderedProminent)\n    .buttonBorderShape(.capsule)",
+    "discussion": "The shape flows down the environment, so applying it to a container restyles every bordered or prominent button inside. It only has a visible effect when a style that draws a platter is active, such as .bordered or .borderedProminent. Common values include .capsule, .circle, and .roundedRectangle(radius:).",
+    "kind": "Modifier",
+    "name": ".buttonBorderShape()",
+    "related": [
+      "ButtonBorderShape",
+      ".buttonStyle()",
+      "Button"
+    ],
+    "summary": "Chooses the outline shape that bordered button styles use when drawing their backgrounds.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "Button {\n    volume = max(0, volume - 1)\n} label: {\n    Image(systemName: \"minus.circle\")\n}\n.buttonRepeatBehavior(.enabled)",
+    "discussion": "Passing .enabled turns any button into an auto-repeating control, which is the right feel for increment and decrement arrows or media seek buttons. The system owns the repeat cadence, so you get platform-consistent acceleration without a timer. The setting propagates through the environment to child buttons.",
+    "kind": "Modifier",
+    "name": ".buttonRepeatBehavior()",
+    "related": [
+      "Button",
+      "Stepper",
+      ".buttonStyle()"
+    ],
+    "summary": "Makes a held-down button fire its action repeatedly instead of once on release.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "WindowGroup {\n    ContentView()\n}\n.commands {\n    CommandMenu(\"Notes\") {\n        Button(\"New Note\") { createNote() }\n            .keyboardShortcut(\"n\", modifiers: [.command, .shift])\n    }\n}",
+    "discussion": "On macOS the declared CommandMenu and CommandGroup content becomes real menu bar items, while iPadOS surfaces the same declarations through the shortcut HUD and the iPad menu bar. Because it is a scene modifier, commands live next to the WindowGroup they serve and can read focused values to target the active window.",
+    "kind": "Modifier",
+    "name": ".commands()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "Commands",
+      "CommandMenu",
+      "CommandGroup",
+      ".keyboardShortcut()"
+    ],
+    "summary": "Attaches a commands builder to a scene, populating the menu bar and hardware keyboard shortcuts.",
+    "wwdcYear": 2020
+  },
+  {
+    "children": [
+      {
+        "code": "WindowGroup { EditorView() }\n    .commandsReplaced {\n        CommandMenu(\"Editor\") {\n            Button(\"Export…\") { export() }\n        }\n    }",
+        "name": ".commandsReplaced()",
+        "summary": "Replaces the scene's commands with the ones you declare instead of merely removing them."
+      }
+    ],
+    "code": "Window(\"Inspector\", id: \"inspector\") {\n    InspectorPanel()\n}\n.commandsRemoved()",
+    "discussion": "Auxiliary scenes — an inspector window, an onboarding panel — often should not add New/Open style items; this scene modifier removes their automatically provided commands wholesale. Its sibling commandsReplaced(content:) swaps them for a custom set in one step.",
+    "kind": "Modifier",
+    "name": ".commandsRemoved()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      ".commands()",
+      "Window",
+      "Commands"
+    ],
+    "summary": "Strips the commands a scene would otherwise contribute to the menu bar.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "ControlGroup {\n    Button(action: zoomOut) { Label(\"Zoom Out\", systemImage: \"minus\") }\n    Button(action: zoomIn) { Label(\"Zoom In\", systemImage: \"plus\") }\n}\n.controlGroupStyle(.navigation)",
+    "discussion": "The built-in styles trade space for prominence: .navigation styles the group like back/forward chrome, while .compactMenu and .menu collapse the controls into a single menu presentation. Custom styles conform to ControlGroupStyle and receive the group's content through a configuration value, letting you re-arrange the children however you like.",
+    "kind": "Modifier",
+    "name": ".controlGroupStyle()",
+    "platforms": [
+      "iOS",
+      "macOS",
+      "tvOS"
+    ],
+    "related": [
+      "ControlGroup",
+      ".menuStyle()",
+      ".toolbar()"
+    ],
+    "summary": "Selects how a ControlGroup lays out and renders its member controls.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "HStack {\n    Button(\"Cancel\", role: .cancel) { dismiss() }\n    Button(\"Import\") { startImport() }\n        .buttonStyle(.borderedProminent)\n}\n.controlSize(.large)",
+    "discussion": "Rather than hard-coding frames, this nudges buttons, pickers, toggles, and progress indicators to render at .mini through .extraLarge variants with matching typography and padding. Because it writes into the environment, one call on a container keeps a whole toolbar or form visually consistent. Custom controls can participate by reading the controlSize environment value.",
+    "kind": "Modifier",
+    "name": ".controlSize()",
+    "related": [
+      "controlSize",
+      "controlSize",
+      ".buttonStyle()"
+    ],
+    "summary": "Sets the intrinsic sizing tier that system controls in a hierarchy should adopt.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Form {\n    TextField(\"Title\", text: $title)\n        .focused($focusedField, equals: .title)\n    TextField(\"Notes\", text: $notes)\n        .focused($focusedField, equals: .notes)\n}\n.defaultFocus($focusedField, .title)",
+    "discussion": "You pass a FocusState binding plus the value that should be selected initially, and the system applies it when the containing scope is evaluated — a login form can land focus on the username field without imperative timing hacks. An optional priority parameter arbitrates when multiple defaults compete.",
+    "kind": "Modifier",
+    "name": ".defaultFocus()",
+    "related": [
+      "@FocusState",
+      ".focused()",
+      ".prefersDefaultFocus()"
+    ],
+    "summary": "Names which view should hold focus when a focus scope first appears.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "HStack {\n    ForEach(tools) { tool in\n        ToolButton(tool: tool)\n            .hoverEffect()\n    }\n}\n.defaultHoverEffect(.lift)",
+    "discussion": "It writes a default into the environment, so an entire toolbar can standardize on .lift while individual controls stay free to override locally. Passing nil clears the inherited default rather than disabling effects, which distinguishes it from .hoverEffectDisabled().",
+    "kind": "Modifier",
+    "name": ".defaultHoverEffect()",
+    "platforms": [
+      "iOS",
+      "tvOS"
+    ],
+    "related": [
+      ".hoverEffect()",
+      ".hoverEffectDisabled()",
+      "HoverEffect"
+    ],
+    "summary": "Sets the hover effect that hover-capable descendants use when they have not chosen one explicitly.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "Picker(\"Minutes\", selection: $minutes) {\n    ForEach(0..<60, id: \\.self) { Text(\"\\($0)\") }\n}\n.pickerStyle(.wheel)\n.defaultWheelPickerItemHeight(28)",
+    "discussion": "Watch wheel pickers size rows automatically, but dense numeric pickers often read better with a tightened height, and taller rows help when items carry two lines. The value applies through the environment to wheel pickers in the modified hierarchy.",
+    "kind": "Modifier",
+    "name": ".defaultWheelPickerItemHeight()",
+    "platforms": [
+      "watchOS"
+    ],
+    "related": [
+      "Picker",
+      ".pickerStyle()",
+      ".digitalCrownRotation()"
+    ],
+    "summary": "Sets the row height that wheel-style pickers on Apple Watch use for their items.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "WorkoutDial(zoom: zoom)\n    .focusable(true)\n    .digitalCrownRotation($zoom, from: 0.5, through: 3.0, by: 0.1,\n                          sensitivity: .medium, isContinuous: false,\n                          isHapticFeedbackEnabled: true)",
+    "discussion": "The modified view must be focusable and focused to receive crown events; the binding then tracks rotation between from and through bounds, quantized by the by stride. Sensitivity tunes degrees-per-unit, isContinuous makes the value wrap instead of clamp, and haptic detents can be disabled for freeform scrubbing.",
+    "kind": "Modifier",
+    "name": ".digitalCrownRotation()",
+    "platforms": [
+      "watchOS"
+    ],
+    "related": [
+      ".focusable()",
+      ".defaultWheelPickerItemHeight()",
+      "Slider"
+    ],
+    "summary": "Binds Digital Crown rotation on Apple Watch to a numeric value with configurable range and feel.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "StarRatingView(rating: $rating)\n    .focusable()\n    .onKeyPress(.space) {\n        rating = min(rating + 1, 5)\n        return .handled\n    }",
+    "discussion": "Originally a macOS and tvOS facility, this became far more useful in 2023 when the focusable(_:interactions:) overload arrived alongside iOS and watchOS support, letting you declare whether a view wants .activate or .edit interactions. A focused view becomes the target for key presses, move commands, and digital crown rotation, and participates in the visible focus ring.",
+    "kind": "Modifier",
+    "name": ".focusable()",
+    "related": [
+      "@FocusState",
+      ".focused()",
+      ".onKeyPress()",
+      ".focusEffectDisabled()"
+    ],
+    "summary": "Opts a custom view into the platform focus system so it can receive keyboard, remote, or crown input.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "CanvasView()\n    .focusedObject(editorModel)",
+    "discussion": "This is the object-flavored counterpart of .focusedValue(): the published model is observed, so commands re-evaluate when its @Published properties change, not just when focus moves. A .focusedSceneObject() variant exists for window-scoped export in multi-window apps.",
+    "kind": "Modifier",
+    "name": ".focusedObject()",
+    "related": [
+      "@FocusedObject",
+      ".focusedValue()",
+      "@ObservedObject"
+    ],
+    "summary": "Exports an ObservableObject to focus-based readers while the view or its children have focus.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "NavigationSplitView {\n    Sidebar(project: $project)\n} detail: {\n    ProjectCanvas(project: project)\n}\n.focusedSceneValue(\\.activeProject, project)",
+    "discussion": "Scene-scoped export means the value stays available while the window is key even if no particular text field or canvas inside holds focus — exactly what menu bar commands need. Prefer it over .focusedValue() whenever the value conceptually belongs to the window, like its displayed model.",
+    "kind": "Modifier",
+    "name": ".focusedSceneValue()",
+    "related": [
+      ".focusedValue()",
+      "@FocusedValue",
+      "Commands",
+      "FocusedValues"
+    ],
+    "summary": "Publishes a focused value on behalf of the whole scene rather than a single focused view.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "extension FocusedValues {\n    @Entry var activeDocument: SketchDocument?\n}\n\nSketchCanvas(document: document)\n    .focusedValue(\\.activeDocument, document)",
+    "discussion": "Keys live in FocusedValues extensions, and readers use @FocusedValue or @FocusedBinding to observe whichever focused view most recently exported the key. This is the canonical bridge between a document view and app-level menu commands that need to act on \"the current document\".",
+    "kind": "Modifier",
+    "name": ".focusedValue()",
+    "related": [
+      "FocusedValues",
+      "@FocusedValue",
+      ".focusedSceneValue()",
+      "@Entry"
+    ],
+    "summary": "Publishes a value into the focused-values system while the modified view owns focus.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "PaletteSwatch(color: color, isSelected: isSelected)\n    .focusable()\n    .focusEffectDisabled()\n    .overlay {\n        RoundedRectangle(cornerRadius: 6)\n            .strokeBorder(.tint, lineWidth: isFocused ? 3 : 0)\n    }",
+    "discussion": "Use it when a control communicates focus in its own visual language — a custom glow, scale, or border — and the platform ring would double up. Like most environment-propagating modifiers it can disable the effect for a whole hierarchy, while accessibility focus indication remains the system's responsibility.",
+    "kind": "Modifier",
+    "name": ".focusEffectDisabled()",
+    "related": [
+      ".focusable()",
+      "isFocused",
+      ".focused()"
+    ],
+    "summary": "Prevents the system from drawing its built-in focus ring or halo on focusable views.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "@Namespace private var loginScope\n\nVStack {\n    TextField(\"Account\", text: $account)\n        .prefersDefaultFocus(in: loginScope)\n    SecureField(\"Password\", text: $password)\n}\n.focusScope(loginScope)",
+    "discussion": "A scope groups focusable descendants under a Namespace ID; views inside can claim initial focus with .prefersDefaultFocus(in:), and the resetFocus environment action can send focus back to the scope's default. Scopes are essential on tvOS for keeping remote navigation predictable across sidebars and content shelves.",
+    "kind": "Modifier",
+    "name": ".focusScope()",
+    "platforms": [
+      "macOS",
+      "tvOS",
+      "watchOS"
+    ],
+    "related": [
+      ".prefersDefaultFocus()",
+      "resetFocus",
+      "@Namespace"
+    ],
+    "summary": "Binds a container to a focus namespace so default-focus preferences and resets can target it.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "HStack {\n    SidebarList(selection: $category)\n        .focusSection()\n    EpisodeGrid(category: category)\n        .focusSection()\n}",
+    "discussion": "On tvOS, swiping toward a section whose focusable children are not perfectly aligned with the current item would otherwise fail; a focus section accepts the movement and routes focus to its nearest child. It is the standard fix for sidebar-plus-grid layouts where columns do not share row geometry.",
+    "kind": "Modifier",
+    "name": ".focusSection()",
+    "platforms": [
+      "macOS",
+      "tvOS"
+    ],
+    "related": [
+      ".focusScope()",
+      ".focusable()",
+      ".onMoveCommand()"
+    ],
+    "summary": "Turns a container into a focus region that directional navigation can enter as a unit.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "Button {\n    logWater()\n} label: {\n    Label(\"Log Water\", systemImage: \"drop.fill\")\n}\n.handGestureShortcut(.primaryAction)",
+    "discussion": "Assigning .primaryAction lets the watchOS double-tap gesture activate your view's main control — logging the water, pausing the timer — without the user touching the screen. Only one control per scene should claim the shortcut, and the system highlights it briefly when the gesture fires.",
+    "kind": "Modifier",
+    "name": ".handGestureShortcut()",
+    "platforms": [
+      "watchOS"
+    ],
+    "related": [
+      "Button",
+      ".digitalCrownRotation()"
+    ],
+    "summary": "Nominates a control as the target of the Apple Watch double-tap hand gesture.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "Picker(\"Alignment\", selection: $alignment) {\n    Text(\"Leading\").tag(TextAlignment.leading)\n    Text(\"Center\").tag(TextAlignment.center)\n    Text(\"Trailing\").tag(TextAlignment.trailing)\n}\n.pickerStyle(.radioGroup)\n.horizontalRadioGroupLayout()",
+    "discussion": "The macOS-only .radioGroup picker style stacks options vertically by default; this modifier flips the axis, which suits short option sets like alignment or unit choices in inspector panels. It has no effect on other picker styles.",
+    "kind": "Modifier",
+    "name": ".horizontalRadioGroupLayout()",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      "Picker",
+      ".pickerStyle()"
+    ],
+    "summary": "Lays a radio-group picker's options out in a row instead of the default column.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Image(systemName: \"square.and.arrow.up\")\n    .padding(8)\n    .contentShape(.hoverEffect, RoundedRectangle(cornerRadius: 10))\n    .hoverEffect(.lift)",
+    "discussion": "The pointer can morph into the view with .highlight, gently raise it with .lift, or let the system decide with .automatic; each also snaps the cursor subtly toward the target the way system buttons do. Pair it with a matching content shape when the interactive outline should differ from the view's bounds.",
+    "kind": "Modifier",
+    "name": ".hoverEffect()",
+    "platforms": [
+      "iOS",
+      "tvOS"
+    ],
+    "related": [
+      "HoverEffect",
+      ".hoverEffectDisabled()",
+      ".onHover()"
+    ],
+    "summary": "Applies a pointer hover treatment to a view when an iPad trackpad or mouse cursor moves over it.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "DrawingCanvas()\n    .hoverEffect(.highlight)\n    .hoverEffectDisabled(isDrawingMode)",
+    "discussion": "Container-applied hover styling sometimes should not reach every descendant — a canvas in drawing mode, say, where pointer morphing would fight the tool cursor. The Boolean parameter makes the suppression dynamic, re-enabling effects when the condition drops back to false.",
+    "kind": "Modifier",
+    "name": ".hoverEffectDisabled()",
+    "platforms": [
+      "iOS",
+      "tvOS"
+    ],
+    "related": [
+      ".hoverEffect()",
+      ".defaultHoverEffect()",
+      ".onHover()"
+    ],
+    "summary": "Turns off inherited hover effects for a view subtree, optionally based on a condition.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "Form {\n    LabeledContent(\"Altitude\", value: \"1,204 m\")\n    LabeledContent(\"Heading\", value: \"NW 310°\")\n}\n.labeledContentStyle(VerticalLabeledContentStyle())",
+    "discussion": "LabeledContent separates a description from its value, and this modifier decides how the two halves are composed — the .automatic style yields the familiar leading-label, trailing-value form rows. Supplying your own LabeledContentStyle lets you restack the pair vertically or restyle the label without touching each call site.",
+    "kind": "Modifier",
+    "name": ".labeledContentStyle()",
+    "related": [
+      "LabeledContent",
+      "LabeledContentStyle",
+      "Form"
+    ],
+    "summary": "Applies a custom or built-in style to LabeledContent pairs in a hierarchy.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "HStack {\n    Text(\"Notifications\")\n    Spacer()\n    Toggle(\"Enable notifications\", isOn: $notificationsOn)\n        .labelsHidden()\n}",
+    "discussion": "Controls like Toggle, Picker, and DatePicker still require a label for VoiceOver and for layout in forms; this modifier hides that label visually when surrounding context already explains the control. It is the standard way to place a bare switch or date wheel next to your own custom title text.",
+    "kind": "Modifier",
+    "name": ".labelsHidden()",
+    "related": [
+      "Toggle",
+      "Picker",
+      "DatePicker",
+      ".labelsVisibility()"
+    ],
+    "summary": "Suppresses the visible labels of controls while keeping them for accessibility.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "DatePicker(\"Due Date\", selection: $dueDate)\n    .labelsVisibility(.hidden)",
+    "discussion": "This generalizes .labelsHidden(): besides .hidden it can force .visible or defer with .automatic, and the choice is published through a matching environment value so custom controls can honor it too. Prefer it when you need to restore labels inside a subtree that a container hid.",
+    "kind": "Modifier",
+    "name": ".labelsVisibility()",
+    "related": [
+      ".labelsHidden()",
+      "DatePicker",
+      "Toggle"
+    ],
+    "summary": "Sets control label visibility with a Visibility value that descendants and custom controls can read back.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "Menu(\"Zoom\") {\n    Button(\"Zoom In\") { zoom *= 1.25 }\n    Button(\"Zoom Out\") { zoom *= 0.8 }\n}\n.menuActionDismissBehavior(.disabled)",
+    "discussion": "Setting .disabled keeps the menu on screen after an action runs, which suits repeatable commands like zoom stepping or toggling several filters in one visit. This arrived in the 16.4 point release of the 2022 cycle, and platform support varies, so treat dismissal as the guaranteed fallback.",
+    "kind": "Modifier",
+    "name": ".menuActionDismissBehavior()",
+    "related": [
+      "Menu",
+      ".menuOrder()",
+      ".contextMenu()"
+    ],
+    "summary": "Decides whether choosing a menu item automatically closes the menu.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "MenuBarExtra(\"Uptime\", systemImage: \"clock\") {\n    UptimePanel()\n        .frame(width: 280)\n}\n.menuBarExtraStyle(.window)",
+    "discussion": "The default .menu style renders declared buttons as classic menu items, while .window hosts arbitrary SwiftUI content under the status item — the right choice for dashboards, sliders, or anything interactive beyond simple commands. This is a scene modifier, so it attaches to the MenuBarExtra declaration itself.",
+    "kind": "Modifier",
+    "name": ".menuBarExtraStyle()",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      "MenuBarExtra",
+      "Menu",
+      ".menuStyle()"
+    ],
+    "summary": "Switches a MenuBarExtra between a plain pull-down menu and a full window-style popover.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "Menu {\n    Button(\"Duplicate\") { duplicate() }\n    Button(\"Delete\", role: .destructive) { remove() }\n} label: {\n    Image(systemName: \"ellipsis.circle\")\n}\n.menuIndicator(.hidden)",
+    "discussion": "Passing .hidden produces a cleaner icon-only trigger, which is common for ellipsis buttons in toolbars. The setting travels through the environment, and it is most consistently honored by pull-down style controls on macOS; some contexts never draw an indicator regardless.",
+    "kind": "Modifier",
+    "name": ".menuIndicator()",
+    "platforms": [
+      "iOS",
+      "macOS",
+      "tvOS"
+    ],
+    "related": [
+      "Menu",
+      "menuIndicatorVisibility",
+      ".menuStyle()"
+    ],
+    "summary": "Shows or hides the disclosure chevron that menu-bearing controls draw next to their labels.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "Menu(\"Actions\") {\n    Button(\"Rename\") { beginRename() }\n    Button(\"Duplicate\") { duplicate() }\n    Button(\"Delete\", role: .destructive) { remove() }\n}\n.menuOrder(.fixed)",
+    "discussion": "By default iOS may flip a menu's item order depending on where the menu surfaces relative to its anchor; .fixed pins the visual order to your declaration order, which matters when muscle memory or logical grouping is important. The value applies to Menu, context menus, and menu-style pickers within the modified hierarchy.",
+    "kind": "Modifier",
+    "name": ".menuOrder()",
+    "related": [
+      "Menu",
+      ".contextMenu()",
+      ".menuStyle()"
+    ],
+    "summary": "Controls whether a menu presents its items top-to-bottom as declared or reorders them by priority.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "CommandGroup(replacing: .saveItem) {\n    Button(\"Save\") { save() }\n        .modifierKeyAlternate(.option) {\n            Button(\"Save All\") { saveAll() }\n        }\n        .keyboardShortcut(\"s\")\n}",
+    "discussion": "This reproduces the classic AppKit behavior where holding Option swaps \"Close Tab\" for \"Close All Tabs\" in an open menu. Attach it to a menu item inside your commands and provide the replacement view; the system handles swapping and the alternate inherits sensible shortcut behavior.",
+    "kind": "Modifier",
+    "name": ".modifierKeyAlternate()",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      "CommandGroup",
+      "EventModifiers",
+      ".keyboardShortcut()",
+      "CommandMenu"
+    ],
+    "summary": "Supplies an alternate menu item that appears while the user holds a modifier key.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "ChartSurface(data: samples)\n    .onContinuousHover { phase in\n        switch phase {\n        case .active(let point): crosshair = point\n        case .ended: crosshair = nil\n        }\n    }",
+    "discussion": "Unlike .onHover(), which only reports entry and exit, this delivers a HoverPhase carrying the pointer's coordinates on every move, in whatever coordinate space you request. That makes it the right tool for crosshair readouts, scrubbing previews, and proximity-based highlighting on Mac and iPad.",
+    "kind": "Modifier",
+    "name": ".onContinuousHover()",
+    "platforms": [
+      "iOS",
+      "macOS",
+      "tvOS"
+    ],
+    "related": [
+      ".onHover()",
+      ".hoverEffect()",
+      ".onModifierKeysChanged()"
+    ],
+    "summary": "Streams the pointer's location over a view through active and ended hover phases.",
+    "wwdcYear": 2022
+  },
+  {
+    "children": [
+      {
+        "code": ".onCutCommand {\n    let items = selection.map(\\.itemProvider)\n    deleteSelection()\n    return items\n}",
+        "name": ".onCutCommand()",
+        "summary": "The cut variant: export providers for the selection, then remove it from the model."
+      }
+    ],
+    "code": "ShapeCanvas(selection: $selection)\n    .focusable()\n    .onCopyCommand {\n        selection.map { NSItemProvider(object: $0.svgText as NSString) }\n    }",
+    "discussion": "The closure returns an array of NSItemProviders representing the current selection, and the system writes them to the general pasteboard; returning an empty array leaves the menu item disabled. Together with its cut and paste siblings, it gives non-text views first-class Edit menu integration on the Mac.",
+    "kind": "Modifier",
+    "name": ".onCopyCommand()",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      ".onPasteCommand()",
+      ".onDeleteCommand()",
+      "Transferable"
+    ],
+    "summary": "Supplies pasteboard content when the focused view receives the standard Copy command.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "DiagramCanvas(selection: $selection)\n    .focusable()\n    .onDeleteCommand {\n        diagram.remove(selection)\n        selection.removeAll()\n    }",
+    "discussion": "This catches the Delete key and the Edit menu's Delete item for whatever view holds focus, which is how canvas-style apps remove the current selection without a text field being involved. Keep the action idempotent about empty selections since users often lean on the key.",
+    "kind": "Modifier",
+    "name": ".onDeleteCommand()",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      ".onCopyCommand()",
+      ".onPasteCommand()",
+      ".onExitCommand()"
+    ],
+    "summary": "Handles the standard Delete command for the focused view on the Mac.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "SearchOverlay(query: $query)\n    .onExitCommand {\n        isSearchPresented = false\n    }",
+    "discussion": "It is the declarative hook for \"back out of this state\": closing a custom overlay, cancelling an in-place edit, or collapsing a search field. Because it participates in the responder-like focus hierarchy, the nearest focused handler wins, and tvOS falls back to its normal back navigation when nothing claims the press.",
+    "kind": "Modifier",
+    "name": ".onExitCommand()",
+    "platforms": [
+      "macOS",
+      "tvOS"
+    ],
+    "related": [
+      ".onMoveCommand()",
+      ".onDeleteCommand()",
+      ".onPlayPauseCommand()"
+    ],
+    "summary": "Runs an action when the user presses Escape on the Mac or Menu on the Siri Remote.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "MapCanvas()\n    .onModifierKeysChanged(mask: .option) { _, current in\n        isDuplicating = current.contains(.option)\n    }",
+    "discussion": "The closure receives the previous and current EventModifiers, which makes Option-to-duplicate or Shift-to-constrain tools straightforward to implement on Mac and iPad with hardware keyboards. The mask parameter limits callbacks to the modifiers you care about, and initial: controls whether you get an immediate report on attach.",
+    "kind": "Modifier",
+    "name": ".onModifierKeysChanged()",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      "EventModifiers",
+      ".onKeyPress()",
+      ".onContinuousHover()"
+    ],
+    "summary": "Runs a handler whenever the set of held modifier keys changes, optionally filtered by a mask.",
+    "wwdcYear": 2024
+  },
+  {
+    "children": [
+      {
+        "code": ".onMoveCommand { direction in\n    if direction == .down { selectNextRow() }\n}",
+        "name": "MoveCommandDirection",
+        "summary": "The enum of the four directional move commands delivered to onMoveCommand handlers."
+      }
+    ],
+    "code": "GameBoard(board: board)\n    .focusable()\n    .onMoveCommand { direction in\n        switch direction {\n        case .left: board.shift(.west)\n        case .right: board.shift(.east)\n        default: break\n        }\n    }",
+    "discussion": "The handler receives a MoveCommandDirection (.up, .down, .left, .right), letting a focused game board or custom grid own its directional logic instead of ceding movement to the focus engine. The view must be focusable; unhandled directions still move focus normally when you do not claim them.",
+    "kind": "Modifier",
+    "name": ".onMoveCommand()",
+    "platforms": [
+      "macOS",
+      "tvOS"
+    ],
+    "related": [
+      ".focusable()",
+      ".onExitCommand()",
+      ".onKeyPress()"
+    ],
+    "summary": "Responds to directional navigation commands from arrow keys or the tv remote on a focused view.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "MoodboardCanvas()\n    .focusable()\n    .onPasteCommand(of: [.png, .jpeg]) { providers in\n        importImages(from: providers)\n    }",
+    "discussion": "You list UTTypes the focused view can ingest; the system enables the Paste menu item only when the pasteboard holds a match, then hands your closure the NSItemProviders. A validating overload lets you transform pasteboard contents before the action runs. This predates the Transferable-based paste APIs and remains the macOS workhorse.",
+    "kind": "Modifier",
+    "name": ".onPasteCommand()",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      ".onCopyCommand()",
+      "PasteButton",
+      "Transferable"
+    ],
+    "summary": "Accepts the Edit menu's Paste command by declaring supported content types and receiving item providers.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "PlayerSurface(player: player)\n    .focusable()\n    .onPlayPauseCommand {\n        player.isPlaying ? player.pause() : player.play()\n    }",
+    "discussion": "Media surfaces on tvOS are expected to react to this hardware button even when custom transport controls are on screen; the modifier delivers the press to your player logic directly. Non-media apps sometimes repurpose it as a primary toggle, but users expect playback semantics.",
+    "kind": "Modifier",
+    "name": ".onPlayPauseCommand()",
+    "platforms": [
+      "tvOS"
+    ],
+    "related": [
+      ".onMoveCommand()",
+      ".onExitCommand()",
+      "VideoPlayer"
+    ],
+    "summary": "Responds to the play/pause button on the Siri Remote for the focused view.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Menu(\"Tag\") {\n    Picker(\"Color\", selection: $tagColor) {\n        ForEach(TagColor.allCases) { color in\n            Label(color.name, systemImage: \"circle\").tag(color)\n        }\n    }\n    .pickerStyle(.palette)\n    .paletteSelectionEffect(.symbolVariant(.fill))\n}",
+    "discussion": "Palette pickers render as a compact row of swatches or symbols inside a menu, and by default selection is shown with a tint. Using .symbolVariant(.fill) instead swaps the chosen symbol to its filled form, which reads well for tag and color pickers. Apply it to the Picker whose style is .palette.",
+    "kind": "Modifier",
+    "name": ".paletteSelectionEffect()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "Picker",
+      ".pickerStyle()",
+      "Menu"
+    ],
+    "summary": "Customizes how the selected item in a palette-style picker indicates its selection.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "TimelineClipView(clip: clip)\n    .pointerStyle(isDragging ? .grabActive : .grabIdle)",
+    "discussion": "PointerStyle covers the system repertoire — grab hands for draggable content, resize arrows keyed to directions, text-selection beams, and zoom variants — replacing the old NSCursor push/pop dance with a declarative attachment. Styles apply only while the pointer is within the modified view's bounds.",
+    "kind": "Modifier",
+    "name": ".pointerStyle()",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      ".onContinuousHover()",
+      ".onHover()",
+      ".draggable()"
+    ],
+    "summary": "Chooses the macOS cursor shape shown while the pointer is over a view.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "@Namespace private var playbackScope\n\nVStack {\n    Button(\"Play\") { play() }\n        .prefersDefaultFocus(in: playbackScope)\n    Button(\"Queue\") { showQueue() }\n}\n.focusScope(playbackScope)",
+    "discussion": "This is the namespace-based sibling of .defaultFocus(): the view volunteers itself for first focus inside a scope created with .focusScope(), and a Boolean parameter lets the preference switch off conditionally. It predates FocusState-driven defaults and remains the tool of choice on tvOS remote-driven layouts.",
+    "kind": "Modifier",
+    "name": ".prefersDefaultFocus()",
+    "platforms": [
+      "macOS",
+      "tvOS",
+      "watchOS"
+    ],
+    "related": [
+      ".focusScope()",
+      ".defaultFocus()",
+      "@Namespace",
+      "resetFocus"
+    ],
+    "summary": "Marks a view as the preferred initial focus target within a named focus scope.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "TextField(\"Playlist Name\", text: $name)\n    .focused($isRenaming)\n    .contextMenu { RenameButton() }\n    .renameAction($isRenaming)",
+    "discussion": "RenameButton is inert until an action is supplied; the closure overload runs arbitrary code, while the FocusState binding overload simply moves focus into an editable text field to begin renaming in place. Publishing the action through this modifier lets context menus and navigation-title menus offer a standard Rename item.",
+    "kind": "Modifier",
+    "name": ".renameAction()",
+    "related": [
+      "RenameButton",
+      ".focused()",
+      "TextField",
+      ".contextMenu()"
+    ],
+    "summary": "Defines what a RenameButton in the same hierarchy does when tapped.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "SignInWithAppleButton(.signUp) { request in\n    request.requestedScopes = [.email]\n} onCompletion: { result in\n    handle(result)\n}\n.signInWithAppleButtonStyle(.whiteOutline)",
+    "discussion": "Apple's brand guidelines require one of three sanctioned appearances, and this modifier is how you choose among .black, .white, and .whiteOutline to match the surrounding surface. It applies only to SignInWithAppleButton and comes from AuthenticationServices rather than SwiftUI proper.",
+    "framework": "AuthenticationServices",
+    "kind": "Modifier",
+    "name": ".signInWithAppleButtonStyle()",
+    "related": [
+      "SignInWithAppleButton",
+      "Button"
+    ],
+    "summary": "Picks the black, white, or white-outline appearance for a Sign in with Apple button.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "FolderRow(folder: folder)\n    .dropDestination(for: DocumentID.self) { ids, _ in\n        move(ids, into: folder)\n    }\n    .springLoadingBehavior(.enabled)",
+    "discussion": "Spring loading is the pattern where holding a dragged item over a folder pops that folder open; opting a drop target in with .enabled makes deep hierarchies navigable mid-drag. It applies to views that already participate in drag and drop or have an activatable action.",
+    "kind": "Modifier",
+    "name": ".springLoadingBehavior()",
+    "related": [
+      ".dropDestination()",
+      ".draggable()",
+      ".onHover()"
+    ],
+    "summary": "Enables spring loading so hovering a drag over a view activates it without dropping.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "List(people, selection: $selectedID) { person in\n    PersonBadge(person: person)\n        .typeSelectEquivalent(person.familyName)\n}",
+    "discussion": "Selectable containers let users jump to a row by typing its leading characters; when a row's visible content is an image or a composed label, this modifier supplies the string matching should use instead of the derived text. Passing an explicit value also fixes matching for rows whose display text is decorative.",
+    "kind": "Modifier",
+    "name": ".typeSelectEquivalent()",
+    "related": [
+      "List",
+      "Table",
+      ".focusable()"
+    ],
+    "summary": "Overrides the text that type-to-select keyboard navigation matches for a list or table row.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "struct PlaybackCommands: Commands {\n    @FocusedBinding(\\.playbackRate) private var rate: Double?\n\n    var body: some Commands {\n        CommandMenu(\"Playback\") {\n            Button(\"Faster\") { rate? += 0.25 }\n                .disabled(rate == nil)\n        }\n    }\n}",
+    "discussion": "Where @FocusedValue hands you an optional value, @FocusedBinding flattens an exported Binding so menu commands can both read and mutate the focused view's state. The wrapped value is nil whenever nothing focused exports the key, which doubles as the natural condition for disabling the command.",
+    "kind": "Property Wrapper",
+    "name": "@FocusedBinding",
+    "related": [
+      "@FocusedValue",
+      ".focusedValue()",
+      "FocusedValues",
+      "Commands"
+    ],
+    "summary": "Reads a binding published by the focused view and unwraps it for direct get/set access.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "struct EditorCommands: Commands {\n    @FocusedObject private var editor: EditorModel?\n\n    var body: some Commands {\n        CommandGroup(after: .pasteboard) {\n            Button(\"Clear Canvas\") { editor?.clear() }\n                .disabled(editor == nil)\n        }\n    }\n}",
+    "discussion": "It pairs with .focusedObject() the way @EnvironmentObject pairs with .environmentObject(), but scoped to focus instead of ancestry: whichever window or view holds focus decides which model your menu commands see. The property is optional, so multi-window apps get correct per-window command targets and free disabling when no window is key.",
+    "kind": "Property Wrapper",
+    "name": "@FocusedObject",
+    "related": [
+      ".focusedObject()",
+      "@FocusedValue",
+      "@ObservedObject",
+      "Commands"
+    ],
+    "summary": "Observes an ObservableObject that the currently focused hierarchy has published.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "Button(\"Discard Changes\", role: .destructive) {\n    discard()\n}\nButton(\"Keep Editing\", role: .cancel) { }",
+    "discussion": "Roles change presentation without custom styling: .destructive tints red in menus and swipe actions, and .cancel gets the standard placement and Escape binding inside alerts and dialogs. WWDC 2025 extended the set with .confirm and .close so system contexts can position affirmative and dismiss actions automatically. Custom ButtonStyle implementations can read the role from their configuration.",
+    "kind": "Type",
+    "name": "ButtonRole",
+    "related": [
+      "Button",
+      ".confirmationDialog()",
+      ".swipeActions()",
+      "ButtonStyleConfiguration"
+    ],
+    "summary": "A semantic tag that tells the system whether a button destroys data, cancels a flow, or confirms it.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "struct SquishyStyle: ButtonStyle {\n    func makeBody(configuration: Configuration) -> some View {\n        configuration.label\n            .scaleEffect(configuration.isPressed ? 0.92 : 1)\n            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)\n    }\n}",
+    "discussion": "Inside makeBody(configuration:) the label property is a type-erased view of the button's content, isPressed reflects live touch or pointer state, and role carries the semantic ButtonRole when one was set. Because isPressed updates continuously, styles built on it can animate press feedback without any gesture code of their own.",
+    "kind": "Type",
+    "name": "ButtonStyleConfiguration",
+    "related": [
+      "ButtonStyle",
+      "PrimitiveButtonStyle",
+      "ButtonRole"
+    ],
+    "summary": "The bundle of state a custom ButtonStyle receives, exposing the label, press state, and role.",
+    "wwdcYear": 2019
+  },
+  {
+    "children": [
+      {
+        "code": "CommandGroup(replacing: .appInfo) {\n    Button(\"About PixelForge\") { showAbout = true }\n}",
+        "name": "CommandGroupPlacement",
+        "summary": "The anchor points identifying standard menu regions such as .appInfo, .newItem, .saveItem, and .pasteboard."
+      }
+    ],
+    "code": "CommandGroup(after: .newItem) {\n    Button(\"New From Template…\") { showTemplates = true }\n        .keyboardShortcut(\"n\", modifiers: [.command, .option])\n}",
+    "discussion": "Instead of creating a new menu, CommandGroup targets a CommandGroupPlacement — like .newItem, .pasteboard, or .appInfo — and either adds items before or after it or replaces the system items entirely. Replacing .appInfo is the canonical way to supply a custom About window.",
+    "kind": "Type",
+    "name": "CommandGroup",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "CommandMenu",
+      ".commands()",
+      "Commands"
+    ],
+    "summary": "Inserts, appends to, or replaces one of the standard command groups in the menu bar.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "CommandMenu(\"Simulation\") {\n    Button(\"Run\") { runSimulation() }\n        .keyboardShortcut(\"r\")\n    Divider()\n    Toggle(\"Show Grid\", isOn: $showsGrid)\n}",
+    "discussion": "New menus insert between View and Window in the macOS menu bar, and their contents are ordinary buttons, toggles, pickers, and dividers, so state bindings and .disabled work exactly as in views. Combine it with focused values to keep commands wired to the frontmost window's model.",
+    "kind": "Type",
+    "name": "CommandMenu",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "CommandGroup",
+      ".commands()",
+      "Commands",
+      "@FocusedBinding"
+    ],
+    "summary": "Declares a whole top-level menu of app commands with a title and view-builder content.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "extension FocusedValues {\n    @Entry var selectedTrack: Track?\n}\n\n// Reader in a Commands builder:\n@FocusedValue(\\.selectedTrack) var track: Track?",
+    "discussion": "You extend it with custom properties — traditionally via a FocusedValueKey conformance, or since 2024 with the @Entry macro — and each property becomes addressable by key path from .focusedValue() and @FocusedValue. It mirrors the EnvironmentValues pattern but flows from the focus leaf outward instead of from ancestors down.",
+    "kind": "Type",
+    "name": "FocusedValues",
+    "related": [
+      "@FocusedValue",
+      "@FocusedBinding",
+      ".focusedValue()",
+      "@Entry"
+    ],
+    "summary": "The extensible key-value store that carries data from the focused view to interested observers.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "Button(\"Preview\") { showPreview() }\n    .hoverEffect(HoverEffect.highlight)",
+    "discussion": "With .highlight the iPad pointer dissolves into a platter behind the content, while .lift scales the view up and lets the cursor disappear beneath it — the same vocabulary system apps use, so effects feel native for free. Values are consumed by .hoverEffect() and .defaultHoverEffect().",
+    "kind": "Type",
+    "name": "HoverEffect",
+    "platforms": [
+      "iOS",
+      "tvOS"
+    ],
+    "related": [
+      ".hoverEffect()",
+      ".defaultHoverEffect()",
+      ".onHover()"
+    ],
+    "summary": "The type enumerating standard pointer hover treatments: automatic, highlight, and lift.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "struct PosterCard: View {\n    @Environment(\\.isFocused) private var isFocused\n\n    var body: some View {\n        PosterArt()\n            .scaleEffect(isFocused ? 1.08 : 1.0)\n            .animation(.easeOut(duration: 0.2), value: isFocused)\n    }\n}",
+    "discussion": "This lets the label or artwork inside a focusable control restyle itself without plumbing state downward — the classic tvOS card that scales up and lifts when focused is three lines with it. It differs from @FocusState in that it is read-only and positional rather than bound to identity values.",
+    "kind": "Environment Value",
+    "name": "isFocused",
+    "related": [
+      "@FocusState",
+      ".focusable()",
+      ".focusEffectDisabled()"
+    ],
+    "summary": "Reports whether the nearest focusable ancestor of the reading view currently has focus.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "let saveAll = KeyboardShortcut(\"s\", modifiers: [.command, .shift])\n\nButton(\"Save All\") { saveAll() }\n    .keyboardShortcut(saveAll)",
+    "discussion": "It pairs a KeyEquivalent with EventModifiers (Command is the default) and offers the semantic statics .defaultAction and .cancelAction, which map to Return and Escape with proper platform behavior. A localization parameter added in 2021 controls whether punctuation-based shortcuts adapt to different keyboard layouts.",
+    "kind": "Type",
+    "name": "KeyboardShortcut",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      ".keyboardShortcut()",
+      "KeyEquivalent",
+      "EventModifiers"
+    ],
+    "summary": "A key-plus-modifiers combination that can be assigned to buttons, toggles, and menu items.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "struct VerticalLabeledContentStyle: LabeledContentStyle {\n    func makeBody(configuration: Configuration) -> some View {\n        VStack(alignment: .leading, spacing: 2) {\n            configuration.label\n                .font(.caption)\n                .foregroundStyle(.secondary)\n            configuration.content\n        }\n    }\n}",
+    "discussion": "Conformers implement makeBody(configuration:) and receive the label and content as separate type-erased views, so a style can freely change axis, spacing, and typography. Because styles apply through the environment, one conformance can normalize every metadata row in a settings or inspector screen.",
+    "kind": "Protocol",
+    "name": "LabeledContentStyle",
+    "related": [
+      "LabeledContent",
+      ".labeledContentStyle()",
+      "LabelStyle"
+    ],
+    "summary": "The protocol for defining how a LabeledContent view arranges its label and content.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "struct ChromeMenuStyle: MenuStyle {\n    @Environment(\\.menuIndicatorVisibility) private var indicator\n\n    func makeBody(configuration: Configuration) -> some View {\n        Menu(configuration)\n            .overlay(alignment: .trailing) {\n                if indicator != .hidden { Image(systemName: \"chevron.down\") }\n            }\n    }\n}",
+    "discussion": "This is the read side of the .menuIndicator() modifier: custom MenuStyle and button-like components can consult it to decide whether to draw a chevron of their own. Values are the standard Visibility cases, with .automatic deferring to platform convention.",
+    "kind": "Environment Value",
+    "name": "menuIndicatorVisibility",
+    "platforms": [
+      "iOS",
+      "macOS",
+      "tvOS"
+    ],
+    "related": [
+      ".menuIndicator()",
+      "Menu",
+      "@Environment"
+    ],
+    "summary": "The environment's record of whether menu controls should display their disclosure indicator.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "@Namespace private var gameScope\n@Environment(\\.resetFocus) private var resetFocus\n\nButton(\"Start Over\") {\n    game.reset()\n    resetFocus(in: gameScope)\n}",
+    "discussion": "Calling the action with a Namespace ID asks the focus engine to re-evaluate that scope as if it had just appeared, honoring any .prefersDefaultFocus declarations. It is handy after a mode switch on tvOS — for example, when dismissing an overlay should send the remote's focus back to the primary play button.",
+    "kind": "Environment Value",
+    "name": "resetFocus",
+    "platforms": [
+      "macOS",
+      "tvOS",
+      "watchOS"
+    ],
+    "related": [
+      ".focusScope()",
+      ".prefersDefaultFocus()",
+      "@Namespace"
+    ],
+    "summary": "An environment action that returns focus to the default item of a namespace's focus scope.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": ".commands {\n    SidebarCommands()\n    ToolbarCommands()\n    TextEditingCommands()\n}",
+    "discussion": "Dropping it into a commands builder wires up the familiar Control-Command-S behavior against the scene's NavigationSplitView without custom plumbing. It belongs to a family of stock command bundles — ToolbarCommands, TextEditingCommands, and TextFormattingCommands — that restore expected menu items SwiftUI does not add by default.",
+    "kind": "Type",
+    "name": "SidebarCommands",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "Commands",
+      ".commands()",
+      "NavigationSplitView",
+      "CommandGroup"
+    ],
+    "summary": "A prebuilt command set adding the standard Toggle Sidebar item and shortcut to the View menu.",
+    "wwdcYear": 2020
+  }
+]

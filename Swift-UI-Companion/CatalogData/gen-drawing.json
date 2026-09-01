@@ -1,0 +1,885 @@
+[
+  {
+    "code": "Image(\"sunsetHDR\")\n    .resizable()\n    .scaledToFit()\n    .allowedDynamicRange(.high)",
+    "discussion": "By default HDR photos render in standard range inside SwiftUI; opting into .high lets them use the display's full headroom, while .constrainedHigh caps brightness for mixed layouts where a single glowing photo would overpower the UI. It has no effect on SDR content or SDR displays.",
+    "kind": "Modifier",
+    "name": ".allowedDynamicRange()",
+    "related": [
+      "Image",
+      ".resizable()",
+      "AsyncImage"
+    ],
+    "summary": "Controls how much high-dynamic-range headroom images in a hierarchy may use when displayed.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "Image(\"pixelBadge\")\n    .resizable()\n    .interpolation(.none)\n    .antialiased(false)",
+    "discussion": "Antialiasing only matters when the image is transformed — rotated, scaled, or drawn at fractional pixel positions — where it smooths the jagged boundary pixels. Turning it off pairs with interpolation(.none) for crisp retro rendering pipelines.",
+    "kind": "Modifier",
+    "name": ".antialiased()",
+    "related": [
+      ".interpolation()",
+      ".resizable()"
+    ],
+    "summary": "Toggles edge antialiasing for a bitmap Image's rendering.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "GroupBox(\"Sleep\") {\n    SleepChart()\n}\n.backgroundStyle(.blue.opacity(0.12))",
+    "discussion": "Containers like GroupBox and any view using .background(in:) with the .background style pick up this environment value, letting you retheme card backing without touching each container. It complements foregroundStyle: one governs content, the other the surfaces behind it.",
+    "kind": "Modifier",
+    "name": ".backgroundStyle()",
+    "related": [
+      ".background()",
+      ".foregroundStyle()",
+      "GroupBox",
+      "ShapeStyle"
+    ],
+    "summary": "Sets the style that fills anything in the hierarchy drawing with the semantic background shape style.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "ZStack {\n    Image(\"paperTexture\")\n    Color.orange\n        .blendMode(.multiply)\n}",
+    "discussion": "Blend modes only produce interesting results when there is actual content behind the view in the same rendering group, which usually means a ZStack; against an opaque window background many modes look like nothing happened. Pair with .compositingGroup() or .drawingGroup() on the container to fence where the blending applies.",
+    "kind": "Modifier",
+    "name": ".blendMode()",
+    "related": [
+      "BlendMode",
+      ".compositingGroup()",
+      ".drawingGroup()"
+    ],
+    "summary": "Sets how a view's pixels combine with whatever is rendered beneath it.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Text(\"DRAFT\")\n    .padding(6)\n    .border(.red, width: 2)",
+    "discussion": "The border is inset so it renders entirely within the view's bounds, effectively an overlay of a stroked rectangle. For rounded or custom-shaped outlines there is no parameterized variant — reach for an overlay with a strokeBorder on the shape you want instead.",
+    "kind": "Modifier",
+    "name": ".border()",
+    "related": [
+      ".overlay()",
+      ".strokeBorder()",
+      "Rectangle"
+    ],
+    "summary": "Draws a rectangular edge around a view's frame in a given ShapeStyle and width.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Image(\"thumbnail\")\n    .brightness(isPressed ? 0.15 : 0)",
+    "discussion": "Unlike opacity, brightness shifts pixel values rather than blending with the background, so +1 washes content to solid white. Small positive values are handy for pressed-state highlights on imagery where a material overlay would be too heavy.",
+    "kind": "Modifier",
+    "name": ".brightness()",
+    "related": [
+      ".contrast()",
+      ".saturation()",
+      ".opacity()"
+    ],
+    "summary": "Adds a flat brightness offset to a view's pixels, from -1 (black) to 1 (white).",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Image(\"portrait\")\n    .colorEffect(\n        ShaderLibrary.duotone(.color(.indigo), .color(.orange))\n    )",
+    "discussion": "The shader function receives each pixel's position and current color and returns a replacement color — no sampling of neighboring pixels is allowed, which is what keeps this the cheapest of the three shader modifiers. Typical uses are palettization, chromatic tinting, and noise overlays that only need the pixel under evaluation.",
+    "kind": "Modifier",
+    "name": ".colorEffect()",
+    "related": [
+      "Shader",
+      ".distortionEffect()",
+      ".layerEffect()",
+      "ShaderLibrary"
+    ],
+    "summary": "Runs a Metal shader over a view as a pure per-pixel color filter.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "Image(\"inkSignature\")\n    .colorInvert()",
+    "discussion": "The inversion is purely photometric — white becomes black, blue becomes orange — with no awareness of semantic colors or dark mode, so it suits effects and masks rather than theming. It is often paired with luminanceToAlpha() when converting artwork into masks.",
+    "kind": "Modifier",
+    "name": ".colorInvert()",
+    "related": [
+      ".luminanceToAlpha()",
+      ".colorMultiply()",
+      ".contrast()"
+    ],
+    "summary": "Inverts every color channel of a view, mapping each component to its complement.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Image(\"albumArt\")\n    .colorMultiply(isSelected ? .gray : .white)\n    .animation(.easeOut(duration: 0.2), value: isSelected)",
+    "discussion": "Because it is a per-pixel multiply rather than a semantic tint, it affects images and already-styled content wholesale — useful for darkening thumbnails on selection or theming grayscale art. Multiplying by white is a no-op, which makes it easy to animate a tint in and out.",
+    "kind": "Modifier",
+    "name": ".colorMultiply()",
+    "related": [
+      ".saturation()",
+      ".hueRotation()",
+      ".tint()"
+    ],
+    "summary": "Multiplies every rendered pixel of a view by a color, tinting whites toward that color and leaving blacks black.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "ZStack {\n    Circle().fill(.red).offset(x: -20)\n    Circle().fill(.red).offset(x: 20)\n}\n.compositingGroup()\n.opacity(0.5)",
+    "discussion": "Without it, applying opacity(0.5) to a stack fades each subview independently, so overlaps show through as darker seams; with it, the group renders first and the effect applies once to the composite. It changes rendering order only, not layout, and costs far less than a full drawingGroup.",
+    "kind": "Modifier",
+    "name": ".compositingGroup()",
+    "related": [
+      ".drawingGroup()",
+      ".opacity()",
+      ".blendMode()",
+      ".shadow()"
+    ],
+    "summary": "Flattens a view hierarchy into a single layer before later effects like opacity or blending are applied.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Image(\"scan\")\n    .contrast(1.6)\n    .grayscale(1)",
+    "discussion": "Values above 1 exaggerate the difference between tones while values between 0 and 1 flatten the image toward mid-gray; negative values invert relative luminance in a way that resembles a film negative. It composes predictably with brightness and saturation for quick image-adjustment pipelines.",
+    "kind": "Modifier",
+    "name": ".contrast()",
+    "related": [
+      ".brightness()",
+      ".grayscale()",
+      ".saturation()"
+    ],
+    "summary": "Stretches or compresses the separation between a view's light and dark values.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "// Deprecated:\nthumbnail.cornerRadius(12)\n\n// Modern replacement:\nthumbnail.clipShape(.rect(cornerRadius: 12))",
+    "deprecated": true,
+    "discussion": "cornerRadius(_:antialiased:) clipped a view to a rounded rectangle but offered no control over corner style or per-corner radii, so the 2023 cycle deprecated it in favor of clipShape(.rect(cornerRadius:)) and the UnevenRoundedRectangle family. Existing code still compiles with a warning; new code should express the shape explicitly.",
+    "kind": "Modifier",
+    "name": ".cornerRadius()",
+    "related": [
+      ".clipShape()",
+      "RoundedRectangle",
+      "UnevenRoundedRectangle",
+      "RectangleCornerRadii"
+    ],
+    "summary": "The original one-line rounded clipping modifier, now formally deprecated in favor of clipShape with a rounded rectangle.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Text(\"Making Waves\")\n    .font(.system(size: 44, weight: .black))\n    .distortionEffect(\n        ShaderLibrary.wave(.float(time)),\n        maxSampleOffset: CGSize(width: 0, height: 12)\n    )",
+    "discussion": "The function maps each destination position to the source position that should be sampled, enabling waves, ripples, and lens effects; maxSampleOffset must state how far any pixel can travel so SwiftUI can pad the offscreen render correctly. Underestimating that offset clips the distorted edges.",
+    "kind": "Modifier",
+    "name": ".distortionEffect()",
+    "related": [
+      "Shader",
+      ".colorEffect()",
+      ".layerEffect()"
+    ],
+    "summary": "Applies a Metal shader that remaps pixel positions, warping a view's geometry.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "TimelineView(.animation) { _ in\n    particleField\n        .drawingGroup()\n}",
+    "discussion": "This trades per-view compositing for a single flattened texture, which can dramatically speed up hierarchies with many blended or animated layers, and it enables opaque and colorMode options for extended range rendering. Text and interactive controls lose their native crispness and accessibility layering when rasterized, so reserve it for graphics-heavy subtrees.",
+    "kind": "Modifier",
+    "name": ".drawingGroup()",
+    "related": [
+      ".compositingGroup()",
+      "Canvas",
+      ".blendMode()"
+    ],
+    "summary": "Rasterizes a view subtree offscreen with Metal before compositing it into the display.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "// Deprecated:\nText(\"Hi\").foregroundColor(.secondary)\n\n// Modern replacement:\nText(\"Hi\").foregroundStyle(.secondary)",
+    "deprecated": true,
+    "discussion": "foregroundColor could only accept a Color, while foregroundStyle takes any ShapeStyle — gradients, hierarchical levels, materials — and supports up to three styles for layered symbols, so the older API was formally deprecated once the replacement had matured. Migration is mechanical: the single-color case is a drop-in rename.",
+    "kind": "Modifier",
+    "name": ".foregroundColor()",
+    "related": [
+      ".foregroundStyle()",
+      "HierarchicalShapeStyle",
+      ".tint()"
+    ],
+    "summary": "The original color-only foreground modifier, deprecated in the 2023 cycle in favor of foregroundStyle.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "GlassEffectContainer {\n    if isExpanded {\n        toolbarRow\n            .glassEffect()\n            .glassEffectID(\"tools\", in: glassNamespace)\n    } else {\n        compactButton\n            .glassEffect()\n            .glassEffectID(\"tools\", in: glassNamespace)\n    }\n}",
+    "discussion": "Within a GlassEffectContainer, views sharing a namespace use these IDs the way matchedGeometryEffect uses its own: when one tagged element replaces another, the glass material fluidly reshapes between them instead of cross-fading. It shipped with the Liquid Glass design system in the 2025 cycle.",
+    "kind": "Modifier",
+    "name": ".glassEffectID()",
+    "related": [
+      ".glassEffect()",
+      "GlassEffectContainer",
+      "@Namespace",
+      ".matchedGeometryEffect()"
+    ],
+    "summary": "Tags a glass element with an identity so Liquid Glass shapes can morph into each other during transitions.",
+    "wwdcYear": 2025
+  },
+  {
+    "code": "ProductImage(item)\n    .grayscale(item.isSoldOut ? 1 : 0)",
+    "discussion": "At 1 the view is fully monochrome while intermediate values partially drain color, making it a one-liner for unavailable content or background de-emphasis. It differs from saturation(0) mainly in that it is expressed as an amount of the effect rather than a multiplier on color.",
+    "kind": "Modifier",
+    "name": ".grayscale()",
+    "related": [
+      ".saturation()",
+      ".contrast()",
+      ".redacted()"
+    ],
+    "summary": "Blends a view toward its grayscale rendering by a 0-to-1 amount.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "LinearGradient(colors: [.purple, .cyan],\n               startPoint: .leading, endPoint: .trailing)\n    .hueRotation(.degrees(phase))\n    .animation(.linear(duration: 4).repeatForever(autoreverses: false),\n               value: phase)",
+    "discussion": "Because the shift applies uniformly to all pixels, it is less a precision color tool than an effect — animating a continuous rotation over a gradient produces an easy iridescent shimmer. Grays are unaffected since they carry no hue.",
+    "kind": "Modifier",
+    "name": ".hueRotation()",
+    "related": [
+      "Angle",
+      ".saturation()",
+      ".colorMultiply()"
+    ],
+    "summary": "Rotates every color in a view around the hue wheel by an Angle.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Label(\"Warnings\", systemImage: \"exclamationmark.triangle\")\n    .imageScale(.large)",
+    "discussion": "Unlike a frame, imageScale adjusts symbols relative to the current font metrics, so glyphs stay proportionate to neighboring text at any Dynamic Type size. It writes an environment value, meaning one call on a container resizes every symbol below it.",
+    "kind": "Modifier",
+    "name": ".imageScale()",
+    "related": [
+      ".font()",
+      ".symbolVariant()",
+      ".symbolRenderingMode()"
+    ],
+    "summary": "Sets the relative size class — small, medium, or large — for symbol images in a view hierarchy.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Image(\"sprite16x16\")\n    .resizable()\n    .interpolation(.none)\n    .frame(width: 128, height: 128)",
+    "discussion": "The default high-quality interpolation smooths scaled bitmaps, which blurs deliberately low-resolution art; setting .none preserves hard pixel edges, the standard move for pixel-art games and QR codes. Lower settings can also shave cost when rapidly animating large scaled images.",
+    "kind": "Modifier",
+    "name": ".interpolation()",
+    "related": [
+      ".resizable()",
+      ".antialiased()",
+      "Image"
+    ],
+    "summary": "Selects the resampling quality used when an Image is drawn at a size other than its native one.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "cardView\n    .layerEffect(\n        ShaderLibrary.chromaticAberration(.float(strength)),\n        maxSampleOffset: CGSize(width: 8, height: 0)\n    )",
+    "discussion": "The shader receives an SwiftUI::Layer it may sample at arbitrary offsets, which is what blurs, glitch effects, and edge-detection style filters need, at correspondingly higher cost than colorEffect. As with distortion, maxSampleOffset declares the sampling reach so the layer is rendered with enough margin.",
+    "kind": "Modifier",
+    "name": ".layerEffect()",
+    "related": [
+      "Shader",
+      ".distortionEffect()",
+      ".colorEffect()",
+      ".visualEffect()"
+    ],
+    "summary": "The most general shader modifier: the Metal function can sample the view's rasterized layer anywhere it likes.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "Rectangle()\n    .fill(.blue.gradient)\n    .mask {\n        Image(\"noise\")\n            .luminanceToAlpha()\n    }",
+    "discussion": "This is the bridge from ordinary artwork to masks: render any view, apply luminanceToAlpha, and feed the result to .mask() so white regions show the underlying content. Combined with colorInvert you can flip which regions of the source act as the visible part of the mask.",
+    "kind": "Modifier",
+    "name": ".luminanceToAlpha()",
+    "related": [
+      ".mask()",
+      ".colorInvert()",
+      ".grayscale()"
+    ],
+    "summary": "Rewrites a view so each pixel's brightness becomes its opacity, turning bright areas opaque and dark areas transparent.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Image(\"logoGlyph\")\n    .renderingMode(.template)\n    .foregroundStyle(.secondary)",
+    "discussion": "Template mode discards the asset's colors and uses only its alpha channel, letting foregroundStyle and tint drive the color — the behavior symbol images get by default. Passing .original is how you stop a multicolor asset inside a Button or List from being flattened to the accent color.",
+    "kind": "Modifier",
+    "name": ".renderingMode()",
+    "related": [
+      ".symbolRenderingMode()",
+      ".foregroundStyle()",
+      ".tint()"
+    ],
+    "summary": "Forces an Image to render as original multicolor artwork or as a template tinted by the foreground style.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Image(\"hero\")\n    .resizable()\n    .scaledToFill()\n    .frame(width: 300, height: 160)\n    .clipped()",
+    "discussion": "Without it, frame and aspect-ratio modifiers move the layout box but the bitmap stays at native size, which is the most common first stumble in SwiftUI image handling. The capInsets and resizingMode parameters additionally support nine-part stretching and tiling for chrome-style assets.",
+    "kind": "Modifier",
+    "name": ".resizable()",
+    "related": [
+      ".aspectRatio()",
+      ".clipped()",
+      ".interpolation()",
+      "Image"
+    ],
+    "summary": "Marks an Image as willing to stretch to its proposed size instead of drawing at its intrinsic pixel size.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Image(\"coverPhoto\")\n    .saturation(isActive ? 1.0 : 0.15)",
+    "discussion": "A value of 0 collapses everything to luminance-preserving gray, 1 leaves the view untouched, and values above 1 push colors toward vivid. It is frequently animated together with grayscale or opacity to communicate disabled or inactive states without swapping assets.",
+    "kind": "Modifier",
+    "name": ".saturation()",
+    "related": [
+      ".grayscale()",
+      ".contrast()",
+      ".brightness()"
+    ],
+    "summary": "Scales the color intensity of a view, from fully desaturated at 0 to oversaturated above 1.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Circle()\n    .strokeBorder(.teal, lineWidth: 12)\n    .frame(width: 100, height: 100)",
+    "discussion": "This method lives on InsettableShape rather than Shape, because it needs inset(by:) to pull the path inward before stroking. It is the right choice for borders that must not spill outside a frame or get clipped by an ancestor, which is exactly what a centered stroke would do.",
+    "kind": "Modifier",
+    "name": ".strokeBorder()",
+    "related": [
+      "InsettableShape",
+      "Shape.stroke()",
+      "StrokeStyle"
+    ],
+    "summary": "Strokes an insettable shape entirely inside its bounds by first insetting the path by half the line width.",
+    "wwdcYear": 2019
+  },
+  {
+    "children": [
+      {
+        "code": "Image(systemName: \"person\")\n    .symbolVariant(SymbolVariants.circle.fill)",
+        "name": "SymbolVariants",
+        "summary": "The type describing available symbol variants, composable via chained properties."
+      }
+    ],
+    "code": "HStack {\n    Image(systemName: \"heart\")\n    Image(systemName: \"bell\")\n}\n.symbolVariant(isSelected ? .fill : .none)",
+    "discussion": "Rather than hardcoding names like \"heart.fill\", you write the base symbol and let context request the variant, which is how a tab bar can fill its icons on selection with one modifier. Variants compose, so .circle.fill produces the enclosed filled form when the symbol offers it.",
+    "kind": "Modifier",
+    "name": ".symbolVariant()",
+    "related": [
+      ".symbolRenderingMode()",
+      ".symbolEffect()",
+      ".imageScale()"
+    ],
+    "summary": "Applies a symbol variant — fill, slash, circle, square, or rectangle — to every SF Symbol in a hierarchy.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "RoundedRectangle(cornerRadius: 12)\n    .fill(Color.indigo.gradient)",
+    "discussion": "Every Color exposes a .gradient property that returns an AnyGradient — a subtle top-to-bottom tonal ramp derived from that color — which made polished fills a one-word change in the 2022 cycle. Because it conforms to ShapeStyle, it drops directly into fill, background, and foregroundStyle calls.",
+    "kind": "Type",
+    "name": "AnyGradient",
+    "related": [
+      "Gradient",
+      "Color",
+      "ShapeStyle"
+    ],
+    "summary": "A type-erased gradient, most often obtained from a color's automatic gradient variant.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "var fillStyle: AnyShapeStyle {\n    isCritical\n        ? AnyShapeStyle(.red.gradient)\n        : AnyShapeStyle(.quaternary)\n}",
+    "discussion": "ShapeStyle values usually have distinct concrete types — a Color and a LinearGradient cannot share a ternary — and AnyShapeStyle is the sanctioned eraser for storing or switching between them. Erasure has a small resolution cost, so prefer generics where the style type can stay concrete.",
+    "kind": "Style",
+    "name": "AnyShapeStyle",
+    "related": [
+      "ShapeStyle",
+      "AnyShape",
+      "AnyGradient"
+    ],
+    "summary": "A type-erased wrapper letting differently typed shape styles flow through one property or ternary.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "Circle()\n    .fill(.white)\n    .blendMode(.plusLighter)",
+    "discussion": "The cases mirror the standard Porter-Duff and separable blend modes from Core Graphics, covering both artistic modes like softLight and hue as well as compositing plumbing like destinationOut and sourceAtop. The same enum drives the view modifier, GraphicsContext state, and layerEffect-adjacent drawing.",
+    "kind": "Type",
+    "name": "BlendMode",
+    "related": [
+      ".blendMode()",
+      "GraphicsContext",
+      ".compositingGroup()"
+    ],
+    "summary": "The enumeration of compositing operations — multiply, screen, overlay, plusLighter, and the rest — used by blendMode and GraphicsContext.",
+    "wwdcYear": 2019
+  },
+  {
+    "children": [
+      {
+        "code": "let wheel = (0..<12).map {\n    Color(hue: Double($0) / 12, saturation: 0.8, brightness: 0.9)\n}",
+        "name": "Color(hue:saturation:brightness:opacity:)",
+        "summary": "Creates a color from HSB components, convenient for programmatic palettes."
+      },
+      {
+        "code": "let background = Color(uiColor: .secondarySystemBackground)",
+        "name": "Color(uiColor:)",
+        "summary": "Bridges a UIKit color — including dynamic ones — into SwiftUI without losing trait-based resolution."
+      },
+      {
+        "code": "Image(systemName: \"checkmark.seal.fill\")\n    .foregroundStyle(Color.accentColor)",
+        "name": "Color.accentColor",
+        "summary": "The app's accent color, reflecting the asset catalog setting and any .tint overrides in context."
+      }
+    ],
+    "code": "let brand = Color(red: 0.12, green: 0.45, blue: 0.95)\nlet accent = Color(\"AccentWarm\", bundle: .main)\nCapsule()\n    .fill(brand.opacity(0.8))",
+    "discussion": "A Color is a recipe, not a pixel value: semantic and catalog colors resolve differently per color scheme, contrast, and platform at render time, which is why comparing or serializing them requires resolve(in:). It doubles as both a View (filling its proposed frame) and a ShapeStyle, and iOS 17 added construction from and to Resolved values plus mixing.",
+    "kind": "Type",
+    "name": "Color",
+    "related": [
+      "Color.mix()",
+      "Color.Resolved",
+      "ShapeStyle",
+      "colorScheme"
+    ],
+    "summary": "SwiftUI's late-resolving color value, covering semantic system colors, asset catalog colors, and explicit component colors.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "@Environment(\\.self) private var environment\n\nfunc storedColor(_ color: Color) -> Data? {\n    let resolved = color.resolve(in: environment)\n    return try? JSONEncoder().encode(resolved)\n}",
+    "discussion": "Calling resolve(in:) collapses a dynamic Color against the current environment — color scheme, contrast, tint — into plain float components, exposed both as sRGB and linear values. Resolved is Codable and round-trips back into a Color, making it the supported path for persisting user-chosen colors.",
+    "kind": "Type",
+    "name": "Color.Resolved",
+    "related": [
+      "Color",
+      "Color.mix()",
+      "@Environment"
+    ],
+    "summary": "The concrete RGBA values a Color produces in a specific environment.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "var m = ColorMatrix()\nm.r1 = 0.4; m.g2 = 0.4; m.b3 = 0.4\nm.r5 = 0.1; m.g5 = 0.05\ncontext.addFilter(.colorMatrix(m))",
+    "discussion": "Each output channel is a weighted sum of the input RGBA channels plus a bias column, which is enough to express desaturation, channel swaps, sepia, and alpha remapping in one filter. Wrap it in GraphicsContext.Filter.colorMatrix and add it to the context before drawing.",
+    "kind": "Type",
+    "name": "ColorMatrix",
+    "related": [
+      "GraphicsContext",
+      "Canvas",
+      ".saturation()"
+    ],
+    "summary": "A 5x4 component matrix for arbitrary linear color transformations in Canvas drawing.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "ConcentricRectangle()\n    .fill(.thinMaterial)\n    .padding(12)",
+    "discussion": "Introduced in the 2025 Liquid Glass cycle, ConcentricRectangle asks its container — a window, sheet, or a shape declared via containerShape — for corner geometry and insets its own radii to match, replacing hand-tuned radius arithmetic. It is the successor pattern to ContainerRelativeShape for the new hardware-hugging corner treatments.",
+    "kind": "Shape",
+    "name": "ConcentricRectangle",
+    "related": [
+      "ContainerRelativeShape",
+      ".containerShape()",
+      "RoundedRectangle",
+      ".glassEffect()"
+    ],
+    "summary": "A rectangle whose corner radii derive from the enclosing container so nested rounding stays geometrically concentric.",
+    "wwdcYear": 2025
+  },
+  {
+    "code": "Ellipse()\n    .fill(EllipticalGradient(\n        colors: [.yellow, .orange],\n        center: .center,\n        startRadiusFraction: 0,\n        endRadiusFraction: 0.7\n    ))",
+    "discussion": "Where RadialGradient uses fixed point radii, EllipticalGradient works in fractions of the fill region, so the same value adapts to any frame and stretches with it. The start and end radius fractions define where the first and last stops land relative to the shape's bounds.",
+    "kind": "Style",
+    "name": "EllipticalGradient",
+    "related": [
+      "RadialGradient",
+      "Gradient",
+      "UnitPoint"
+    ],
+    "summary": "A gradient whose color stops radiate outward in ellipses that match the aspect ratio of the filled area.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "Circle()\n    .fill(.yellow)\n    .stroke(.orange, lineWidth: 3)",
+    "discussion": "Before the 2023 cycle, fill() erased the shape into an opaque view, forcing ZStack duplication to both fill and stroke; FillShapeView keeps the shape and fill accessible, which is what allows Circle().fill(.yellow).stroke(.orange) to compile. It conforms to the ShapeView protocol introduced alongside it.",
+    "kind": "View",
+    "name": "FillShapeView",
+    "related": [
+      "Shape.fill()",
+      "StrokeShapeView",
+      "Shape.stroke()"
+    ],
+    "summary": "The concrete view produced when a shape is filled, retaining the shape so further styling can chain onto it.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "Path { p in\n    p.addEllipse(in: CGRect(x: 0, y: 0, width: 100, height: 100))\n    p.addEllipse(in: CGRect(x: 25, y: 25, width: 50, height: 50))\n}\n.fill(.blue, style: FillStyle(eoFill: true))",
+    "discussion": "Setting eoFill to true switches from the default non-zero winding rule to even-odd, which is how a path containing a smaller nested subpath renders as a ring with a hole. Disabling antialiasing is rarely wanted on screen but can matter when rendering crisp pixel art or masks.",
+    "kind": "Type",
+    "name": "FillStyle",
+    "related": [
+      "Shape.fill()",
+      "Path",
+      "StrokeStyle"
+    ],
+    "summary": "Options controlling how a shape's interior is rasterized: even-odd winding and antialiasing.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Canvas { context, size in\n    let dot = Path(ellipseIn: CGRect(origin: .zero, size: size))\n    context.fill(dot, with: .style(ForegroundStyle()))\n}",
+    "discussion": "ForegroundStyle() — surfaced as the .foreground static style — lets a fill or Canvas shading say \"use the inherited foreground\" instead of naming a color, keeping custom drawing in sync with surrounding text and tint. It is the mechanism that makes shapes inside labels and buttons adopt contextual coloring automatically.",
+    "kind": "Style",
+    "name": "ForegroundStyle",
+    "related": [
+      ".foregroundStyle()",
+      "HierarchicalShapeStyle",
+      "ShapeStyle"
+    ],
+    "summary": "A shape style that resolves to whatever the context's current foreground style is.",
+    "wwdcYear": 2019
+  },
+  {
+    "children": [
+      {
+        "code": "let stop = Gradient.Stop(color: .cyan, location: 0.3)",
+        "name": "Gradient.Stop",
+        "summary": "A single color paired with its fractional location along the gradient."
+      }
+    ],
+    "code": "let heat = Gradient(stops: [\n    .init(color: .blue, location: 0),\n    .init(color: .yellow, location: 0.65),\n    .init(color: .red, location: 1)\n])",
+    "discussion": "Gradient itself carries no geometry — just colors and their fractional locations from 0 to 1 — which is why one Gradient value can back several differently shaped gradient styles. The convenience initializer from a color array spaces stops evenly; use explicit Gradient.Stop values when you need uneven transitions.",
+    "kind": "Type",
+    "name": "Gradient",
+    "related": [
+      "LinearGradient",
+      "AngularGradient",
+      "EllipticalGradient",
+      "AnyGradient"
+    ],
+    "summary": "An ordered set of color stops that linear, radial, angular, and elliptical gradients all consume.",
+    "wwdcYear": 2019
+  },
+  {
+    "children": [
+      {
+        "code": "context.fill(path, with: .conicGradient(\n    Gradient(colors: [.purple, .blue, .purple]),\n    center: CGPoint(x: 100, y: 100)\n))",
+        "name": "GraphicsContext.Shading",
+        "summary": "Describes what a fill or stroke is painted with: colors, gradients, tiled images, or any ShapeStyle."
+      },
+      {
+        "code": "context.addFilter(.shadow(radius: 4, y: 2))\ncontext.addFilter(.hueRotation(.degrees(45)))",
+        "name": "GraphicsContext.Filter",
+        "summary": "A raster effect — blur, shadow, color matrix, and friends — applied to everything drawn after addFilter."
+      }
+    ],
+    "code": "Canvas { context, size in\n    let rect = CGRect(origin: .zero, size: size)\n    context.addFilter(.blur(radius: 2))\n    context.fill(Path(ellipseIn: rect), with: .color(.blue))\n    context.stroke(\n        Path(rect),\n        with: .linearGradient(\n            Gradient(colors: [.red, .yellow]),\n            startPoint: .zero,\n            endPoint: CGPoint(x: size.width, y: 0)\n        )\n    )\n}",
+    "discussion": "A GraphicsContext accumulates state — transforms, clip regions, blend modes, and filters — that affects subsequent draw calls, and drawLayer(content:) spawns a child context so effects stay scoped. Resolve text, images, and symbols through the context before drawing when you need their measured sizes, and use withCGContext for legacy Core Graphics code.",
+    "kind": "Type",
+    "name": "GraphicsContext",
+    "related": [
+      "Canvas",
+      "Path",
+      "ColorMatrix",
+      "Shader"
+    ],
+    "summary": "The immediate-mode drawing surface handed to a Canvas closure for filling paths, drawing text and images, and applying filters.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "VStack(alignment: .leading) {\n    Text(\"Now Playing\").foregroundStyle(.primary)\n    Text(\"Album - Artist\").foregroundStyle(.secondary)\n}",
+    "discussion": "Each level renders the current foreground style at reduced prominence, typically by lowering opacity, so the same markup adapts to light, dark, and vibrant material contexts. Applied to multi-layer SF Symbols via foregroundStyle, the levels map onto the symbol's hierarchical layers.",
+    "kind": "Style",
+    "name": "HierarchicalShapeStyle",
+    "related": [
+      ".foregroundStyle()",
+      "ForegroundStyle",
+      ".symbolRenderingMode()"
+    ],
+    "summary": "The style behind .primary, .secondary, .tertiary, and .quaternary — derived emphasis levels of the current foreground.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "let renderer = ImageRenderer(content: ReceiptView(order: order))\nrenderer.scale = displayScale\nif let image = renderer.uiImage {\n    savedImages.append(image)\n}",
+    "discussion": "Set scale to match the target display before reading uiImage, nsImage, or cgImage, since the default of 1 produces non-Retina output; render(rasterizationScale:renderer:) hands you a CGContext callback for vector PDF export. ImageRenderer is main-actor bound and an ObservableObject whose objectWillChange fires when the content needs re-rendering.",
+    "kind": "Type",
+    "name": "ImageRenderer",
+    "related": [
+      "Canvas",
+      "ShareLink",
+      "displayScale"
+    ],
+    "summary": "Renders any SwiftUI view hierarchy into a bitmap or PDF context outside the live display.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "OffsetShape(shape: Ellipse(), offset: CGSize(width: 0, height: 8))\n    .fill(.black.opacity(0.2))",
+    "discussion": "Because the translation happens at the path level, an OffsetShape still participates in fills, strokes, clipping, and shape boolean operations, unlike the view-level .offset() modifier. It also conforms to InsettableShape when its wrapped shape does, so strokeBorder keeps working through the wrapper.",
+    "kind": "Shape",
+    "name": "OffsetShape",
+    "related": [
+      "Shape.offset()",
+      "ScaledShape",
+      "TransformedShape"
+    ],
+    "summary": "The concrete shape wrapper that translates another shape's path by a CGSize.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "UnevenRoundedRectangle(\n    cornerRadii: RectangleCornerRadii(\n        topLeading: 24,\n        bottomLeading: 0,\n        bottomTrailing: 0,\n        topTrailing: 24\n    )\n)\n.fill(.bar)",
+    "discussion": "The corners are named in layout terms — topLeading, bottomLeading, bottomTrailing, topTrailing — so the same value flips correctly in right-to-left environments. It backs UnevenRoundedRectangle and the .rect(cornerRadii:) shorthand, and shipped in the iOS 16.4 point release of the 2022 cycle.",
+    "kind": "Type",
+    "name": "RectangleCornerRadii",
+    "related": [
+      "UnevenRoundedRectangle",
+      "RoundedCornerStyle",
+      ".clipShape()"
+    ],
+    "summary": "A set of four independent corner radii for shapes that round each corner differently.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "RoundedRectangle(cornerRadius: 20, style: .continuous)\n    .fill(.ultraThinMaterial)",
+    "discussion": "The .continuous case produces the squircle-like corners used across the system, where curvature eases into the straight edges instead of meeting them abruptly; .circular gives a true quarter-circle. RoundedRectangle, UnevenRoundedRectangle, and the .rect shape shorthands all accept it.",
+    "kind": "Type",
+    "name": "RoundedCornerStyle",
+    "related": [
+      "RoundedRectangle",
+      "UnevenRoundedRectangle",
+      "RectangleCornerRadii"
+    ],
+    "summary": "Chooses between plain circular corner arcs and Apple's smoother continuous curvature.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "let inner = ScaledShape(\n    shape: Circle(),\n    scale: CGSize(width: 0.6, height: 0.6),\n    anchor: .center\n)\ninner.fill(.cyan)",
+    "discussion": "ScaledShape stores the original shape, a CGSize scale factor pair, and a UnitPoint anchor, generating its path by scaling the wrapped shape's path each time. You rarely name it directly — Shape.scale() returns it — but it is useful as a stored property type when composing reusable shape pipelines.",
+    "kind": "Shape",
+    "name": "ScaledShape",
+    "related": [
+      "Shape.scale()",
+      "OffsetShape",
+      "TransformedShape",
+      "RotatedShape"
+    ],
+    "summary": "The concrete shape wrapper produced by scaling another shape about an anchor.",
+    "wwdcYear": 2019
+  },
+  {
+    "children": [
+      {
+        "code": "ShaderLibrary.tint(\n    .color(.mint),\n    .float(0.8),\n    .boundingRect\n)",
+        "name": "Shader.Argument",
+        "summary": "A value passed into a shader function: floats, vectors, colors, bounding rects, images, or data buffers."
+      }
+    ],
+    "code": "let shader = ShaderLibrary.ripple(\n    .float2(touchPoint),\n    .float(elapsedTime)\n)\nRectangle()\n    .fill(.blue)\n    .layerEffect(shader, maxSampleOffset: CGSize(width: 20, height: 20))",
+    "discussion": "You create a Shader by calling a ShaderFunction with arguments — floats, colors, images, or raw data — and pass it to colorEffect, distortionEffect, layerEffect, or use it as a ShapeStyle fill. Arguments are captured by value at creation, so re-evaluating the view body with new values (often driven by TimelineView) is how shaders animate.",
+    "kind": "Type",
+    "name": "Shader",
+    "related": [
+      "ShaderLibrary",
+      ".colorEffect()",
+      ".distortionEffect()",
+      ".layerEffect()"
+    ],
+    "summary": "A Metal shader function bound to a set of argument values, ready to be applied to SwiftUI content.",
+    "wwdcYear": 2023
+  },
+  {
+    "children": [
+      {
+        "code": "let fn = ShaderFunction(library: .default, name: \"wave\")\nlet shader = fn(.float(amplitude), .float(frequency))",
+        "name": "ShaderFunction",
+        "summary": "A reference to one named Metal function within a library; calling it with arguments yields a Shader."
+      }
+    ],
+    "code": "let library = ShaderLibrary.bundle(.module)\nlet effect = library.pixellate(.float(strength))\nimage.distortionEffect(effect, maxSampleOffset: .zero)",
+    "discussion": "ShaderLibrary uses dynamic member lookup, so a Metal function named `pixellate` is reachable as ShaderLibrary.pixellate(...) with no registration step; ShaderLibrary.bundle(_:) scopes lookup to another bundle's default library. Calling the function produces a Shader value; a misnamed function fails at runtime rather than compile time, so keep names in sync with the .metal source.",
+    "kind": "Type",
+    "name": "ShaderLibrary",
+    "related": [
+      "Shader",
+      ".colorEffect()",
+      ".layerEffect()"
+    ],
+    "summary": "The gateway from Swift to the Metal functions compiled into your app or a specific bundle.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "Circle()\n    .fill(\n        .blue.shadow(.inner(color: .black.opacity(0.5), radius: 6, y: 3))\n    )",
+    "discussion": "ShadowStyle.drop and .inner attach to a style via the shadow(_:) ShapeStyle modifier, so the shadow follows the filled geometry itself — including inner shadows, which the view-level .shadow() modifier cannot produce. This enables neumorphic and inset looks with a single fill expression.",
+    "kind": "Type",
+    "name": "ShadowStyle",
+    "related": [
+      ".shadow()",
+      "ShapeStyle",
+      "Shape.fill()"
+    ],
+    "summary": "A drop or inner shadow description applied to a ShapeStyle rather than a whole view.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "Circle()\n    .fill(.blue.gradient)\n    .frame(width: 120, height: 120)",
+    "discussion": "The fill(_:style:) method converts a Shape into a view by rasterizing its path with the given style, using an optional FillStyle to control even-odd winding and antialiasing. Since iOS 17 the result is a ShapeView, so you can chain a stroke after a fill on the same shape instead of layering two copies in a ZStack.",
+    "kind": "Modifier",
+    "name": "Shape.fill()",
+    "related": [
+      "Shape.stroke()",
+      ".strokeBorder()",
+      "FillStyle",
+      "ShapeStyle"
+    ],
+    "summary": "Paints the interior of a shape with any ShapeStyle, such as a color, gradient, or material.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "ZStack {\n    Circle().offset(x: 6, y: 6).fill(.black.opacity(0.25))\n    Circle().fill(.yellow)\n}",
+    "discussion": "The result is an OffsetShape, so the moved geometry can still be filled, stroked, or combined with other shapes. Offsetting a duplicate of a shape behind the original is a classic way to build a hard-edged vector shadow that participates in shape composition.",
+    "kind": "Modifier",
+    "name": "Shape.offset()",
+    "related": [
+      "OffsetShape",
+      ".offset()",
+      "Shape.scale()"
+    ],
+    "summary": "Translates a shape's path by a CGSize, CGPoint, or x/y pair while its layout frame stays put.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Rectangle()\n    .rotation(.degrees(30))\n    .fill(.indigo)\n    .frame(width: 120, height: 60)",
+    "discussion": "Unlike .rotationEffect(), which transforms a rendered view, rotation(_:anchor:) rewrites the geometry itself, so the result can still be filled, stroked, trimmed, or used as a clip shape. The anchor is a UnitPoint in the shape's own coordinate space and defaults to the center.",
+    "kind": "Modifier",
+    "name": "Shape.rotation()",
+    "related": [
+      "RotatedShape",
+      ".rotationEffect()",
+      "Angle",
+      "UnitPoint"
+    ],
+    "summary": "Rotates a shape's path around an anchor point, producing a RotatedShape that is still a shape.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Circle()\n    .scale(0.8)\n    .stroke(.pink, lineWidth: 3)",
+    "discussion": "Both a uniform factor and independent x/y factors are supported, anchored at any UnitPoint. Because the frame the shape reports to layout is unchanged, scaling down is a quick way to draw a shape inset within its own bounds while it remains composable as a Shape.",
+    "kind": "Modifier",
+    "name": "Shape.scale()",
+    "related": [
+      "ScaledShape",
+      ".scaleEffect()",
+      "Shape.rotation()"
+    ],
+    "summary": "Scales a shape's path relative to its frame, returning a ScaledShape without changing the layout size.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Rectangle()\n    .size(width: 80, height: 40)\n    .fill(.mint)",
+    "discussion": "size(_:) and size(width:height:) decouple the drawn geometry from the proposed layout size: the view still accepts the full proposal, but the path is generated in a rectangle of exactly the size you specify. This is useful inside larger shapes and boolean compositions where you want stable geometry regardless of the container.",
+    "kind": "Modifier",
+    "name": "Shape.size()",
+    "related": [
+      "Shape.offset()",
+      ".frame()",
+      "Shape.union()"
+    ],
+    "summary": "Draws a shape at a fixed size anchored at the origin of whatever frame the view is actually given.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Path { p in\n    p.move(to: .zero)\n    p.addLine(to: CGPoint(x: 200, y: 80))\n}\n.stroke(.orange, style: StrokeStyle(lineWidth: 4, dash: [8, 4]))",
+    "discussion": "Stroking centers the line on the path, so half of the line width lands outside the shape's frame; use .strokeBorder() when the result must stay inside the bounds. The StrokeStyle overload unlocks caps, joins, miter limits, and dash patterns, and dashPhase animates smoothly for marching-ants effects.",
+    "kind": "Modifier",
+    "name": "Shape.stroke()",
+    "related": [
+      "StrokeStyle",
+      ".strokeBorder()",
+      "Shape.fill()",
+      "Path"
+    ],
+    "summary": "Traces the outline of a shape's path with a style, either at a plain line width or with a full StrokeStyle.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Ellipse()\n    .transform(CGAffineTransform(a: 1, b: 0, c: 0.4, d: 1, tx: 0, ty: 0))\n    .fill(.purple)",
+    "discussion": "This is the escape hatch when rotation, scale, and offset are not enough — shears, mirrored geometry, and combined matrices all flow through one call. Because the transform is baked into the path, the output remains a Shape and can be filled, stroked, or used for clipping and hit testing.",
+    "kind": "Modifier",
+    "name": "Shape.transform()",
+    "related": [
+      "TransformedShape",
+      ".transformEffect()",
+      "Shape.rotation()"
+    ],
+    "summary": "Applies an arbitrary CGAffineTransform to a shape's path, yielding a TransformedShape.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Circle()\n    .trim(from: 0, to: progress)\n    .stroke(.green, style: StrokeStyle(lineWidth: 8, lineCap: .round))\n    .rotationEffect(.degrees(-90))",
+    "discussion": "Trimming operates on the path as a parametric curve from 0 to 1, which makes it the standard tool for progress rings and draw-on line animations: animate the `to` value and the stroke appears to draw itself. Combine it with a rotation so the visible arc starts at twelve o'clock instead of the path's natural origin.",
+    "kind": "Modifier",
+    "name": "Shape.trim()",
+    "related": [
+      "Shape.stroke()",
+      "StrokeStyle",
+      ".animation()"
+    ],
+    "summary": "Keeps only a fractional slice of a shape's path, from a start fraction to an end fraction of its total length.",
+    "wwdcYear": 2019
+  },
+  {
+    "children": [
+      {
+        "code": "Circle()\n    .intersection(Rectangle().size(width: 100, height: 50))\n    .fill(.blue)",
+        "name": "Shape.intersection()",
+        "summary": "Keeps only the region where both shapes overlap."
+      },
+      {
+        "code": "Rectangle()\n    .subtracting(Circle().scale(0.5))\n    .fill(.black)",
+        "name": "Shape.subtracting()",
+        "summary": "Removes the second shape's area from the first, punching a hole."
+      },
+      {
+        "code": "Circle()\n    .symmetricDifference(Circle().offset(x: 40))\n    .fill(.orange)",
+        "name": "Shape.symmetricDifference()",
+        "summary": "Keeps the areas covered by exactly one of the two shapes."
+      }
+    ],
+    "code": "Circle()\n    .union(Capsule().size(width: 140, height: 32))\n    .fill(.red)",
+    "discussion": "Alongside union, iOS 17-era Shape gained intersection, subtraction, symmetric difference, and line-based variants, all computed on the underlying paths so the result behaves like any other shape. These make cutout icons, badge silhouettes, and punch-through masks possible without dropping to Core Graphics.",
+    "kind": "Modifier",
+    "name": "Shape.union()",
+    "related": [
+      "Path",
+      "Shape.fill()"
+    ],
+    "summary": "Combines two shapes into one using boolean path operations introduced for shapes in the 2023 cycle.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "func ring(_ progress: Double) -> some View {\n    Circle()\n        .trim(from: 0, to: progress)\n        .stroke(.tint, lineWidth: 6)\n        .fill(.tint.opacity(0.1))\n}",
+    "discussion": "Together with FillShapeView and the strokeBorder counterpart, it forms the ShapeView family that made fill-and-stroke composition order-flexible in iOS 17. You typically encounter it only in type signatures when factoring shape styling into helper functions.",
+    "kind": "View",
+    "name": "StrokeShapeView",
+    "related": [
+      "Shape.stroke()",
+      "FillShapeView",
+      ".strokeBorder()"
+    ],
+    "summary": "The concrete view a stroke produces, preserving the underlying shape for continued chaining.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "let style = StrokeStyle(\n    lineWidth: 6,\n    lineCap: .round,\n    lineJoin: .round,\n    dash: [12, 6],\n    dashPhase: phase\n)",
+    "discussion": "StrokeStyle is what separates a plain hairline from rounded, dashed, or mitered artwork; pass it to stroke(_:style:) or strokeBorder(_:style:). It conforms to Animatable, so animating lineWidth or dashPhase produces smooth effects like a rotating marching-ants selection border.",
+    "kind": "Type",
+    "name": "StrokeStyle",
+    "related": [
+      "Shape.stroke()",
+      ".strokeBorder()",
+      "Animatable"
+    ],
+    "summary": "A value describing how a path outline is drawn: line width, caps, joins, miter limit, and dash pattern.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "TransformedShape(\n    shape: Rectangle(),\n    transform: CGAffineTransform(rotationAngle: .pi / 8)\n)\n.stroke(.gray, lineWidth: 1)",
+    "discussion": "This is the general member of the shape-wrapper family: rotation, scaling, and offset wrappers are special cases of the matrix it stores. Note that TransformedShape does not conform to InsettableShape, since an arbitrary matrix has no well-defined inset, so strokeBorder is unavailable on it.",
+    "kind": "Shape",
+    "name": "TransformedShape",
+    "related": [
+      "Shape.transform()",
+      "RotatedShape",
+      "ScaledShape"
+    ],
+    "summary": "A shape whose path is another shape's path run through a CGAffineTransform.",
+    "wwdcYear": 2019
+  }
+]

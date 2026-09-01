@@ -1,0 +1,876 @@
+[
+  {
+    "code": "Table(invoices) {\n    TableColumn(\"Number\", value: \\.number)\n    TableColumn(\"Amount\") {\n        Text($0.amount, format: .currency(code: \"USD\"))\n    }\n}\n.alternatingRowBackgrounds(.enabled)",
+    "discussion": "The modifier takes an AlternatingRowBackgroundBehavior of .automatic, .enabled, or .disabled and applies to List as well as Table on macOS. Explicitly enabling it recreates the classic Finder-style zebra rows even under styles that default to a flat background.",
+    "kind": "Modifier",
+    "name": ".alternatingRowBackgrounds()",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      "Table",
+      "List",
+      ".tableStyle()",
+      ".listRowBackground()"
+    ],
+    "summary": "Adds or removes the striped row banding familiar from Mac tables.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "List {\n    Label(\"Inbox\", systemImage: \"tray\")\n        .badge(12)\n        .badgeProminence(.increased)\n}",
+    "discussion": "The modifier feeds a BadgeProminence value down the environment, so one call can mute or amplify every badge in a list. Increased prominence gives the badge a filled background suited to unread counts, while decreased fades it toward secondary text.",
+    "kind": "Modifier",
+    "name": ".badgeProminence()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "BadgeProminence",
+      ".badge()",
+      "List",
+      "Label"
+    ],
+    "summary": "Adjusts how strongly badges render within the modified view hierarchy.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "ScrollView {\n    LazyVStack {\n        ForEach(messages) { MessageRow($0) }\n    }\n}\n.defaultScrollAnchor(.bottom)",
+    "discussion": "Anchoring to .bottom starts a conversation view at the newest message without a scroll-on-appear hack. A later overload adds a ScrollAnchorRole so the same anchor can also govern reactions to content size changes, keeping a bottom-pinned log pinned as lines append.",
+    "kind": "Modifier",
+    "name": ".defaultScrollAnchor()",
+    "related": [
+      "ScrollAnchorRole",
+      ".scrollPosition()",
+      "ScrollView",
+      "ScrollPosition"
+    ],
+    "summary": "Sets the UnitPoint a scroll view aligns to before the user intervenes.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "List {\n    ForEach(accounts) { account in\n        AccountRow(account)\n            .deleteDisabled(account.isDefault)\n    }\n    .onDelete(perform: removeAccounts)\n}",
+    "discussion": "The modifier suppresses both the swipe-to-delete affordance and the red minus control in edit mode for the row it marks, while sibling rows remain deletable through the ForEach's onDelete handler. Use it for rows the data model treats as mandatory.",
+    "kind": "Modifier",
+    "name": ".deleteDisabled()",
+    "related": [
+      ".onDelete()",
+      ".moveDisabled()",
+      ".swipeActions()",
+      "ForEach"
+    ],
+    "summary": "Prevents a specific row from being deleted through swipe or edit mode.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "List {\n    Section(\"Today\") {\n        ForEach(tasks) { TaskRow($0) }\n    }\n    .headerProminence(.increased)\n}",
+    "discussion": "With Prominence.increased, list section headers render in a bold, larger style similar to the grouped headers in Apple's own apps. The modifier attaches to the Section and flows to its header view, so plain Text headers get the styling for free.",
+    "kind": "Modifier",
+    "name": ".headerProminence()",
+    "related": [
+      "Prominence",
+      "Section",
+      "List"
+    ],
+    "summary": "Raises or lowers the visual weight of a section header.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "List {\n    Label(\"Wi-Fi\", systemImage: \"wifi\").listItemTint(.blue)\n    Label(\"Focus\", systemImage: \"moon.fill\").listItemTint(.purple)\n    Label(\"Archive\", systemImage: \"archivebox\").listItemTint(.monochrome)\n}",
+    "discussion": "List styles like the sidebar tint row icons with the app accent color by default; this modifier substitutes a per-row color without touching the global tint. It accepts either a plain Color or a ListItemTint value when you need the fixed/preferred/monochrome distinction. Settings-style lists with a differently colored glyph per row are the canonical use.",
+    "kind": "Modifier",
+    "name": ".listItemTint()",
+    "related": [
+      "ListItemTint",
+      "List",
+      "Label",
+      ".tint()"
+    ],
+    "summary": "Overrides the tint applied to a list row's icon and accessory decorations.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "List(alerts) { alert in\n    AlertRow(alert)\n        .listRowBackground(\n            alert.isCritical ? Color.red.opacity(0.15) : Color.clear\n        )\n}",
+    "discussion": "The background view stretches across the full row, including the row insets, so a Color or gradient reads as the row surface itself. Pass Color.clear to let a backdrop installed behind the whole list show through. The value is fixed per row and does not adapt to selection highlighting, so avoid fighting the system selection color.",
+    "kind": "Modifier",
+    "name": ".listRowBackground()",
+    "related": [
+      "List",
+      ".listRowInsets()",
+      ".scrollContentBackground()",
+      ".background()"
+    ],
+    "summary": "Places a custom view behind a list row in place of the standard row fill.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "List {\n    ForEach(photos) { photo in\n        PhotoRow(photo)\n            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))\n    }\n}",
+    "discussion": "Each list style ships with platform-defined row margins, and this modifier swaps them for an explicit EdgeInsets on the row it decorates. The most common use is zeroing every edge so an image or map cell runs edge to edge. Attach it to the content inside ForEach so each row can pick its own insets.",
+    "kind": "Modifier",
+    "name": ".listRowInsets()",
+    "related": [
+      "List",
+      "ForEach",
+      ".listRowBackground()",
+      ".padding()"
+    ],
+    "summary": "Replaces the default margins a List places around a single row's content.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "List(steps) { step in\n    StepRow(step)\n        .listRowSeparatorTint(.mint)\n}",
+    "discussion": "Where .listRowSeparator() controls visibility, this controls color, and the optional edges parameter narrows the effect to the top or bottom separator of the row. Tinting is per-row, so adjacent rows can carry different separator colors to group content visually without extra sections.",
+    "kind": "Modifier",
+    "name": ".listRowSeparatorTint()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      ".listRowSeparator()",
+      ".listSectionSeparatorTint()",
+      "List"
+    ],
+    "summary": "Colors the separator line drawn beneath (or above) a specific list row.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "List {\n    ForEach(cards) { CardRow($0) }\n}\n.listRowSpacing(12)\n.listStyle(.insetGrouped)",
+    "discussion": "Unlike most row modifiers this one attaches to the List itself, and every row in it picks up the spacing. It pairs naturally with inset-grouped styles to turn rows into detached cards. Passing nil restores the style's default spacing.",
+    "kind": "Modifier",
+    "name": ".listRowSpacing()",
+    "platforms": [
+      "iOS"
+    ],
+    "related": [
+      "List",
+      ".listSectionSpacing()",
+      ".listRowInsets()",
+      ".listStyle()"
+    ],
+    "summary": "Sets the vertical gap between adjacent rows of a List.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "List {\n    Section(\"Pinned\") {\n        ForEach(pinned) { NoteRow($0) }\n    }\n    .listSectionSeparator(.hidden, edges: .top)\n}",
+    "discussion": "Section-boundary separators are drawn independently of the row separators inside the section, and this modifier toggles them with a Visibility value. The edges parameter takes a VerticalEdge.Set, so you can suppress just the line above a section header while keeping the one after the last row.",
+    "kind": "Modifier",
+    "name": ".listSectionSeparator()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      ".listRowSeparator()",
+      ".listSectionSeparatorTint()",
+      "Section",
+      "Visibility"
+    ],
+    "summary": "Shows or hides the separators that bound an entire list section.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "List {\n    Section(\"Priority\") {\n        ForEach(urgent) { TicketRow($0) }\n    }\n    .listSectionSeparatorTint(.orange)\n}",
+    "discussion": "This is the section-level sibling of .listRowSeparatorTint(): it colors the lines that frame a whole section rather than the ones between its rows. Combine both when you want an accent color to read consistently through a section of a plain-style list.",
+    "kind": "Modifier",
+    "name": ".listSectionSeparatorTint()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      ".listSectionSeparator()",
+      ".listRowSeparatorTint()",
+      "Section"
+    ],
+    "summary": "Applies a custom color to the separators at a section's boundaries.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "List {\n    Section(\"Now\") { ForEach(current) { TaskRow($0) } }\n    Section(\"Later\") { ForEach(upcoming) { TaskRow($0) } }\n}\n.listSectionSpacing(.compact)",
+    "discussion": "The modifier accepts either an exact CGFloat or a semantic ListSectionSpacing such as .compact, and it applies list-wide from wherever it is attached. It is the supported replacement for the old trick of shrinking section headers to fake tighter grouping.",
+    "kind": "Modifier",
+    "name": ".listSectionSpacing()",
+    "platforms": [
+      "iOS",
+      "watchOS"
+    ],
+    "related": [
+      "ListSectionSpacing",
+      ".listRowSpacing()",
+      "Section",
+      "List"
+    ],
+    "summary": "Controls the vertical distance between sections of a List.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "List {\n    ForEach(playlist) { track in\n        TrackRow(track)\n            .moveDisabled(track.isLocked)\n    }\n    .onMove { playlist.move(fromOffsets: $0, toOffset: $1) }\n}",
+    "discussion": "Even when the enclosing ForEach supplies an onMove handler, rows carrying moveDisabled(true) show no drag handle and refuse to be displaced. This is the row-granular escape hatch for pinned or system rows inside an otherwise reorderable list.",
+    "kind": "Modifier",
+    "name": ".moveDisabled()",
+    "related": [
+      ".onMove()",
+      ".deleteDisabled()",
+      "EditButton",
+      "ForEach"
+    ],
+    "summary": "Excludes an individual row from list reordering.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "List {\n    ForEach(contacts) { ContactRow($0) }\n        .onDelete { offsets in\n            contacts.remove(atOffsets: offsets)\n        }\n}",
+    "discussion": "The closure receives an IndexSet of offsets into the ForEach data, which maps directly onto RangeReplaceableCollection.remove(atOffsets:). Its presence is what switches on the system delete affordances, both the trailing swipe and the minus buttons in edit mode. It is declared on DynamicViewContent, so it must attach to the ForEach itself, not to the List.",
+    "kind": "Modifier",
+    "name": ".onDelete()",
+    "related": [
+      "DynamicViewContent",
+      ".onMove()",
+      ".deleteDisabled()",
+      "EditButton"
+    ],
+    "summary": "Registers a deletion handler on ForEach content, enabling swipe-to-delete.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "List {\n    ForEach(links) { LinkRow($0) }\n        .onInsert(of: [.url]) { index, providers in\n            insertLinks(from: providers, at: index)\n        }\n}",
+    "discussion": "You declare the uniform type identifiers you accept, and the closure receives the insertion index along with NSItemProvider instances to load asynchronously. It complements onDelete and onMove by covering data flowing into the collection, which makes reorderable lists valid drop targets between rows.",
+    "kind": "Modifier",
+    "name": ".onInsert()",
+    "related": [
+      ".onDelete()",
+      ".onMove()",
+      ".dropDestination()",
+      "DynamicViewContent"
+    ],
+    "summary": "Accepts dropped or pasted items at a specific position inside ForEach content.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "List {\n    ForEach(chapters) { ChapterRow($0) }\n        .onMove { source, destination in\n            chapters.move(fromOffsets: source, toOffset: destination)\n        }\n}\n.toolbar { EditButton() }",
+    "discussion": "The handler receives the source offsets as an IndexSet plus a destination index, exactly matching the signature of the standard move(fromOffsets:toOffset:) collection method. On iOS reorder controls appear in edit mode, and rows can also be dragged directly after a long press.",
+    "kind": "Modifier",
+    "name": ".onMove()",
+    "related": [
+      ".onDelete()",
+      ".moveDisabled()",
+      "EditButton",
+      "DynamicViewContent"
+    ],
+    "summary": "Enables drag reordering of ForEach rows and reports the requested move.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "ScrollView {\n    PhotoFeed()\n}\n.onScrollPhaseChange { _, newPhase in\n    if newPhase == .idle {\n        prefetchVisibleThumbnails()\n    }\n}",
+    "discussion": "The closure receives the old and new ScrollPhase, so you can defer expensive work like thumbnail decoding until the view settles into .decelerating or .idle, or hide chrome the moment .tracking begins. A variant also passes a context carrying the current geometry for decisions that need positions.",
+    "kind": "Modifier",
+    "name": ".onScrollPhaseChange()",
+    "related": [
+      "ScrollPhase",
+      ".onScrollGeometryChange()",
+      "ScrollGeometry",
+      "ScrollView"
+    ],
+    "summary": "Runs a handler whenever the scroll gesture moves between phases.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "ScrollView(.horizontal) {\n    LazyHStack {\n        ForEach(stories) { StoryCard($0) }\n    }\n    .scrollTargetLayout()\n}\n.onScrollTargetVisibilityChange(idType: Story.ID.self) { visibleIDs in\n    markSeen(visibleIDs)\n}",
+    "discussion": "Working against the container plus a scrollTargetLayout inside it, the handler receives an array of ids of the target children whose visible fraction exceeds the threshold. Because it hands back ids rather than a Bool per view, one callback can drive analytics, page indicators, or prefetching for the whole carousel.",
+    "kind": "Modifier",
+    "name": ".onScrollTargetVisibilityChange()",
+    "related": [
+      ".scrollTargetLayout()",
+      ".onScrollVisibilityChange()",
+      ".scrollPosition()",
+      "ScrollView"
+    ],
+    "summary": "Delivers the identifiers of scroll-target views currently considered visible.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "VideoCard(clip)\n    .onScrollVisibilityChange(threshold: 0.6) { isVisible in\n        isVisible ? player.play() : player.pause()\n    }",
+    "discussion": "Attached to a scroll child rather than the container, it fires with a Bool once the view's visible fraction passes the threshold (half by default) in either direction. It is the natural trigger for autoplaying a video when mostly on screen and pausing it once scrolled away.",
+    "kind": "Modifier",
+    "name": ".onScrollVisibilityChange()",
+    "related": [
+      ".onScrollTargetVisibilityChange()",
+      ".onAppear()",
+      "ScrollView"
+    ],
+    "summary": "Reports when a view inside a scroll container crosses a visibility threshold.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "ScrollView {\n    ShortSummaryView()\n}\n.scrollBounceBehavior(.basedOnSize)",
+    "discussion": "The valuable option is .basedOnSize, which stops the bounce entirely whenever the content already fits inside the container, eliminating the pointless jiggle on short pages. An axes parameter scopes the rule, defaulting to the vertical axis.",
+    "kind": "Modifier",
+    "name": ".scrollBounceBehavior()",
+    "related": [
+      "ScrollBounceBehavior",
+      "ScrollView",
+      ".scrollDisabled()"
+    ],
+    "summary": "Determines when scrollable content rubber-bands past its edges.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "ScrollView(.horizontal) {\n    LazyHStack {\n        ForEach(covers) { CoverCard($0).shadow(radius: 8) }\n    }\n}\n.scrollClipDisabled()",
+    "discussion": "Scroll views clip to their frame by default, which shears off shadows and scaled-up cards at the edges; this modifier relaxes that clip. Ancestors can still clip, so pairing with .padding() on the container usually gives the intended bleed room.",
+    "kind": "Modifier",
+    "name": ".scrollClipDisabled()",
+    "related": [
+      "ScrollView",
+      ".clipShape()",
+      ".shadow()",
+      ".scrollTransition()"
+    ],
+    "summary": "Allows scroll content to draw beyond the scroll view's clipping bounds.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "List(recipes) { RecipeRow($0) }\n    .scrollContentBackground(.hidden)\n    .background(\n        LinearGradient(colors: [.indigo, .black],\n                       startPoint: .top, endPoint: .bottom)\n    )",
+    "discussion": "These containers paint their own platform background above anything you put behind them, so a custom .background() is invisible until you pass .hidden here. It affects only the container's backdrop; row backgrounds still need .listRowBackground() to match.",
+    "kind": "Modifier",
+    "name": ".scrollContentBackground()",
+    "platforms": [
+      "iOS",
+      "macOS",
+      "watchOS"
+    ],
+    "related": [
+      ".listRowBackground()",
+      ".background()",
+      "List",
+      "Form"
+    ],
+    "summary": "Hides the default backdrop of scrollable containers like List, Form, and TextEditor.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "ScrollView {\n    OnboardingPages()\n}\n.scrollDisabled(isShowingTutorialOverlay)",
+    "discussion": "Content remains fully laid out and interactive; only the scroll gesture is inhibited, and programmatic position changes still work. It is the clean way to freeze scrolling behind a tutorial overlay or to let a parent scroll view claim the gesture from a nested one.",
+    "kind": "Modifier",
+    "name": ".scrollDisabled()",
+    "related": [
+      "ScrollView",
+      ".scrollBounceBehavior()",
+      ".disabled()",
+      "List"
+    ],
+    "summary": "Switches off a scrollable view's scrolling gesture without altering its layout.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "ScrollView(.horizontal) {\n    LazyHStack {\n        ForEach(palette) { SwatchView($0) }\n    }\n}\n.scrollIndicators(.hidden)",
+    "discussion": "The modifier accepts a ScrollIndicatorVisibility plus an axes set, so a horizontal carousel can hide its bar while a vertical parent keeps one. Note the distinction between .hidden, which the system may still override in rare interactions, and .never, which suppresses indicators unconditionally.",
+    "kind": "Modifier",
+    "name": ".scrollIndicators()",
+    "related": [
+      "ScrollIndicatorVisibility",
+      ".scrollIndicatorsFlash()",
+      "ScrollView",
+      "Visibility"
+    ],
+    "summary": "Controls whether scroll indicators appear, optionally per axis.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "ScrollView {\n    LazyVStack { ForEach(results) { ResultRow($0) } }\n}\n.scrollIndicatorsFlash(trigger: results.count)",
+    "discussion": "The onAppear: variant hints that content scrolls at all, while trigger: flashes whenever an Equatable value changes, typically after inserting items. Flashing communicates scrollability without permanently reserving space or attention for the indicator.",
+    "kind": "Modifier",
+    "name": ".scrollIndicatorsFlash()",
+    "related": [
+      ".scrollIndicators()",
+      "ScrollView",
+      ".onChange()"
+    ],
+    "summary": "Briefly flashes the scroll indicators on appearance or when a value changes.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "ScrollView(.horizontal) {\n    LazyHStack {\n        ForEach(pages) { PageView($0) }\n    }\n    .scrollTargetLayout()\n}\n.scrollTargetBehavior(.viewAligned)",
+    "discussion": "View-aligned scroll target behavior needs to know which views count as targets, and this modifier supplies that answer by tagging the lazy stack or grid that hosts them. It also feeds the id-based APIs like onScrollTargetVisibilityChange, so it frequently appears even without paging.",
+    "kind": "Modifier",
+    "name": ".scrollTargetLayout()",
+    "related": [
+      ".scrollTargetBehavior()",
+      "ScrollTargetBehavior",
+      ".scrollPosition()",
+      "LazyHStack"
+    ],
+    "summary": "Marks a layout's direct children as the snapping targets for scroll behaviors.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "ScrollView(.horizontal) {\n    LazyHStack {\n        ForEach(albums) { album in\n            AlbumCard(album)\n                .scrollTransition { content, phase in\n                    content\n                        .opacity(phase.isIdentity ? 1 : 0.4)\n                        .scaleEffect(phase.isIdentity ? 1 : 0.85)\n                }\n        }\n    }\n}",
+    "discussion": "The closure receives the view's content plus a ScrollTransitionPhase and returns the content with effects applied, letting cards fade and shrink near the edges with no geometry math. A ScrollTransitionConfiguration such as .interactive or .animated controls whether the effect tracks the finger continuously or animates between phases.",
+    "kind": "Modifier",
+    "name": ".scrollTransition()",
+    "related": [
+      "ScrollTransitionPhase",
+      ".visualEffect()",
+      ".scrollClipDisabled()",
+      "ScrollView"
+    ],
+    "summary": "Applies position-driven visual effects to a view as it traverses a scroll container.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "List(selection: $selection) {\n    ForEach(rows) { row in\n        RowView(row)\n            .selectionDisabled(row.isPlaceholder)\n    }\n}",
+    "discussion": "Rows tagged with this modifier are skipped by tap selection, edit-mode multi-select, and keyboard selection movement, without dimming their content the way .disabled() would. It suits placeholder rows, loading shims, and header-like rows living inside a selectable container.",
+    "kind": "Modifier",
+    "name": ".selectionDisabled()",
+    "related": [
+      "List",
+      "Table",
+      ".disabled()",
+      "editMode"
+    ],
+    "summary": "Marks a row as ineligible for list or table selection.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "Table(files) {\n    TableColumn(\"Name\", value: \\.name)\n    TableColumn(\"Size\") {\n        Text($0.size, format: .byteCount(style: .file))\n    }\n}\n.tableColumnHeaders(.hidden)",
+    "discussion": "Passing .hidden removes the header strip entirely, which suits tables acting as multi-column lists where the column meanings are obvious. Because it takes a Visibility, .automatic restores whatever the current table style would normally do.",
+    "kind": "Modifier",
+    "name": ".tableColumnHeaders()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "Table",
+      "TableColumn",
+      "Visibility",
+      ".tableStyle()"
+    ],
+    "summary": "Toggles the header row of a Table on or off.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "List(folders) { folder in\n    Label(folder.name, systemImage: \"folder\")\n        .badge(folder.unreadCount)\n}\n.badgeProminence(BadgeProminence.decreased)",
+    "discussion": "Its .decreased, .standard, and .increased values map to progressively stronger badge treatments, from quiet gray text to a filled capsule. The value travels through the environment, which is why .badgeProminence() can restyle badges it never directly touches.",
+    "kind": "Type",
+    "name": "BadgeProminence",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      ".badgeProminence()",
+      ".badge()",
+      "Prominence"
+    ],
+    "summary": "Enumerates the visual weight options for list and tab badges.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "List {\n    Section(\"Devices\") { ForEach(devices) { DeviceRow($0) } }\n    Section(\"Groups\") { ForEach(groups) { GroupRow($0) } }\n}\n.environment(\\.defaultMinListHeaderHeight, 44)",
+    "discussion": "Unlike its row counterpart this value is an Optional CGFloat, with nil meaning the platform chooses. Raising it gives breathing room to custom header views that the default metrics would crowd, and it applies to every section in the environment's scope.",
+    "kind": "Environment Value",
+    "name": "defaultMinListHeaderHeight",
+    "related": [
+      "defaultMinListRowHeight",
+      "Section",
+      "List"
+    ],
+    "summary": "The minimum height reserved for list section headers, or nil for the system default.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "List {\n    ForEach(shortcuts) { ShortcutRow($0) }\n}\n.environment(\\.defaultMinListRowHeight, 28)",
+    "discussion": "Lists refuse to render rows shorter than this CGFloat regardless of their content's intrinsic size, so lowering it is the sanctioned way to build dense utility lists. Because it is an environment value you set it with .environment(_:_:) on the list rather than a dedicated modifier.",
+    "kind": "Environment Value",
+    "name": "defaultMinListRowHeight",
+    "related": [
+      "List",
+      "defaultMinListHeaderHeight",
+      ".listRowInsets()"
+    ],
+    "summary": "The floor applied to every list row's height, adjustable through the environment.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Table(of: Department.self) {\n    TableColumn(\"Name\", value: \\.name)\n} rows: {\n    ForEach(departments) { dept in\n        DisclosureTableRow(dept) {\n            ForEach(dept.subdepartments) { TableRow($0) }\n        }\n    }\n}",
+    "discussion": "It brings outline-style hierarchy to Table: the row shows a disclosure control, and its builder supplies the child rows displayed when expanded. An optional isExpanded binding lets you persist or programmatically drive the expansion state. Parent and children must share the table's row value type.",
+    "kind": "Type",
+    "name": "DisclosureTableRow",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "Table",
+      "TableRow",
+      "OutlineGroup",
+      "DisclosureGroup"
+    ],
+    "summary": "A table row that expands to reveal nested rows of the same row type.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "List {\n    ForEach(items) { Text($0.name) }\n        .onDelete { items.remove(atOffsets: $0) }\n        .onMove { items.move(fromOffsets: $0, toOffset: $1) }\n}",
+    "discussion": "ForEach is the canonical conformer, exposing its underlying data through the protocol's data property. The onDelete, onMove, and onInsert modifiers are defined here and return another DynamicViewContent, which is why they chain on ForEach but are unavailable on arbitrary views.",
+    "kind": "Protocol",
+    "name": "DynamicViewContent",
+    "related": [
+      "ForEach",
+      ".onDelete()",
+      ".onMove()",
+      ".onInsert()"
+    ],
+    "summary": "The protocol for views generated from a data collection, home of the list editing hooks.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "@State private var steps = [\"Prep\", \"Cook\", \"Plate\"]\n\nvar body: some View {\n    List($steps, editActions: .all) { $step in\n        TextField(\"Step\", text: $step)\n    }\n}",
+    "discussion": "When you construct a List or ForEach from a binding to a mutable collection, passing .move, .delete, or .all generates the corresponding edit support with no onMove or onDelete closures. The synthesized behavior still honors per-row moveDisabled and deleteDisabled flags, so opting rows out works the same way.",
+    "kind": "Type",
+    "name": "EditActions",
+    "related": [
+      "List",
+      "ForEach",
+      ".moveDisabled()",
+      ".deleteDisabled()"
+    ],
+    "summary": "An option set that lets binding-based lists synthesize move and delete behavior automatically.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "List {\n    Label(\"Battery\", systemImage: \"battery.100percent\")\n        .listItemTint(ListItemTint.fixed(.green))\n    Label(\"Cellular\", systemImage: \"antenna.radiowaves.left.and.right\")\n        .listItemTint(.preferred(.teal))\n}",
+    "discussion": "The three options encode intent: fixed(_:) demands an exact color, preferred(_:) supplies a color the system may override in contexts that impose their own scheme, and monochrome opts out of coloring entirely. Passing one of these to .listItemTint() gives finer control than a bare Color, which behaves like fixed.",
+    "kind": "Type",
+    "name": "ListItemTint",
+    "related": [
+      ".listItemTint()",
+      "List",
+      ".tint()"
+    ],
+    "summary": "Describes how strongly a tint should apply to a list item's decorations.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "List {\n    Section(\"Inbox\") { ForEach(inbox) { MailRow($0) } }\n    Section(\"Drafts\") { ForEach(drafts) { MailRow($0) } }\n}\n.listSectionSpacing(ListSectionSpacing.custom(6))",
+    "discussion": "The type offers .default and .compact presets plus .custom(_:) for an exact point value, letting call sites express intent instead of magic numbers. Using the semantic cases keeps spacing consistent if the platform default changes in a future release.",
+    "kind": "Type",
+    "name": "ListSectionSpacing",
+    "platforms": [
+      "iOS",
+      "watchOS"
+    ],
+    "related": [
+      ".listSectionSpacing()",
+      "List",
+      "Section"
+    ],
+    "summary": "Semantic spacing values consumed by the listSectionSpacing modifier.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "Form {\n    Section(\"Account\") {\n        LabeledContent(\"Plan\", value: \"Pro\")\n    }\n    .headerProminence(Prominence.increased)\n}",
+    "discussion": "The enum has just .standard and .increased cases and acts as the currency type for modifiers like .headerProminence(). Keeping prominence as a semantic value rather than explicit fonts lets each platform translate the request into its own typography.",
+    "kind": "Type",
+    "name": "Prominence",
+    "related": [
+      ".headerProminence()",
+      "BadgeProminence",
+      "Section"
+    ],
+    "summary": "A two-level scale describing how visually assertive an element should be.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "struct ReloadButton: View {\n    @Environment(\\.refresh) private var refresh\n\n    var body: some View {\n        Button(\"Reload\") { Task { await refresh?() } }\n            .disabled(refresh == nil)\n    }\n}",
+    "discussion": "Custom container views can read this value to participate in pull-to-refresh: it is non-nil whenever an ancestor applied .refreshable(), and awaiting the action runs that handler. This is the mechanism for triggering a refresh from a button or a bespoke gesture rather than the built-in list gesture.",
+    "kind": "Environment Value",
+    "name": "refresh",
+    "related": [
+      ".refreshable()",
+      "List",
+      "ScrollView"
+    ],
+    "summary": "The optional RefreshAction installed by an enclosing refreshable modifier.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "ScrollView {\n    LazyVStack { ForEach(logLines) { LogLine($0) } }\n}\n.defaultScrollAnchor(.bottom, for: .sizeChanges)",
+    "discussion": "The roles split what a bare defaultScrollAnchor does globally: .initialOffset governs only the starting position, .sizeChanges keeps the anchor honored as content grows or shrinks, and .alignment handles content smaller than the container. Passing a role lets a chat view pin to the bottom on growth without also forcing bottom alignment when nearly empty.",
+    "kind": "Type",
+    "name": "ScrollAnchorRole",
+    "related": [
+      ".defaultScrollAnchor()",
+      "ScrollView",
+      "ScrollPosition"
+    ],
+    "summary": "Narrows a default scroll anchor to one aspect of scroll behavior.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "ScrollView(.horizontal) {\n    TagCloud(tags)\n}\n.scrollBounceBehavior(ScrollBounceBehavior.always, axes: [.horizontal])",
+    "discussion": "Its cases are .automatic for the platform default, .always for unconditional rubber-banding, and .basedOnSize to bounce only when content actually overflows. The type exists so the policy can travel as a value instead of a pair of booleans.",
+    "kind": "Type",
+    "name": "ScrollBounceBehavior",
+    "related": [
+      ".scrollBounceBehavior()",
+      "ScrollView",
+      "Axis"
+    ],
+    "summary": "The edge-bounce policies used by the scrollBounceBehavior modifier.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "Form {\n    TextField(\"Title\", text: $title)\n    TextEditor(text: $body)\n}\n.scrollDismissesKeyboard(ScrollDismissesKeyboardMode.immediately)",
+    "discussion": "Four cases cover the space: .automatic defers to context, .immediately hides the keyboard as soon as scrolling starts, .interactively tracks the drag gesture, and .never leaves the keyboard alone. The automatic behavior differs by container, dismissing eagerly in plain scroll views but not in forms.",
+    "kind": "Type",
+    "name": "ScrollDismissesKeyboardMode",
+    "related": [
+      ".scrollDismissesKeyboard()",
+      "TextField",
+      "Form"
+    ],
+    "summary": "The dismissal policies consumed by scrollDismissesKeyboard.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "ScrollView {\n    TransactionsTable()\n}\n.scrollEdgeEffectStyle(.hard, for: .top)",
+    "discussion": "Introduced in the version-26 releases, the type offers .automatic, .soft for the default progressive blur under toolbars, and .hard for a crisp boundary that suits dense content like tables. It is consumed by the .scrollEdgeEffectStyle(_:for:) modifier scoped to particular edges.",
+    "kind": "Type",
+    "name": "ScrollEdgeEffectStyle",
+    "related": [
+      ".scrollEdgeEffectStyle()",
+      ".glassEffect()",
+      ".toolbarBackground()",
+      "ScrollView"
+    ],
+    "summary": "Selects the treatment content receives as it scrolls beneath bars in the Liquid Glass design.",
+    "wwdcYear": 2025
+  },
+  {
+    "code": "ScrollView {\n    ArtworkWall()\n}\n.scrollIndicators(ScrollIndicatorVisibility.never)",
+    "discussion": "Alongside .automatic, .visible, and .hidden it adds .never, a stronger guarantee that no indicator will ever draw. Reach for .never in kiosk-like carousels and for .hidden when you merely prefer a cleaner look but will tolerate system exceptions.",
+    "kind": "Type",
+    "name": "ScrollIndicatorVisibility",
+    "related": [
+      ".scrollIndicators()",
+      "Visibility",
+      "ScrollView"
+    ],
+    "summary": "The visibility options accepted by the scrollIndicators modifier.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "ScrollView { feed }\n    .onScrollPhaseChange { old, new in\n        withAnimation {\n            toolbarVisible = (new == ScrollPhase.idle)\n        }\n    }",
+    "discussion": "Its cases distinguish a resting view (.idle), a finger down but not yet scrolling (.tracking), active dragging (.interacting), momentum (.decelerating), and programmatic or system animation (.animating). An isScrolling convenience collapses everything except idle, which covers most show-or-hide chrome decisions.",
+    "kind": "Type",
+    "name": "ScrollPhase",
+    "related": [
+      ".onScrollPhaseChange()",
+      "ScrollView",
+      "ScrollGeometry"
+    ],
+    "summary": "The lifecycle states a scroll interaction passes through.",
+    "wwdcYear": 2024
+  },
+  {
+    "children": [
+      {
+        "code": "@State private var position = ScrollPosition(edge: .bottom)",
+        "name": "ScrollPosition(edge:)",
+        "summary": "Starts the position anchored to a container edge until something scrolls."
+      },
+      {
+        "code": "Button(\"Today\") {\n    withAnimation {\n        position.scrollTo(id: today.id, anchor: .center)\n    }\n}",
+        "name": "ScrollPosition.scrollTo(id:anchor:)",
+        "summary": "Scrolls programmatically to the child view with the given identity."
+      }
+    ],
+    "code": "@State private var position = ScrollPosition(edge: .top)\n\nvar body: some View {\n    ScrollView {\n        LazyVStack { ForEach(messages) { MessageRow($0) } }\n    }\n    .scrollPosition($position)\n    .toolbar {\n        Button(\"Latest\") { position.scrollTo(edge: .bottom) }\n    }\n}",
+    "discussion": "Bound through the .scrollPosition() modifier, it can target an edge, a concrete point, or the id of a child view, and mutating it scrolls the container. It also records whether the latest position came from the user or from code, which helps you stop auto-scrolling a log the moment the user drags away from the bottom.",
+    "kind": "Type",
+    "name": "ScrollPosition",
+    "related": [
+      ".scrollPosition()",
+      "ScrollGeometry",
+      ".defaultScrollAnchor()",
+      "ScrollViewProxy"
+    ],
+    "summary": "A state value for reading and commanding where a scroll view is scrolled.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "MilestoneCard(milestone)\n    .scrollTransition(.interactive) { content, phase in\n        content\n            .rotationEffect(.degrees(phase.value * 4))\n            .offset(y: phase.isIdentity ? 0 : 24)\n    }",
+    "discussion": "The phases are topLeading, identity, and bottomTrailing, with isIdentity as the common fast check and a numeric value running from -1 through 0 to 1 for proportional effects. Multiplying that value into offsets or rotations produces effects that ramp smoothly as the view enters and exits.",
+    "kind": "Type",
+    "name": "ScrollTransitionPhase",
+    "related": [
+      ".scrollTransition()",
+      ".rotationEffect()",
+      ".offset()"
+    ],
+    "summary": "Describes where a view sits relative to the visible region during a scroll transition.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "ScrollViewReader { proxy in\n    ScrollView {\n        LazyVStack {\n            ForEach(messages) { MessageRow($0).id($0.id) }\n        }\n    }\n    .onChange(of: latestID) {\n        withAnimation { proxy.scrollTo(latestID, anchor: .bottom) }\n    }\n}",
+    "discussion": "Its scrollTo(_:anchor:) method jumps to any descendant tagged with .id(_:), optionally aligning it to a UnitPoint, and animates when wrapped in withAnimation. It predates the ScrollPosition type and remains the simplest tool when all you need is an occasional jump rather than continuous position tracking.",
+    "kind": "Type",
+    "name": "ScrollViewProxy",
+    "related": [
+      "ScrollViewReader",
+      "ScrollPosition",
+      ".scrollPosition()",
+      ".onChange()"
+    ],
+    "summary": "The handle a ScrollViewReader provides for programmatic scrolling to ids.",
+    "wwdcYear": 2020
+  },
+  {
+    "children": [
+      {
+        "code": "TableColumn(\"Joined\", value: \\.joinDate) {\n    Text($0.joinDate, style: .date)\n}",
+        "name": "TableColumn(_:value:)",
+        "summary": "Creates a sortable column keyed by a comparable key path."
+      },
+      {
+        "code": "TableColumn(\"ID\", value: \\.identifier)\n    .width(min: 60, ideal: 80, max: 120)",
+        "name": "TableColumn.width()",
+        "summary": "Constrains the column to fixed, minimum, ideal, or maximum widths."
+      }
+    ],
+    "code": "@State private var sortOrder = [KeyPathComparator(\\Person.name)]\n\nTable(people, sortOrder: $sortOrder) {\n    TableColumn(\"Name\", value: \\.name)\n    TableColumn(\"Role\") { person in\n        RoleBadge(person.role)\n    }\n}",
+    "discussion": "A column can be as simple as a title plus a key path to a String, or carry a custom view builder for arbitrary cell content. Supplying a comparable key path through the value: initializers makes the column sortable, feeding KeyPathComparator values into the table's sortOrder binding.",
+    "kind": "Type",
+    "name": "TableColumn",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "Table",
+      "TableRow",
+      "TableColumnContent",
+      ".tableColumnHeaders()"
+    ],
+    "summary": "Declares one column of a Table, pairing a header title with per-row content.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "Table(transactions) {\n    TableColumn(\"Payee\", value: \\.payee)\n    TableColumn(\"Amount\") {\n        Text($0.amount, format: .currency(code: \"USD\"))\n    }\n    .alignment(.numeric)\n}",
+    "discussion": "Beyond leading, center, and trailing, the .numeric option aligns numbers the way spreadsheet users expect and adapts to the locale's number direction. Apply it with TableColumn's alignment modifier so figures in a column line up for comparison.",
+    "kind": "Type",
+    "name": "TableColumnAlignment",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "TableColumn",
+      "Table",
+      ".multilineTextAlignment()"
+    ],
+    "summary": "Specifies how a table column aligns its header and cell content.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "@TableColumnBuilder<Person, KeyPathComparator<Person>>\nvar nameColumns: some TableColumnContent<Person, KeyPathComparator<Person>> {\n    TableColumn(\"First\", value: \\.firstName)\n    TableColumn(\"Last\", value: \\.lastName)\n}",
+    "discussion": "TableColumn and Group of columns conform, and @TableColumnBuilder assembles conformers into the columns closure Table expects. Its primary associated types carry the row value and sort comparator, so extracted column groups keep full sorting fidelity when written as some TableColumnContent.",
+    "kind": "Protocol",
+    "name": "TableColumnContent",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "TableColumn",
+      "Table",
+      "TableRowContent"
+    ],
+    "summary": "The composition protocol behind a table's columns builder.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "@SceneStorage(\"columns\")\nprivate var customization: TableColumnCustomization<Employee>\n\nTable(employees, columnCustomization: $customization) {\n    TableColumn(\"Name\", value: \\.name)\n        .customizationID(\"name\")\n    TableColumn(\"Role\", value: \\.role)\n        .customizationID(\"role\")\n}",
+    "discussion": "Bind one into Table's columnCustomization parameter and give each column a stable string via customizationID; the table then lets users hide, resize, and rearrange columns, recording the result in this value. It is designed to live in @SceneStorage so customizations survive relaunches per window.",
+    "kind": "Type",
+    "name": "TableColumnCustomization",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "Table",
+      "TableColumn",
+      "@SceneStorage"
+    ],
+    "summary": "Stores a user's column visibility, ordering, and width adjustments for a Table.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "Table(of: Track.self) {\n    TableColumn(\"Title\", value: \\.title)\n    TableColumn(\"Length\", value: \\.lengthLabel)\n} rows: {\n    TableRow(hiddenBonusTrack)\n    ForEach(album.tracks) { TableRow($0) }\n}",
+    "discussion": "Tables built with the rows: builder use TableRow to place individual values, mixing hand-picked rows with ForEach-generated ones. Each row value is handed to every column's content closure, which is how a single TableRow materializes a full line of cells.",
+    "kind": "Type",
+    "name": "TableRow",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "Table",
+      "TableColumn",
+      "DisclosureTableRow",
+      "TableRowContent"
+    ],
+    "summary": "Explicitly emits one row of a Table for a given row value.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "@TableRowBuilder<Track>\nvar favoriteRows: some TableRowContent<Track> {\n    ForEach(tracks.filter(\\.isFavorite)) { TableRow($0) }\n}",
+    "discussion": "TableRow, ForEach, Section, and DisclosureTableRow all conform, which is what allows them to interleave freely inside the rows: closure. Factoring row groups into computed properties typed as some TableRowContent keeps large table definitions readable.",
+    "kind": "Protocol",
+    "name": "TableRowContent",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "TableRow",
+      "DisclosureTableRow",
+      "Table",
+      "TableColumnContent"
+    ],
+    "summary": "The protocol unifying everything that can appear in a table's rows builder.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "Table(devices) {\n    TableColumn(\"Device\", value: \\.name)\n    TableColumn(\"Status\") { StatusBadge($0.status) }\n}\n.tableStyle(.bordered)",
+    "discussion": "You consume it through the .tableStyle() modifier with the built-in options: .automatic defers to the platform, .inset gives the modern padded look, and .bordered adds the classic framed macOS appearance. Custom conformances are not a practical extension point; the protocol mainly gives the built-ins a shared currency type.",
+    "kind": "Protocol",
+    "name": "TableStyle",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      ".tableStyle()",
+      "Table",
+      ".alternatingRowBackgrounds()"
+    ],
+    "summary": "The style protocol selecting a table's overall appearance.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "List(tracks) { TrackRow($0) }\n    .listRowSeparator(Visibility.hidden)\n    .scrollIndicators(.hidden)",
+    "discussion": "The .automatic case defers to context, which is what makes the same enum reusable across separators, scroll indicators, toolbars, and table column headers. Many modifiers in the list and scrolling family take Visibility rather than Bool precisely so they can express 'do whatever this style would normally do'.",
+    "kind": "Type",
+    "name": "Visibility",
+    "related": [
+      ".listRowSeparator()",
+      ".scrollIndicators()",
+      ".tableColumnHeaders()",
+      ".toolbarBackground()"
+    ],
+    "summary": "A tri-state value expressing whether an element is shown, hidden, or left to the system.",
+    "wwdcYear": 2021
+  }
+]

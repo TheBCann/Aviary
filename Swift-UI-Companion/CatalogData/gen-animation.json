@@ -1,0 +1,756 @@
+[
+  {
+    "code": "RowContent()\n    .animation(.smooth) { content in\n        content.opacity(isDimmed ? 0.4 : 1)\n    }\n    .scaleEffect(isDimmed ? 0.9 : 1)",
+    "discussion": "The closure receives a placeholder representing the modified view, and any effects you attach within it animate with the given animation while everything outside keeps the surrounding transaction. This solves the classic problem of one state change needing different curves for different effects on the same view, without resorting to transaction surgery.",
+    "kind": "Modifier",
+    "name": ".animation(body:)",
+    "related": [
+      ".animation()",
+      "Animation",
+      ".transaction()"
+    ],
+    "summary": "Scopes an animation to only the modifiers applied inside its body closure.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "GameSurface()\n    .ignoresSafeArea()\n    .defersSystemGestures(on: .bottom)",
+    "discussion": "On iOS, swipes from the screen edges normally trigger system behaviors like the home indicator or Control Center; deferring makes the first swipe reach your view and requires a second swipe for the system. Reserve it for immersive contexts such as games or drawing surfaces where edge input is meaningful.",
+    "kind": "Modifier",
+    "name": ".defersSystemGestures()",
+    "platforms": [
+      "iOS"
+    ],
+    "related": [
+      ".ignoresSafeArea()",
+      "DragGesture",
+      ".gesture()"
+    ],
+    "summary": "Asks the system to give the app's own gestures precedence over system edge gestures on the chosen edges.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "MapCanvas()\n    .highPriorityGesture(\n        TapGesture(count: 2).onEnded { zoomIn() }\n    )",
+    "discussion": "This inverts the default child-wins arbitration: while the attached gesture is possible, matching subview gestures are held off. Reach for it when a container interaction must trump its children, like a canvas double-tap that should beat individual element taps — and note buttons in the subtree will stop responding while it can still match.",
+    "kind": "Modifier",
+    "name": ".highPriorityGesture()",
+    "related": [
+      ".gesture()",
+      ".simultaneousGesture()",
+      "GestureMask"
+    ],
+    "summary": "Attaches a gesture that wins over gestures defined by subviews.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Image(systemName: \"bell\")\n    .keyframeAnimator(initialValue: ShakeValue(), trigger: alertCount) { view, value in\n        view.rotationEffect(.degrees(value.angle))\n    } keyframes: { _ in\n        KeyframeTrack(\\.angle) {\n            CubicKeyframe(-18, duration: 0.1)\n            SpringKeyframe(0, duration: 0.4, spring: .bouncy)\n        }\n    }",
+    "discussion": "Unlike phase animation, keyframes interpolate every track independently against absolute times, so several properties can follow different curves simultaneously. The content closure applies the current interpolated value to the view, and the keyframes builder composes KeyframeTrack instances per property. A trigger value replays the timeline; the repeating form loops it.",
+    "kind": "Modifier",
+    "name": ".keyframeAnimator()",
+    "related": [
+      "KeyframeAnimator",
+      "KeyframeTrack",
+      "KeyframeTimeline",
+      ".phaseAnimator()"
+    ],
+    "summary": "Drives view effects from keyframe tracks that animate the properties of a value over an explicit timeline.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "TileView(item: item)\n    .onLongPressGesture(minimumDuration: 0.4) {\n        enterEditMode()\n    } onPressingChanged: { pressing in\n        isHighlighted = pressing\n    }",
+    "discussion": "The onPressingChanged closure fires with true the moment the touch lands and false when it lifts or the gesture cancels, which is exactly what highlight-while-pressing UI needs. Duration and movement tolerance are tunable, and the modifier is simpler than composing LongPressGesture manually when you do not need sequencing.",
+    "kind": "Modifier",
+    "name": ".onLongPressGesture()",
+    "related": [
+      "LongPressGesture",
+      ".onTapGesture()",
+      ".contextMenu()"
+    ],
+    "summary": "Runs an action after a press-and-hold, with a companion callback that tracks the pressing state.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "DrawingCanvas()\n    .onPencilDoubleTap { _ in\n        activeTool = activeTool.next()\n    }",
+    "discussion": "The action receives a value describing the interaction, including the pencil's hover pose when available, so a drawing app can switch tools or toggle the eraser. Respect the user's system-level preference — exposed through the preferredPencilDoubleTapAction environment value — rather than hard-coding a behavior.",
+    "kind": "Modifier",
+    "name": ".onPencilDoubleTap()",
+    "platforms": [
+      "iOS"
+    ],
+    "related": [
+      ".onPencilSqueeze()",
+      "Canvas",
+      ".onTapGesture()"
+    ],
+    "summary": "Responds to the double-tap gesture on the barrel of a supported Apple Pencil.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "DrawingCanvas()\n    .onPencilSqueeze { phase in\n        if case .ended(let value) = phase {\n            paletteAnchor = value.hoverPose?.location\n            showPalette = true\n        }\n    }",
+    "discussion": "The handler receives a phase enum you can pattern-match: an active phase while the squeeze is held and an ended phase carrying a value with hover pose data for positioning UI like a tool palette near the pencil tip. As with double-tap, the system exposes a user preference for what a squeeze should do.",
+    "kind": "Modifier",
+    "name": ".onPencilSqueeze()",
+    "platforms": [
+      "iOS"
+    ],
+    "related": [
+      ".onPencilDoubleTap()",
+      "Canvas"
+    ],
+    "summary": "Responds to the squeeze gesture on Apple Pencil Pro, with phase information as the squeeze progresses.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "Image(systemName: \"bell.fill\")\n    .phaseAnimator([0.0, -20.0, 14.0, 0.0], trigger: alertCount) { view, angle in\n        view.rotationEffect(.degrees(angle))\n    } animation: { _ in\n        .spring(duration: 0.2)\n    }",
+    "discussion": "This is the modifier form of the PhaseAnimator view: you pass an array of Equatable phases, a closure that styles the content for the current phase, and optionally a per-transition animation. With a trigger value it plays through the sequence once each time the trigger changes; without one it loops continuously.",
+    "kind": "Modifier",
+    "name": ".phaseAnimator()",
+    "related": [
+      "PhaseAnimator",
+      ".keyframeAnimator()",
+      "KeyframeAnimator"
+    ],
+    "summary": "Cycles a view through a sequence of phases, restyling it for each and animating between them.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "ScrollView {\n    ArtworkGrid()\n}\n.simultaneousGesture(\n    DragGesture().onChanged { _ in hideToolbar() }\n)",
+    "discussion": "Ordinarily a child's gesture defeats the parent's; this modifier opts the attached gesture out of that exclusivity so both can succeed. It is the standard way to observe interactions over interactive containers, such as noting any drag on a ScrollView to dismiss overlays without stealing the scroll.",
+    "kind": "Modifier",
+    "name": ".simultaneousGesture()",
+    "related": [
+      ".gesture()",
+      ".highPriorityGesture()",
+      "SimultaneousGesture"
+    ],
+    "summary": "Attaches a gesture that recognizes alongside, rather than competing with, gestures deeper in the hierarchy.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Text(timestamp, style: .timer)\n    .transaction { t in\n        t.animation = nil\n    }",
+    "discussion": "The closure receives an inout Transaction, letting you replace or remove the animation that outer code requested before it reaches this view. It is a blunt but effective tool for views that must never animate, or that should substitute their own timing for whatever the caller chose. A 2023 overload scopes the rewrite to only the modifiers in an accompanying body closure.",
+    "kind": "Modifier",
+    "name": ".transaction()",
+    "related": [
+      "Transaction",
+      "withTransaction()",
+      ".animation()"
+    ],
+    "summary": "Intercepts and rewrites the transaction flowing into a view subtree during an update.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "struct CountBadge: AnimatableModifier {\n    var count: Double\n    var animatableData: Double {\n        get { count }\n        set { count = newValue }\n    }\n    func body(content: Content) -> some View {\n        content.overlay(Text(\"\\(Int(count))\"))\n    }\n}",
+    "deprecated": true,
+    "discussion": "It let a modifier interpolate its own state during animations, but Apple formally deprecated it; the supported spelling is a ViewModifier that separately conforms to Animatable, or the 2025 @Animatable macro. Existing conformances keep working, so it mainly appears when maintaining older codebases.",
+    "kind": "Protocol",
+    "name": "AnimatableModifier",
+    "related": [
+      "ViewModifier",
+      "Animatable",
+      "@Animatable"
+    ],
+    "summary": "A deprecated convenience protocol that merged ViewModifier and Animatable into one conformance.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "struct WedgeShape: Shape {\n    var start: Double\n    var end: Double\n    var animatableData: AnimatablePair<Double, Double> {\n        get { AnimatablePair(start, end) }\n        set { (start, end) = (newValue.first, newValue.second) }\n    }\n}",
+    "discussion": "Animatable requires a single VectorArithmetic value, so shapes and modifiers with two or more animated properties pack them into nested AnimatablePair values and unpack in the setter. SwiftUI interpolates the whole pair componentwise during the animation. The 2025 @Animatable macro generates this plumbing automatically for new code.",
+    "kind": "Type",
+    "name": "AnimatablePair",
+    "related": [
+      "Animatable",
+      "@Animatable",
+      "VectorArithmetic",
+      "Shape"
+    ],
+    "summary": "Combines two animatable vector values into one, enabling multi-property animatableData.",
+    "wwdcYear": 2019
+  },
+  {
+    "children": [
+      {
+        "code": "withAnimation(.easeInOut(duration: 0.35)) {\n    panelVisible.toggle()\n}",
+        "name": "Animation.easeInOut",
+        "summary": "An eased curve that accelerates in and decelerates out, with an optional explicit duration."
+      },
+      {
+        "code": "Circle()\n    .opacity(pulsing ? 0.2 : 1)\n    .animation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true),\n               value: pulsing)",
+        "name": "Animation.repeatForever()",
+        "summary": "Repeats the base animation indefinitely, optionally reversing direction on each cycle."
+      },
+      {
+        "code": "withAnimation(.default.speed(2)) {\n    isFlipped.toggle()\n}",
+        "name": "Animation.speed()",
+        "summary": "Scales the playback rate of the base animation without changing its shape."
+      }
+    ],
+    "code": "struct PulseDot: View {\n    @State private var isOn = false\n    var body: some View {\n        Circle()\n            .scaleEffect(isOn ? 1.2 : 1.0)\n            .animation(.easeInOut(duration: 0.4), value: isOn)\n            .onAppear { isOn = true }\n    }\n}",
+    "discussion": "An Animation value pairs a timing function with modifiers like delay, speed, and repetition, and is consumed by the .animation() modifier, withAnimation(), and Transaction. Presets cover linear and eased curves plus several spring families, and any of them can be composed with combinators such as .delay(_:) or .repeatCount(_:autoreverses:). Since it is a plain value, you can store animations in properties and pick between them at runtime.",
+    "kind": "Type",
+    "name": "Animation",
+    "related": [
+      ".animation()",
+      "withAnimation()",
+      "Spring",
+      "CustomAnimation"
+    ],
+    "summary": "A description of how a change interpolates over time, built from timing-curve and spring presets plus chainable combinators.",
+    "wwdcYear": 2019
+  },
+  {
+    "children": [
+      {
+        "code": "withAnimation(.snappy) {\n    selection = item\n}",
+        "name": "Animation.snappy",
+        "summary": "A spring preset with minimal bounce, suited to quick selection feedback."
+      },
+      {
+        "code": "withAnimation(.smooth(duration: 0.3)) {\n    progress = 1\n}",
+        "name": "Animation.smooth",
+        "summary": "A spring preset with no bounce that still preserves velocity handoff."
+      }
+    ],
+    "code": "withAnimation(.bouncy(extraBounce: 0.1)) {\n    drawerOpen.toggle()\n}",
+    "discussion": "These presets remove the guesswork of tuning spring constants: bouncy overshoots noticeably, snappy has just a hint of bounce, and smooth has none. Each also comes as a function form accepting a duration and an extraBounce adjustment, so you can nudge a preset without abandoning it. They mirror the same-named static members on the Spring type.",
+    "kind": "Type",
+    "name": "Animation.bouncy",
+    "related": [
+      "Animation.spring()",
+      "Spring",
+      "withAnimation()"
+    ],
+    "summary": "One of three WWDC 2023 spring presets — bouncy, snappy, and smooth — tuned for common interface feels.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {\n    cardOffset = .zero\n}\n\n// 2023 parameterization\nwithAnimation(.spring(duration: 0.5, bounce: 0.25)) {\n    isExpanded.toggle()\n}",
+    "discussion": "The classic form takes a response time and a damping fraction, where values below 1.0 overshoot and settle. WWDC 2023 added the perceptual duration-and-bounce parameterization plus the ability to pass a Spring value directly, and springs became the default animation. Related statics include .interactiveSpring() for gesture-driven tracking and .interpolatingSpring() for velocity-preserving mass-stiffness-damping springs.",
+    "kind": "Type",
+    "name": "Animation.spring()",
+    "related": [
+      "Animation",
+      "Spring",
+      "Animation.bouncy",
+      "withAnimation()"
+    ],
+    "summary": "A physically modeled spring animation configured either by response and damping fraction or, since 2023, by duration and bounce.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "withAnimation(.easeOut, completionCriteria: .removed) {\n    toastVisible = false\n} completion: {\n    queue.showNext()\n}",
+    "discussion": "The .logicallyComplete criterion fires when the animation reaches its target for practical purposes, even if a spring is still settling imperceptibly, while .removed waits until the animation is entirely gone. Choosing between them matters for springs and repeating animations, where the visual end and the mathematical end can be far apart.",
+    "kind": "Type",
+    "name": "AnimationCompletionCriteria",
+    "related": [
+      "withAnimation()",
+      "Animation"
+    ],
+    "summary": "Specifies when the completion handler of a withAnimation call should fire.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "var activeGesture: AnyGesture<Void> {\n    if mode == .draw {\n        AnyGesture(DragGesture().map { _ in () })\n    } else {\n        AnyGesture(TapGesture().map { _ in () })\n    }\n}",
+    "discussion": "Gesture composition produces deeply nested generic types, so returning different gestures from branches will not compile without erasure. AnyGesture fixes the Value generic — often after .map to a common payload — so a property can swap recognizers based on an editing mode.",
+    "kind": "Type",
+    "name": "AnyGesture",
+    "related": [
+      "Gesture",
+      ".gesture()",
+      "AnyView",
+      "AnyShape"
+    ],
+    "summary": "A type-erased wrapper that lets differently composed gestures share one declared value type.",
+    "wwdcYear": 2019
+  },
+  {
+    "children": [
+      {
+        "code": "if showBanner {\n    BannerView()\n        .transition(.move(edge: .top))\n}",
+        "name": "AnyTransition.move()",
+        "summary": "Slides the view in from, and out toward, a given edge."
+      },
+      {
+        "code": "ResultRow()\n    .transition(.asymmetric(insertion: .scale, removal: .opacity))",
+        "name": "AnyTransition.asymmetric()",
+        "summary": "Uses one transition for insertion and a different one for removal."
+      },
+      {
+        "code": "AnyTransition.modifier(\n    active: BlurMod(radius: 12),\n    identity: BlurMod(radius: 0)\n)",
+        "name": "AnyTransition.modifier()",
+        "summary": "Builds a custom transition by interpolating between an active and an identity view modifier."
+      }
+    ],
+    "code": "extension AnyTransition {\n    static var slideAndFade: AnyTransition {\n        .move(edge: .bottom).combined(with: .opacity)\n    }\n}\n\nDetailCard()\n    .transition(.slideAndFade)",
+    "discussion": "AnyTransition predates the 2023 Transition protocol and remains the currency of the classic .transition() modifier, with builders like .opacity, .scale, .slide, and .offset. Transitions compose with .combined(with:) and can differ between insertion and removal via .asymmetric. Defining your own as a static extension keeps call sites short.",
+    "kind": "Type",
+    "name": "AnyTransition",
+    "related": [
+      ".transition()",
+      "Transition",
+      "TransitionPhase"
+    ],
+    "summary": "A type-erased transition describing how a view enters and leaves the hierarchy.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Text(price, format: .currency(code: \"USD\"))\n    .contentTransition(.numericText(value: price))\n    .animation(.snappy, value: price)",
+    "discussion": "Applied through the .contentTransition() modifier, options include .opacity, .interpolate, .numericText() for rolling digit changes, and .symbolEffect for SF Symbol swaps. The iOS 17 numericText(value:) variant animates digits directionally, reading counts going up differently from counts going down.",
+    "kind": "Type",
+    "name": "ContentTransition",
+    "related": [
+      ".contentTransition()",
+      ".symbolEffect()",
+      "Transition"
+    ],
+    "summary": "Describes how a view's interior content — rather than the view itself — changes from one value to another.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "KeyframeTrack(\\.y) {\n    CubicKeyframe(-40, duration: 0.35)\n    CubicKeyframe(0, duration: 0.45, endVelocity: 0)\n}",
+    "discussion": "Adjacent cubic keyframes blend their velocities, producing a continuous curve through multiple points rather than corner-to-corner segments. Optional startVelocity and endVelocity parameters pin the curve's slope at either end when you need precise control, such as landing at rest.",
+    "kind": "Type",
+    "name": "CubicKeyframe",
+    "related": [
+      "KeyframeTrack",
+      "SpringKeyframe",
+      "LinearKeyframe",
+      "MoveKeyframe"
+    ],
+    "summary": "A keyframe that interpolates toward its value along a smooth cubic Bezier curve.",
+    "wwdcYear": 2023
+  },
+  {
+    "children": [
+      {
+        "code": "DragGesture().onEnded { value in\n    if value.predictedEndTranslation.width > 200 {\n        dismissCard(velocity: value.velocity.width)\n    }\n}",
+        "name": "DragGesture.Value",
+        "summary": "A snapshot of an in-flight drag: locations, translation, velocity, and momentum-based predicted end values."
+      }
+    ],
+    "code": "@GestureState private var dragOffset = CGSize.zero\n\nvar body: some View {\n    Circle()\n        .offset(dragOffset)\n        .gesture(DragGesture().updating($dragOffset) { value, state, _ in\n            state = value.translation\n        })\n}",
+    "discussion": "Configuration covers a minimum distance before recognition (letting taps through) and the coordinate space for reported locations. The value stream feeds .onChanged and .onEnded, and pairs naturally with @GestureState so transient offsets reset automatically when the drag ends or is cancelled.",
+    "kind": "Type",
+    "name": "DragGesture",
+    "platforms": [
+      "iOS",
+      "macOS",
+      "watchOS"
+    ],
+    "related": [
+      "@GestureState",
+      ".gesture()",
+      "SimultaneousGesture",
+      ".highPriorityGesture()"
+    ],
+    "summary": "A gesture that reports continuous translation as a pointer or finger moves across a view.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "struct HatchFill: Shape, Animatable {\n    var animatableData = EmptyAnimatableData()\n    func path(in rect: CGRect) -> Path {\n        hatchPath(in: rect)\n    }\n}",
+    "discussion": "It is the default animatableData for types that adopt Animatable without animated properties, and it also appears as a terminator in generated generic compositions. You rarely construct it directly, but you will see it in type signatures when inspecting animatable conformances.",
+    "kind": "Type",
+    "name": "EmptyAnimatableData",
+    "related": [
+      "Animatable",
+      "AnimatablePair",
+      "VectorArithmetic"
+    ],
+    "summary": "A zero-size stand-in used when an Animatable conformer has nothing to interpolate.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "let tapOrPress = TapGesture()\n    .exclusively(before: LongPressGesture())\n    .onEnded { value in\n        if case .first = value { select() } else { showMenu() }\n    }",
+    "discussion": "Created with .exclusively(before:), it resolves competition explicitly rather than leaving it to hierarchy rules, and its value is an enum tagging which gesture won. Use it when two recognizers on the same view would otherwise both fire, such as distinguishing a tap from a long press.",
+    "kind": "Type",
+    "name": "ExclusiveGesture",
+    "related": [
+      "SequenceGesture",
+      "SimultaneousGesture",
+      "TapGesture",
+      "LongPressGesture"
+    ],
+    "summary": "A composite gesture where only one of two gestures can succeed, with the first given priority.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "ZStack {\n    MapLayer()\n    PinOverlay()\n        .gesture(TapGesture().onEnded { selectPin() }, including: .gesture)\n}",
+    "discussion": "Passed as the including: argument of .gesture() and its siblings, the mask offers .all (default), .gesture to silence subview recognizers, .subviews to keep the attachment dormant, and .none to disable both. It is a scalpel for arbitration problems that priority modifiers solve too bluntly.",
+    "kind": "Type",
+    "name": "GestureMask",
+    "related": [
+      ".gesture()",
+      ".highPriorityGesture()",
+      ".allowsHitTesting()"
+    ],
+    "summary": "An option set controlling whether an attached gesture, subview gestures, or both are allowed to run.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "let timeline = KeyframeTimeline(initialValue: CGPoint.zero) {\n    KeyframeTrack(\\.x) {\n        LinearKeyframe(120, duration: 0.5)\n    }\n    KeyframeTrack(\\.y) {\n        SpringKeyframe(300, duration: 1.0)\n    }\n}\nlet p = timeline.value(time: 0.75)",
+    "discussion": "KeyframeTimeline takes the same builder syntax as the keyframe animator but exposes value(time:) and a total duration, making keyframes usable inside TimelineView, Canvas drawing, or precomputation. This is the escape hatch when you want keyframe math without handing control of a view over to a modifier.",
+    "kind": "Type",
+    "name": "KeyframeTimeline",
+    "related": [
+      "KeyframeTrack",
+      ".keyframeAnimator()",
+      "TimelineView",
+      "Canvas"
+    ],
+    "summary": "A standalone keyframe evaluator you can sample by time, independent of any view.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "KeyframeTrack(\\.verticalOffset) {\n    CubicKeyframe(-60, duration: 0.3)\n    SpringKeyframe(0, duration: 0.5, spring: .bouncy)\n}",
+    "discussion": "Each track owns its own clock: keyframe durations accumulate along the track, and different tracks in the same animator can end at different times. The key path targets a property of the value passed to the keyframe animator, so a small struct with a few numeric properties can describe a rich multi-part motion.",
+    "kind": "Type",
+    "name": "KeyframeTrack",
+    "related": [
+      ".keyframeAnimator()",
+      "CubicKeyframe",
+      "SpringKeyframe",
+      "KeyframeTimeline"
+    ],
+    "summary": "Binds a sequence of keyframes to one animatable property of the animated value via a key path.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "KeyframeTrack(\\.progress) {\n    LinearKeyframe(0.8, duration: 0.5, timingCurve: .easeInOut)\n    LinearKeyframe(1.0, duration: 0.2)\n}",
+    "discussion": "Plain linear segments are ideal for mechanical motion like progress fills or rotations, and the timingCurve parameter lets a nominally linear segment ease without switching keyframe types. Velocity does not blend across neighbors the way it does with cubic keyframes, so transitions between segments are deliberate corners.",
+    "kind": "Type",
+    "name": "LinearKeyframe",
+    "related": [
+      "UnitCurve",
+      "KeyframeTrack",
+      "CubicKeyframe"
+    ],
+    "summary": "A keyframe that interpolates to its value at a constant rate, optionally shaped by a UnitCurve.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "@GestureState private var isPressing = false\n\nCircle()\n    .scaleEffect(isPressing ? 1.1 : 1)\n    .gesture(\n        LongPressGesture(minimumDuration: 0.5)\n            .updating($isPressing) { current, state, _ in state = current }\n            .onEnded { _ in showOptions = true }\n    )",
+    "discussion": "While the press is in progress the gesture publishes a Bool value, so .updating can drive pressed-state visuals before recognition completes. The maximumDistance parameter cancels the press if the touch wanders, and sequencing it before a DragGesture is the standard press-then-drag pattern for reordering interfaces.",
+    "kind": "Type",
+    "name": "LongPressGesture",
+    "related": [
+      ".onLongPressGesture()",
+      "SequenceGesture",
+      "@GestureState",
+      "DragGesture"
+    ],
+    "summary": "A gesture that succeeds when the user presses and holds for a minimum duration within a movement tolerance.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "PhotoView()\n    .scaleEffect(scale)\n    .gesture(\n        MagnificationGesture()\n            .onChanged { scale = $0 }\n    )",
+    "deprecated": true,
+    "discussion": "Its Value is just a CGFloat multiplier relative to the pinch start, with no anchor information, which is why it was superseded. It still compiles for older deployment targets, but new code targeting the 2023 SDKs should adopt MagnifyGesture instead.",
+    "kind": "Type",
+    "name": "MagnificationGesture",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "MagnifyGesture",
+      ".scaleEffect()"
+    ],
+    "summary": "The original pinch gesture whose value is a bare scale factor, deprecated in favor of MagnifyGesture.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "@State private var zoom: CGFloat = 1\n\nPhotoView()\n    .scaleEffect(zoom)\n    .gesture(\n        MagnifyGesture()\n            .onChanged { value in zoom = value.magnification }\n    )",
+    "discussion": "Introduced at WWDC 2023 to replace MagnificationGesture, its Value carries magnification as a CGFloat plus the startAnchor and startLocation of the pinch, enabling zoom centered on the fingers rather than the view center. A minimumScaleDelta threshold keeps it from firing on incidental touches.",
+    "kind": "Type",
+    "name": "MagnifyGesture",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "MagnificationGesture",
+      "RotateGesture",
+      "SimultaneousGesture",
+      ".gesture()"
+    ],
+    "summary": "The modern pinch-to-zoom gesture, reporting a rich value with magnification, velocity, and anchor point.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "KeyframeTrack(\\.opacity) {\n    MoveKeyframe(0)\n    LinearKeyframe(1, duration: 0.3)\n}",
+    "discussion": "MoveKeyframe takes no duration; it teleports the track to the given value, which is useful for resetting a property mid-timeline or establishing a starting point different from the initial value. Follow it with an interpolating keyframe to animate away from the new position.",
+    "kind": "Type",
+    "name": "MoveKeyframe",
+    "related": [
+      "KeyframeTrack",
+      "LinearKeyframe"
+    ],
+    "summary": "A keyframe that jumps instantly to a value with no interpolation.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "PhotoDetail(photo: photo)\n    .navigationTransition(.zoom(sourceID: photo.id, in: namespace))",
+    "discussion": "The .automatic value keeps the platform's standard push animation, while .zoom(sourceID:in:) morphs the destination out of a view tagged with .matchedTransitionSource(). Because the pairing runs on identifiers within a Namespace, list rows can each zoom from their own thumbnail using their model's identity.",
+    "kind": "Type",
+    "name": "NavigationTransition",
+    "related": [
+      ".navigationTransition()",
+      ".matchedTransitionSource()",
+      "NavigationStack"
+    ],
+    "summary": "The style type consumed by the navigationTransition modifier, most notably the zoom transition.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "@State private var angle = Angle.zero\n\nKnobView()\n    .rotationEffect(angle)\n    .gesture(\n        RotateGesture()\n            .onChanged { value in angle = value.rotation }\n    )",
+    "discussion": "The 2023 replacement reports a Value whose rotation is an Angle, alongside velocity and anchor information for rotation about the touch centroid. A minimumAngleDelta guards against accidental activation, and combining it with MagnifyGesture via .simultaneously(with:) yields the familiar photo-manipulation interaction.",
+    "kind": "Type",
+    "name": "RotateGesture",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "RotationGesture",
+      "MagnifyGesture",
+      ".rotationEffect()",
+      "SimultaneousGesture"
+    ],
+    "summary": "The modern two-finger rotation gesture, replacing RotationGesture with a structured value.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "StickerView()\n    .rotationEffect(twist)\n    .gesture(\n        RotationGesture()\n            .onChanged { twist = $0 }\n    )",
+    "deprecated": true,
+    "discussion": "Like its magnification sibling, this gesture's value is the raw rotation Angle with no velocity or anchor data. It remains available for backward compatibility, but RotateGesture is the supported path on current SDKs.",
+    "kind": "Type",
+    "name": "RotationGesture",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "RotateGesture",
+      ".rotationEffect()"
+    ],
+    "summary": "The original two-finger rotation gesture reporting a bare Angle, deprecated in favor of RotateGesture.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "AlbumCard(album: album)\n    .scrollTransition(.animated(.bouncy).threshold(.visible(0.4))) { content, phase in\n        content.offset(x: phase.value * 40)\n    }",
+    "discussion": "The .interactive configuration updates effects continuously with scroll position, while .animated(_:) fires a discrete animation as the view crosses visibility thresholds, and .identity disables the transition. The threshold(_:) combinator adjusts when the change happens, for example .visible(0.4) to trigger once forty percent of the view is showing.",
+    "kind": "Type",
+    "name": "ScrollTransitionConfiguration",
+    "related": [
+      ".scrollTransition()",
+      "ScrollTransitionPhase"
+    ],
+    "summary": "Configures whether a scroll transition tracks the scroll interactively or animates when a threshold is crossed.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "let pressThenDrag = LongPressGesture(minimumDuration: 0.3)\n    .sequenced(before: DragGesture())\n    .onEnded { value in\n        if case .second(true, let drag?) = value {\n            moveItem(by: drag.translation)\n        }\n    }",
+    "discussion": "Usually created with .sequenced(before:), its value is an enum: .first while the opener is in progress, then .second carrying the first result and an optional in-flight second value. The canonical use is long-press-then-drag, where the drag payload is only present once the press has been recognized.",
+    "kind": "Type",
+    "name": "SequenceGesture",
+    "related": [
+      "LongPressGesture",
+      "DragGesture",
+      "ExclusiveGesture",
+      "SimultaneousGesture"
+    ],
+    "summary": "A composite gesture whose second gesture only becomes active after the first one succeeds.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "let manipulate = MagnifyGesture()\n    .simultaneously(with: RotateGesture())\n    .onChanged { value in\n        zoom = value.first?.magnification ?? zoom\n        angle = value.second?.rotation ?? angle\n    }",
+    "discussion": "Built with .simultaneously(with:), its value exposes optional first and second components, either of which may be nil while only one gesture has produced output. Pinch-plus-rotate manipulation is the archetypal composition, updating scale and angle from whichever component changed.",
+    "kind": "Type",
+    "name": "SimultaneousGesture",
+    "related": [
+      "MagnifyGesture",
+      "RotateGesture",
+      ".simultaneousGesture()",
+      "SequenceGesture"
+    ],
+    "summary": "A composite gesture that runs two gestures at once and reports both of their values.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "ParticleField()\n    .gesture(\n        SpatialEventGesture()\n            .onChanged { events in\n                for event in events where event.phase == .active {\n                    emitter.moveAttractor(to: event.location)\n                }\n            }\n    )",
+    "discussion": "Its value is a SpatialEventCollection you iterate to read each event's identity, phase, and location, so several fingers can independently drive effects like particle attractors or multi-point drawing. This fills a long-standing gap: earlier SwiftUI gestures collapsed multi-touch input into a single aggregate value.",
+    "kind": "Type",
+    "name": "SpatialEventGesture",
+    "related": [
+      "SpatialTapGesture",
+      "DragGesture",
+      ".gesture()"
+    ],
+    "summary": "A low-level gesture that surfaces every active touch or pointer event, enabling true multi-touch handling.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "BoardView()\n    .gesture(\n        SpatialTapGesture()\n            .onEnded { value in\n                placeMarker(at: value.location)\n            }\n    )",
+    "discussion": "Where TapGesture reports nothing, SpatialTapGesture delivers a Value with a CGPoint in the coordinate space you choose at initialization. That makes it the right tool for hit-testing into custom-drawn content such as a Canvas, chart, or game board.",
+    "kind": "Type",
+    "name": "SpatialTapGesture",
+    "related": [
+      "TapGesture",
+      ".onTapGesture()",
+      "Canvas",
+      "SpatialEventGesture"
+    ],
+    "summary": "A tap gesture whose value includes the location of the tap.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "let spring = Spring(duration: 0.5, bounce: 0.3)\nlet current = spring.value(target: 1.0, time: 0.2)\nwithAnimation(.spring(spring)) {\n    offset = .zero\n}",
+    "discussion": "Spring exposes both perceptual (duration and bounce) and physical (mass, stiffness, damping, or response and dampingRatio) initializers, and offers presets like .bouncy, .snappy, and .smooth. Beyond driving .spring animations, it is a calculator: methods such as value(target:initialVelocity:time:) let you evaluate spring motion yourself in a Canvas, a custom layout, or a CustomAnimation.",
+    "kind": "Type",
+    "name": "Spring",
+    "related": [
+      "Animation.spring()",
+      "Animation.bouncy",
+      "CustomAnimation",
+      "SpringKeyframe"
+    ],
+    "summary": "A concrete representation of spring physics that you can query directly or convert into an Animation.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "KeyframeTrack(\\.scale) {\n    SpringKeyframe(1.3, duration: 0.2, spring: .bouncy)\n    SpringKeyframe(1.0, spring: .smooth)\n}",
+    "discussion": "You can supply a Spring to control the feel and either let the spring settle naturally or cap it with an explicit duration. Because springs carry velocity into the next segment, this keyframe is the natural choice for bounces and overshoots inside a longer choreography.",
+    "kind": "Type",
+    "name": "SpringKeyframe",
+    "related": [
+      "Spring",
+      "KeyframeTrack",
+      "CubicKeyframe"
+    ],
+    "summary": "A keyframe that moves toward its target using spring physics instead of a fixed curve.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "Color.clear\n    .contentShape(Rectangle())\n    .gesture(\n        TapGesture(count: 2).onEnded {\n            zoomLevel = 1.0\n        }\n    )",
+    "discussion": "TapGesture is the composable counterpart of .onTapGesture(): as a Gesture value it can be sequenced, combined, or given modifier-key requirements on macOS. Its Value is Void, so handlers attach through .onEnded with no payload; use SpatialTapGesture when you need the tap location.",
+    "kind": "Type",
+    "name": "TapGesture",
+    "related": [
+      ".onTapGesture()",
+      "SpatialTapGesture",
+      "ExclusiveGesture",
+      ".gesture()"
+    ],
+    "summary": "A discrete gesture that succeeds after a configurable number of taps.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Button(\"Skip\") {\n    var t = Transaction()\n    t.disablesAnimations = true\n    withTransaction(t) { progress = 1.0 }\n}",
+    "discussion": "Every state change propagates with a transaction; views read it to decide how to animate. Key properties include animation, disablesAnimations (which blocks animations set lower in the view hierarchy), and isContinuous for high-frequency gesture updates. Since 2023 you can extend it with your own typed values via the TransactionKey protocol.",
+    "kind": "Type",
+    "name": "Transaction",
+    "related": [
+      "withTransaction()",
+      ".transaction()",
+      "TransactionKey",
+      "Animation"
+    ],
+    "summary": "The per-update context that carries an animation and related flags through a single pass of view changes.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "struct AvatarTapKey: TransactionKey {\n    static let defaultValue = false\n}\n\nextension Transaction {\n    var isAvatarTap: Bool {\n        get { self[AvatarTapKey.self] }\n        set { self[AvatarTapKey.self] = newValue }\n    }\n}",
+    "discussion": "Conforming types declare a defaultValue, and you expose the value with a computed property on Transaction that uses the keyed subscript. This lets gesture handlers or intent-specific code tag an update — for example, marking a change as user-initiated — and lets distant views read that tag from their transaction to pick a different animation.",
+    "kind": "Protocol",
+    "name": "TransactionKey",
+    "related": [
+      "Transaction",
+      "withTransaction()",
+      ".transaction()"
+    ],
+    "summary": "A protocol for defining custom typed values that ride along inside a Transaction.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "struct Twirl: Transition {\n    func body(content: Content, phase: TransitionPhase) -> some View {\n        content\n            .rotationEffect(.degrees(phase.isIdentity ? 0 : 180))\n            .opacity(phase.isIdentity ? 1 : 0)\n    }\n}",
+    "discussion": "Custom transitions implement body(content:phase:) and style the content per phase: .willAppear, .identity, or .didDisappear. The isIdentity convenience collapses the common two-way case, and the numeric value property (-1, 0, or 1) makes symmetric math easy. Because phase changes are animated, the styling interpolates automatically.",
+    "kind": "Type",
+    "name": "TransitionPhase",
+    "related": [
+      "Transition",
+      "AnyTransition",
+      ".transition()"
+    ],
+    "summary": "The phase value a custom Transition receives, distinguishing appearance, steady state, and disappearance.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "let curve = UnitCurve.bezier(\n    startControlPoint: UnitPoint(x: 0.25, y: 0.1),\n    endControlPoint: UnitPoint(x: 0.25, y: 1.0)\n)\nlet progress = curve.value(at: 0.5)\nlet speed = curve.velocity(at: 0.5)",
+    "discussion": "UnitCurve provides presets like .linear, .easeIn, .easeOut, and .easeInOut, plus a .bezier form built from two control points. Because you can sample it with value(at:) and velocity(at:), it works anywhere you need an easing function as data — custom animations, LinearKeyframe timing, or your own interpolation math.",
+    "kind": "Type",
+    "name": "UnitCurve",
+    "related": [
+      "LinearKeyframe",
+      "Animation",
+      "CustomAnimation"
+    ],
+    "summary": "A function mapping unit-interval progress to unit-interval output, used to shape timing outside of prebuilt animations.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "func mix<V: VectorArithmetic>(_ a: V, _ b: V, by t: Double) -> V {\n    var result = b\n    result -= a\n    result.scale(by: t)\n    result += a\n    return result\n}",
+    "discussion": "SwiftUI's interpolators only need vector-space operations, and this protocol captures exactly those — which is why Double, CGFloat, and AnimatablePair all animate smoothly. Conforming your own type makes it directly usable as animatableData or as a keyframe track value.",
+    "kind": "Protocol",
+    "name": "VectorArithmetic",
+    "related": [
+      "Animatable",
+      "AnimatablePair",
+      "CustomAnimation"
+    ],
+    "summary": "The protocol animatable values must satisfy: addition, subtraction, scaling, and a squared magnitude.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "HStack {\n    Text(documentName).font(.headline)\n    Spacer()\n}\n.gesture(WindowDragGesture())",
+    "discussion": "Attach it with .gesture() to make custom chrome — a hand-built title bar, a borderless utility panel — behave like the standard draggable regions of a window. It performs the window move itself, so there is no value to observe and no handler to write.",
+    "kind": "Type",
+    "name": "WindowDragGesture",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      "Window",
+      "WindowGroup",
+      ".gesture()"
+    ],
+    "summary": "A macOS gesture that lets dragging a view move its entire window.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "Button(\"Favorite\") {\n    withAnimation(.bouncy) {\n        isFavorite.toggle()\n    }\n}",
+    "discussion": "Rather than attaching an animation to a particular view, withAnimation stamps the transaction for every dependent view that re-renders because of the closure's mutations. Since WWDC 2023 an overload accepts a completion closure and AnimationCompletionCriteria, so you can chain follow-up work when the animation logically completes or is fully removed. It returns the closure's result, so it composes with expressions as well as statements.",
+    "kind": "Type",
+    "name": "withAnimation()",
+    "related": [
+      "Animation",
+      "Transaction",
+      "AnimationCompletionCriteria",
+      "withTransaction()"
+    ],
+    "summary": "A global function that applies an animation to all state changes made inside its closure.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "var transaction = Transaction(animation: .easeInOut(duration: 0.2))\ntransaction.disablesAnimations = true\nwithTransaction(transaction) {\n    selectedTab = .library\n}",
+    "discussion": "Where withAnimation only sets the animation, withTransaction lets you supply an entire Transaction, including disablesAnimations and any custom TransactionKey values. It is the standard way to suppress an inherited animation for one specific state change without touching the views involved.",
+    "kind": "Type",
+    "name": "withTransaction()",
+    "related": [
+      "Transaction",
+      "withAnimation()",
+      ".transaction()",
+      "TransactionKey"
+    ],
+    "summary": "A global function that executes a closure with a fully custom transaction governing the resulting view updates.",
+    "wwdcYear": 2019
+  }
+]

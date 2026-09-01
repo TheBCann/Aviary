@@ -53,6 +53,7 @@ enum TopicKind: String, CaseIterable, Identifiable, Hashable, Codable {
     case style = "Style"
     case propertyWrapper = "Property Wrapper"
     case environmentValue = "Environment Value"
+    case supportingType = "Type"
 
     var id: String { rawValue }
 
@@ -66,6 +67,7 @@ enum TopicKind: String, CaseIterable, Identifiable, Hashable, Codable {
         case .style: "Styles"
         case .propertyWrapper: "Property Wrappers"
         case .environmentValue: "Environment Values"
+        case .supportingType: "Types"
         }
     }
 
@@ -79,6 +81,7 @@ enum TopicKind: String, CaseIterable, Identifiable, Hashable, Codable {
         case .style: "paintbrush"
         case .propertyWrapper: "at"
         case .environmentValue: "leaf"
+        case .supportingType: "shippingbox"
         }
     }
 
@@ -92,6 +95,7 @@ enum TopicKind: String, CaseIterable, Identifiable, Hashable, Codable {
         case .style: .pink
         case .propertyWrapper: .green
         case .environmentValue: .mint
+        case .supportingType: .brown
         }
     }
 }

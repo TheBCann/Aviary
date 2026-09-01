@@ -1,0 +1,419 @@
+[
+  {
+    "code": "@main struct FeedApp: App {\n    var body: some Scene {\n        WindowGroup { ContentView() }\n            .backgroundTask(.appRefresh(\"com.example.sync\")) {\n                await store.sync()\n            }\n    }\n}",
+    "discussion": "The scene modifier ties BackgroundTasks scheduling into the SwiftUI lifecycle: when the system wakes the app for the identified task, the closure runs as structured async work and the run ends when it returns. Cancellation flows through Swift concurrency when the system's time allowance expires, so long operations should check Task.isCancelled and checkpoint their progress.",
+    "kind": "Modifier",
+    "name": ".backgroundTask()",
+    "platforms": [
+      "iOS",
+      "tvOS",
+      "watchOS"
+    ],
+    "related": [
+      "scenePhase",
+      ".task()",
+      "WindowGroup"
+    ],
+    "summary": "Registers an async handler on a scene for a system background task, such as an app refresh.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "WindowGroup {\n    ContentView()\n        .defaultAppStorage(\n            UserDefaults(suiteName: \"group.com.example.shared\")!\n        )\n}",
+    "discussion": "By default @AppStorage reads UserDefaults.standard; this modifier swaps in another suite — most commonly an app-group store shared with widgets or extensions — for every descendant that does not name a store explicitly. It exists on both View and Scene, so applying it at the WindowGroup level covers the whole app.",
+    "kind": "Modifier",
+    "name": ".defaultAppStorage()",
+    "related": [
+      "@AppStorage",
+      "@SceneStorage",
+      "WindowGroup"
+    ],
+    "summary": "Redirects @AppStorage and @SceneStorage defaults in a subtree to a specific UserDefaults store.",
+    "wwdcYear": 2020
+  },
+  {
+    "children": [
+      {
+        "code": "List { rows }\n    .environment(\\.defaultMinListRowHeight, 60)",
+        "name": ".environment(_:_:)",
+        "summary": "Key-path overload that sets a single EnvironmentValues property for the subtree."
+      },
+      {
+        "code": "WindowGroup {\n    ContentView().environment(AppState())\n}",
+        "name": ".environment(_:)",
+        "summary": "Object overload that stores an Observable instance in the environment keyed by its type."
+      }
+    ],
+    "code": "ContentView()\n    .environment(\\.locale, Locale(identifier: \"fr_FR\"))\n    .environment(router) // any @Observable object",
+    "discussion": "The key-path form writes one EnvironmentValues entry, affecting every descendant until another override intervenes. Since WWDC 2023 an overload accepts any @Observable object directly and stores it by type, which descendants retrieve with @Environment(Router.self); passing nil for an optional object clears it.",
+    "kind": "Modifier",
+    "name": ".environment()",
+    "related": [
+      "@Environment",
+      "EnvironmentValues",
+      ".environmentObject()",
+      ".transformEnvironment()"
+    ],
+    "summary": "Overrides an environment entry — or injects a whole Observable object — for the modified view's subtree.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "@main struct ShopApp: App {\n    @StateObject private var cart = CartModel()\n    var body: some Scene {\n        WindowGroup {\n            ContentView().environmentObject(cart)\n        }\n    }\n}",
+    "discussion": "The object is stored by its type, so one instance per class can be active for a subtree; a descendant declaring @EnvironmentObject of a type that was never injected crashes at runtime, which makes injection at the App or Scene level the safest pattern. For @Observable models prefer the object overload of .environment() instead.",
+    "kind": "Modifier",
+    "name": ".environmentObject()",
+    "related": [
+      "@EnvironmentObject",
+      "@StateObject",
+      "ObservableObject",
+      ".environment()"
+    ],
+    "summary": "Places an ObservableObject into the environment so any descendant can receive it via @EnvironmentObject.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "ChartBody(samples: samples)\n    .equatable()",
+    "discussion": "By default SwiftUI diffs a view's stored properties heuristically; .equatable() replaces that with your == implementation, which pays off for views with expensive bodies driven by cheap-to-compare inputs. It only helps when the wrapped view's inputs actually capture everything the body depends on — environment reads inside the body still invalidate as usual.",
+    "kind": "Modifier",
+    "name": ".equatable()",
+    "related": [
+      "EquatableView",
+      "Canvas",
+      ".id()"
+    ],
+    "summary": "Wraps an Equatable view so SwiftUI skips re-evaluating its body when the new value compares equal to the old.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "WindowGroup {\n    DocumentView(model: model)\n        .focusedSceneObject(model)\n}",
+    "discussion": "Like .focusedSceneValue() for objects: the model remains available to @FocusedObject observers as long as its scene is the active one, so window-level commands keep working when focus rests on nothing in particular. Attach it to the scene's root view alongside the model's owner.",
+    "kind": "Modifier",
+    "name": ".focusedSceneObject()",
+    "related": [
+      ".focusedObject()",
+      ".focusedSceneValue()",
+      "@FocusedObject"
+    ],
+    "summary": "Publishes an ObservableObject for the entire scene's focus context, independent of which control holds keyboard focus.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "TimerView()\n    .id(sessionID) // new session restarts the timer's state",
+    "discussion": "Identity is what SwiftUI uses to decide whether a view is the same view across updates; changing the id tears the old one down — @State, animations, and scroll offsets included — and builds a replacement, which makes it a deliberate reset switch. The same identifier is what ScrollViewReader's scrollTo targets.",
+    "kind": "Modifier",
+    "name": ".id()",
+    "related": [
+      "ForEach",
+      "ScrollViewReader",
+      ".tag()",
+      "@State"
+    ],
+    "summary": "Assigns an explicit identity to a view, resetting its state whenever the identity value changes.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "@main struct RecipesApp: App {\n    var body: some Scene {\n        WindowGroup { ContentView() }\n            .modelContainer(for: Recipe.self)\n    }\n}",
+    "discussion": "The convenience form takes model types and builds a container with sensible defaults — plus flags for in-memory storage, autosave, and undo — while another overload accepts a preconfigured ModelContainer. Everything below the modifier shares the container's main-actor context, so applying it to the WindowGroup is the canonical SwiftData bootstrap.",
+    "framework": "SwiftData",
+    "kind": "Modifier",
+    "name": ".modelContainer()",
+    "related": [
+      "@Query",
+      "modelContext",
+      "ModelContainer",
+      "@Model"
+    ],
+    "summary": "Creates or installs a SwiftData model container for a view or scene, enabling @Query and the modelContext environment.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "#Preview {\n    RecipeList()\n        .modelContext(previewContext)\n}",
+    "discussion": "Where .modelContainer() supplies a container and lets SwiftUI use its main context, this modifier hands descendants an exact ModelContext — useful for previews seeded with fixture data, or for pointing part of the UI at a scratch editing context whose changes commit only on save. Descendants read it back through the modelContext environment value.",
+    "framework": "SwiftData",
+    "kind": "Modifier",
+    "name": ".modelContext()",
+    "related": [
+      "modelContext",
+      ".modelContainer()",
+      "modelContext",
+      "@Query"
+    ],
+    "summary": "Injects a specific SwiftData model context into the environment for a subtree.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "CanvasView(selection: $selection)\n    .onCommand(#selector(NSResponder.selectAll(_:))) {\n        selection = canvas.allShapes\n    }",
+    "discussion": "When a menu item or key equivalent fires a selector like selectAll(_:), AppKit walks the responder chain; this modifier registers the view to claim that selector and run a closure instead. It is the bridge for honoring stock Edit-menu semantics in custom macOS views without recreating the menu items via Commands.",
+    "kind": "Modifier",
+    "name": ".onCommand()",
+    "platforms": [
+      "macOS"
+    ],
+    "related": [
+      "Commands",
+      ".onCopyCommand()",
+      ".keyboardShortcut()"
+    ],
+    "summary": "Handles a responder-chain command selector, letting a SwiftUI view answer standard AppKit menu actions.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "PlayerView(item: episode)\n    .onDisappear {\n        player.pause()\n    }",
+    "discussion": "It is the teardown counterpart to .onAppear() — the natural place to pause playback, flush analytics, or cancel work that only matters on screen. Note it fires when the platform considers the view gone, which in lazy containers and navigation stacks does not always coincide with deallocation; pair it with .onAppear() for symmetric bookkeeping.",
+    "kind": "Modifier",
+    "name": ".onDisappear()",
+    "related": [
+      ".onAppear()",
+      ".task()",
+      "scenePhase"
+    ],
+    "summary": "Runs an action after the view is removed from the visible hierarchy.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Text(now, style: .time)\n    .onReceive(\n        Timer.publish(every: 1, on: .main, in: .common)\n            .autoconnect()\n    ) { date in\n        now = date\n    }",
+    "discussion": "The subscription lives exactly as long as the view's identity, so there is no token to manage; the publisher must fail with Never. It remains the idiomatic bridge from Timer.publish, NotificationCenter.default.publisher, and other Combine sources into view state, though async sequences with .task() cover much of the same ground in newer code.",
+    "kind": "Modifier",
+    "name": ".onReceive()",
+    "related": [
+      ".task()",
+      ".onChange()",
+      "@Published",
+      "ObservableObject"
+    ],
+    "summary": "Subscribes a view to a Combine publisher and runs an action with each value it emits.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "ContentView()\n    .preferredColorScheme(settings.forceDark ? .dark : nil)",
+    "discussion": "Unlike setting the colorScheme environment value, which restyles only a subtree, this modifier publishes a preference that bubbles up and flips the enclosing window or sheet, chrome included. Passing nil returns control to the system setting, which is the standard way to implement an in-app appearance picker.",
+    "kind": "Modifier",
+    "name": ".preferredColorScheme()",
+    "related": [
+      "colorScheme",
+      ".environment()",
+      "colorSchemeContrast"
+    ],
+    "summary": "Requests light or dark appearance for the whole presentation containing the view.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Picker(\"Sort\", selection: $sort) {\n    Text(\"Name\").tag(SortOrder.name)\n    Text(\"Date\").tag(SortOrder.date)\n}",
+    "discussion": "Picker, TabView, and List selection all work by comparing each child's tag to the bound selection value, so the tag's type must match the binding's exactly — an Int tag never matches a String? selection. When the selection is optional, tag the non-optional value; SwiftUI bridges the optionality during comparison.",
+    "kind": "Modifier",
+    "name": ".tag()",
+    "related": [
+      "Picker",
+      "TabView",
+      "List",
+      ".id()"
+    ],
+    "summary": "Associates a Hashable value with a view so selection-driven containers can match it against their selection binding.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "content\n    .transformEnvironment(\\.font) { font in\n        font = (font ?? .body).bold()\n    }",
+    "discussion": "Where .environment() overwrites, .transformEnvironment() hands you the value the subtree would have inherited so you can adjust it relative to context — bolding whatever font is in effect, or capping a size category. The closure receives the entry inout, and the transformed result flows down like any other environment write.",
+    "kind": "Modifier",
+    "name": ".transformEnvironment()",
+    "related": [
+      ".environment()",
+      "EnvironmentValues",
+      "@Environment"
+    ],
+    "summary": "Mutates an inherited environment value in place instead of replacing it outright.",
+    "wwdcYear": 2019
+  },
+  {
+    "children": [
+      {
+        "code": "@Attribute(.unique) var slug: String",
+        "name": "@Attribute",
+        "summary": "Customizes one persisted property with options like unique constraints or external storage."
+      },
+      {
+        "code": "@Relationship(deleteRule: .cascade, inverse: \\Step.recipe)\nvar steps: [Step] = []",
+        "name": "@Relationship",
+        "summary": "Configures a link between models, including its delete rule and inverse key path."
+      }
+    ],
+    "code": "@Model\nfinal class Recipe {\n    var name: String\n    var steps: [Step] = []\n    init(name: String) { self.name = name }\n}",
+    "discussion": "Applied to a final class, it generates the persistence schema from stored properties, conforms the type to PersistentModel, and layers in Observation so views tracking an instance update on exactly the properties they read. @Attribute and @Relationship refine individual properties with uniqueness constraints, delete rules, and inverse links.",
+    "framework": "SwiftData",
+    "kind": "Property Wrapper",
+    "name": "@Model",
+    "related": [
+      "@Query",
+      "ModelContainer",
+      "@Observable",
+      "modelContext"
+    ],
+    "summary": "The macro that turns a Swift class into a SwiftData persisted model with observation built in.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "@Observable\nfinal class FeedModel {\n    var posts: [Post] = []\n    @ObservationIgnored var cursor: String?\n}",
+    "discussion": "Inside an @Observable type every stored property is instrumented by default, so mutating any of them can invalidate views. Marking caches, tokens, or other non-UI state with @ObservationIgnored keeps writes to them from triggering view updates and avoids the macro's accessor rewriting for that property.",
+    "framework": "Observation",
+    "kind": "Property Wrapper",
+    "name": "@ObservationIgnored",
+    "related": [
+      "@Observable",
+      "Observable"
+    ],
+    "summary": "Excludes a stored property of an @Observable class from change tracking.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "@SectionedFetchRequest(\n    sectionIdentifier: \\Quake.day,\n    sortDescriptors: [SortDescriptor(\\Quake.time)]\n) private var quakes: SectionedFetchResults<String, Quake>",
+    "discussion": "It extends @FetchRequest with a sectionIdentifier key path whose value partitions results into SectionedFetchResults, which nests directly into List and ForEach as sections of rows. The first sort descriptor must order by the section key so rows land in contiguous groups; like its unsectioned sibling it live-updates when the managed object context saves.",
+    "kind": "Property Wrapper",
+    "name": "@SectionedFetchRequest",
+    "related": [
+      "@FetchRequest",
+      "FetchedResults",
+      "Section",
+      "List"
+    ],
+    "summary": "Fetches Core Data objects grouped into sections by a key path, updating the view as the store changes.",
+    "wwdcYear": 2021
+  },
+  {
+    "children": [
+      {
+        "code": "Toggle(\"Wi-Fi\", isOn: .constant(true))",
+        "name": "Binding.constant()",
+        "summary": "Creates a read-only binding wrapping a fixed value, handy for previews and disabled UI."
+      },
+      {
+        "code": "let isPro = Binding(\n    get: { plan == .pro },\n    set: { plan = $0 ? .pro : .free }\n)",
+        "name": "Binding(get:set:)",
+        "summary": "Builds a custom binding from explicit read and write closures over any storage."
+      }
+    ],
+    "code": "let volume = Binding(\n    get: { mixer.volume },\n    set: { mixer.volume = $0 }\n)\nSlider(value: volume, in: 0...1)",
+    "discussion": "Binding is the currency of SwiftUI's write-back data flow: controls like Slider and Toggle take one so mutations land in the source of truth rather than a copy. You usually obtain one via the $ projection of @State or @Bindable, but the get/set initializer lets you synthesize a binding around any external storage, and Binding.constant() produces an immutable stand-in for previews.",
+    "kind": "Type",
+    "name": "Binding",
+    "related": [
+      "@Binding",
+      "@State",
+      "@Bindable",
+      "Slider"
+    ],
+    "summary": "A two-way reference to state owned elsewhere, letting a child view read and write a value without owning its storage.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "extension EnvironmentValues {\n    @Entry var accentTint: Color = .blue\n}\n\nContentView()\n    .environment(\\.accentTint, .orange)",
+    "discussion": "Each view receives an EnvironmentValues snapshot inherited from its ancestors; modifiers like .environment() override individual entries for a subtree. You extend it with your own keys — since WWDC 2024 a single @Entry declaration replaces the older EnvironmentKey boilerplate — and any descendant can then read the value with @Environment.",
+    "kind": "Type",
+    "name": "EnvironmentValues",
+    "related": [
+      "@Environment",
+      "EnvironmentKey",
+      "@Entry",
+      ".environment()"
+    ],
+    "summary": "The container of contextual values that flows down the view hierarchy and backs every @Environment read.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "EquatableView(content:\n    WaveformView(buffer: buffer)\n)",
+    "discussion": "EquatableView<Content> is the type .equatable() returns; you can also construct it directly when composing generic containers. When the stored content equals the previous value, SwiftUI reuses the prior body wholesale, making it a targeted tool for pruning invalidation in hot paths like per-frame Canvas drawing.",
+    "kind": "View",
+    "name": "EquatableView",
+    "related": [
+      ".equatable()",
+      "AnyView",
+      "ModifiedContent"
+    ],
+    "summary": "A wrapper view that gates updates of its Equatable content on value equality.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "@FetchRequest(sortDescriptors: [SortDescriptor(\\Recipe.name)])\nprivate var recipes: FetchedResults<Recipe>\n\nvar body: some View {\n    List(recipes) { RecipeRow(recipe: $0) }\n}",
+    "discussion": "It behaves like an array of your Core Data entities but stays synchronized with the managed object context, so inserts and deletes ripple into the UI automatically. Since iOS 15 its nsPredicate and sortDescriptors properties are settable at runtime, letting search fields refine the fetch without rebuilding the property wrapper.",
+    "kind": "Type",
+    "name": "FetchedResults",
+    "related": [
+      "@FetchRequest",
+      "@SectionedFetchRequest",
+      "List"
+    ],
+    "summary": "The live, random-access collection of managed objects that an @FetchRequest exposes to a view.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "struct SelectedNoteKey: FocusedValueKey {\n    typealias Value = Note\n}",
+    "discussion": "A conforming type only declares an associated Value; unlike EnvironmentKey there is no default, because the whole point is that the value is absent when nothing relevant has focus. Every read through @FocusedValue or @FocusedBinding is therefore optional, and commands typically disable themselves when it is nil.",
+    "kind": "Protocol",
+    "name": "FocusedValueKey",
+    "related": [
+      "FocusedValues",
+      ".focusedValue()",
+      "@FocusedBinding",
+      "EnvironmentKey"
+    ],
+    "summary": "The key protocol that defines the value type for a custom FocusedValues entry.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "let config = ModelConfiguration(isStoredInMemoryOnly: true)\nlet container = try ModelContainer(\n    for: Recipe.self, Step.self,\n    configurations: config\n)",
+    "discussion": "You initialize it with model types and optional ModelConfiguration values controlling store location, in-memory operation, or CloudKit syncing; its mainContext property is the main-actor context the UI uses. Apps that need custom migration plans or multiple stores create the container manually and pass it to .modelContainer() instead of using the convenience form.",
+    "framework": "SwiftData",
+    "kind": "Type",
+    "name": "ModelContainer",
+    "related": [
+      ".modelContainer()",
+      "modelContext",
+      "@Model",
+      "@Query"
+    ],
+    "summary": "The SwiftData object that owns the persistent store and schema for a set of model types.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "@Observable\nfinal class Router {\n    var path = NavigationPath()\n}\n\n// Injected by type, no key path needed:\nContentView().environment(Router())",
+    "discussion": "You rarely conform to Observable by hand; the @Observable macro adds the conformance along with per-property change tracking. SwiftUI uses the conformance as a constraint in APIs like the object overload of .environment() and the type-based @Environment initializer, and views re-render only when a property they actually read changes.",
+    "framework": "Observation",
+    "kind": "Protocol",
+    "name": "Observable",
+    "related": [
+      "@Observable",
+      "@Bindable",
+      "@Environment",
+      ".environment()"
+    ],
+    "summary": "The marker protocol from the Observation framework that identifies types whose property accesses SwiftUI can track individually.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "final class CartModel: ObservableObject {\n    @Published var items: [Item] = []\n    var total: Decimal {\n        items.map(\\.price).reduce(0, +)\n    }\n}",
+    "discussion": "Conforming classes get a synthesized objectWillChange publisher that fires before any @Published property mutates, which is what @StateObject, @ObservedObject, and @EnvironmentObject subscribe to. On OS versions from 2023 onward the @Observable macro supersedes it with per-property tracking, but ObservableObject remains the model protocol for Combine-era code and for @FocusedObject.",
+    "framework": "Combine",
+    "kind": "Protocol",
+    "name": "ObservableObject",
+    "related": [
+      "@Published",
+      "@StateObject",
+      "@ObservedObject",
+      "@Observable"
+    ],
+    "summary": "A class-constrained protocol whose objectWillChange publisher tells SwiftUI to refresh views observing the object.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Text(\"[Read the docs](https://example.com/docs)\")\n    .environment(\\.openURL, OpenURLAction { url in\n        route(url) ? .handled : .systemAction\n    })",
+    "discussion": "Reading @Environment(\\.openURL) gives you this action for launching URLs from code. Since WWDC 2021 you can also install your own OpenURLAction into the environment; its handler returns .handled, .discarded, or .systemAction to short-circuit, swallow, or forward each URL — the mechanism that lets you hijack Markdown links inside Text.",
+    "kind": "Type",
+    "name": "OpenURLAction",
+    "related": [
+      "openURL",
+      ".onOpenURL()",
+      "Link",
+      ".environment()"
+    ],
+    "summary": "The callable value behind the openURL environment entry, which programmatically opens links and can be replaced to intercept them.",
+    "wwdcYear": 2020
+  }
+]

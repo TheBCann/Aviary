@@ -1,0 +1,881 @@
+[
+  {
+    "code": "Text(\"Boarding closes in 5 minutes\")\n    .lineLimit(1)\n    .allowsTightening(true)",
+    "discussion": "Tightening is subtler than scaling: the font size stays the same and only spacing gives way, typically rescuing text that misses fitting by a few points. It composes naturally with minimumScaleFactor as a first line of defense, with scaling kicking in only when tightening is not enough.",
+    "kind": "Modifier",
+    "name": ".allowsTightening()",
+    "related": [
+      ".minimumScaleFactor()",
+      ".truncationMode()"
+    ],
+    "summary": "Permits the layout engine to compress inter-character spacing slightly to fit text before truncating.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "TextEditor(text: $note, selection: $selection)\n    .attributedTextFormattingDefinition(NoteRules())",
+    "discussion": "With a definition in place, every path that changes the text — typing, pasting styled content, or system formatting controls — is filtered through your declared scope and constraints, so disallowed attributes are stripped or corrected automatically. This is the enforcement half of the 2025 rich-text stack, complementing the AttributedString binding and selection.",
+    "kind": "Modifier",
+    "name": ".attributedTextFormattingDefinition()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "AttributedTextFormattingDefinition",
+      "AttributedTextSelection",
+      "AttributedString",
+      "TextEditor"
+    ],
+    "summary": "Attaches a formatting definition to a rich TextEditor, constraining which attributes edits may produce.",
+    "wwdcYear": 2025
+  },
+  {
+    "code": "TextField(\"Server address\", text: $host)\n    .autocorrectionDisabled()\n    .textInputAutocapitalization(.never)",
+    "discussion": "Fields that collect identifiers rather than prose — usernames, hostnames, promo codes, search over structured data — fight the corrector constantly, so disabling it there is a usability fix rather than a preference. This name replaced the older disableAutocorrection modifier during the 2022 cycle.",
+    "kind": "Modifier",
+    "name": ".autocorrectionDisabled()",
+    "related": [
+      ".textInputAutocapitalization()",
+      ".keyboardType()",
+      ".textContentType()"
+    ],
+    "summary": "Turns off autocorrect suggestions for text input in a view hierarchy.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "HStack(alignment: .firstTextBaseline, spacing: 2) {\n    Text(\"E = mc\")\n    Text(\"2\")\n        .font(.footnote)\n        .baselineOffset(6)\n}",
+    "discussion": "Positive values lift the text and negative values sink it, making this the lightweight way to fake superscripts and subscripts by combining an offset with a smaller font. Within concatenated or HStack-composed text, offset runs still participate in line layout, so extreme values can grow the line box.",
+    "kind": "Modifier",
+    "name": ".baselineOffset()",
+    "related": [
+      ".kerning()",
+      ".font()"
+    ],
+    "summary": "Raises or lowers text relative to its natural baseline by a point amount.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Text(\"Total due\")\n    .bold()\nText(\"Row title\")\n    .bold(isHighlighted)",
+    "discussion": "Originally a Text-only modifier, bold gained a view-level form in 2022 that boldens the environment font for a whole subtree, including Label and Image symbol content. The bold(_:) overload takes a Bool, which is cleaner than wrapping the modifier in a conditional.",
+    "kind": "Modifier",
+    "name": ".bold()",
+    "related": [
+      ".fontWeight()",
+      "Font.Weight",
+      ".italic()"
+    ],
+    "summary": "Applies bold weight to text, with an optional Boolean to toggle it conditionally.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "(Text(\"Flash sale \") + Text(\"today\").customAttribute(Highlight()))\n    .textRenderer(HighlightRenderer())",
+    "discussion": "The attribute travels through layout invisibly — it changes nothing unless a TextRenderer checks for it by subscripting runs with the attribute type. Combined with string concatenation or AttributedString, this lets one sentence mix normally drawn words with specially rendered ones.",
+    "kind": "Modifier",
+    "name": ".customAttribute()",
+    "related": [
+      "TextAttribute",
+      ".textRenderer()",
+      "Text.Layout"
+    ],
+    "summary": "Tags a Text with a custom TextAttribute so a renderer can single out its runs.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "StatusBadge()\n    .dynamicTypeSize(...DynamicTypeSize.accessibility2)\nCompactMeter()\n    .dynamicTypeSize(.large)",
+    "discussion": "The range form is the accessibility-friendly use: capping a dense component at an upper bound keeps layouts workable while still honoring smaller preferences. Pinning to a single size silences the user's setting entirely and should be reserved for genuinely size-critical chrome.",
+    "kind": "Modifier",
+    "name": ".dynamicTypeSize()",
+    "related": [
+      "dynamicTypeSize",
+      "@ScaledMetric",
+      "Font.TextStyle"
+    ],
+    "summary": "Clamps a view subtree to a fixed Dynamic Type size or a permitted range of sizes.",
+    "wwdcYear": 2021
+  },
+  {
+    "children": [
+      {
+        "code": "TextEditor(text: $notes)\n    .findDisabled(isReadOnlyLocked)\n    .findNavigator(isPresented: $showFind)",
+        "name": ".findDisabled()",
+        "summary": "Blocks the find interface entirely for the modified editor, including the system keyboard shortcut."
+      },
+      {
+        "code": "TextEditor(text: $contract)\n    .replaceDisabled(true)\n    .findNavigator(isPresented: $showFind)",
+        "name": ".replaceDisabled()",
+        "summary": "Allows searching but removes the replace capability from the find interface."
+      }
+    ],
+    "code": "@State private var showFind = false\n\nvar body: some View {\n    TextEditor(text: $draft)\n        .findNavigator(isPresented: $showFind)\n        .toolbar {\n            Button(\"Find\") { showFind = true }\n        }\n}",
+    "discussion": "The navigator supplies the full search UI — match highlighting, next and previous stepping, and replacement — for free on editors that support it. The binding reflects dismissal by the user, so keep it as real state rather than a constant, and use the companion disabling modifiers to restrict capability.",
+    "kind": "Modifier",
+    "name": ".findNavigator()",
+    "platforms": [
+      "iOS"
+    ],
+    "related": [
+      "TextEditor",
+      ".searchable()"
+    ],
+    "summary": "Presents the system find-and-replace interface over a TextEditor, driven by a Boolean binding.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "VStack(alignment: .leading) {\n    Text(\"Reading mode\").font(.headline)\n    Text(\"Long-form body text renders in serif.\")\n}\n.fontDesign(.serif)",
+    "discussion": "Setting the design in the environment means every Dynamic Type style below the modifier re-resolves against the chosen family, which is far less repetitive than specifying the design in each .font() call. It shipped in the 16.1 point release of the 2022 cycle.",
+    "kind": "Modifier",
+    "name": ".fontDesign()",
+    "related": [
+      "Font.Design",
+      ".fontWidth()",
+      ".font()"
+    ],
+    "summary": "Switches the system typeface design — rounded, serif, or monospaced — for an entire view hierarchy.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "Text(\"Kilograms\")\n    .fontWeight(.semibold)\nLabel(\"Flag\", systemImage: \"flag\")\n    .fontWeight(.medium)",
+    "discussion": "Weight applies on top of whatever font is in the environment, so a headline stays a headline while turning semibold. The view-level form is particularly handy for SF Symbols in Labels and toolbar items, which render their strokes to match the requested weight.",
+    "kind": "Modifier",
+    "name": ".fontWeight()",
+    "related": [
+      "Font.Weight",
+      ".bold()",
+      ".fontDesign()"
+    ],
+    "summary": "Sets the weight of the current font for text, and since 2022 for whole view subtrees including symbols.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Text(\"DEPARTURES\")\n    .fontWidth(.expanded)\nText(\"Extremely long station name\")\n    .fontWidth(.compressed)",
+    "discussion": "Width only takes effect with typefaces exposing a width axis, so it is most reliable with the system font. Compressed and condensed widths buy significant horizontal room in tables, tickers, and badges without shrinking the point size, preserving legibility better than minimumScaleFactor in some layouts.",
+    "kind": "Modifier",
+    "name": ".fontWidth()",
+    "related": [
+      "Font.Width",
+      ".fontDesign()",
+      ".minimumScaleFactor()"
+    ],
+    "summary": "Applies a width variant of the current font, such as condensed or expanded, to a view's text.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "Text(\"The Swift Programming Language\")\n    .italic()\nText(\"Quoted phrase\")\n    .italic(isQuote)",
+    "discussion": "For fonts with a true italic face the system uses it; otherwise an oblique slant is synthesized. Like bold, the modifier started on Text and now also works view-wide, and it composes with weight and design changes since each derives a new Font value.",
+    "kind": "Modifier",
+    "name": ".italic()",
+    "related": [
+      ".bold()",
+      ".fontDesign()"
+    ],
+    "summary": "Slants text into its italic variant, optionally controlled by a Boolean.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Text(\"ESTABLISHED 1962\")\n    .font(.caption.smallCaps())\n    .kerning(1.5)",
+    "discussion": "Kerning shifts the following glyph's origin by the given amount, and negative values tighten. Its practical difference from tracking is ligature handling: kerned text may still form ligatures, whereas tracked text disables them. When both are applied to the same Text, tracking wins.",
+    "kind": "Modifier",
+    "name": ".kerning()",
+    "related": [
+      ".tracking()",
+      ".baselineOffset()"
+    ],
+    "summary": "Adds a fixed number of points between characters while keeping ligatures eligible where spacing allows.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "TextField(\"Amount\", text: $amount)\n    .keyboardType(.decimalPad)\nTextField(\"Email\", text: $email)\n    .keyboardType(.emailAddress)",
+    "discussion": "The type is a hint about expected content, not validation — an email keyboard still lets users type anything, so parsing and validation remain your job. Number pads notably lack a return key, which makes pairing them with an explicit done affordance or toolbar important for dismissal.",
+    "kind": "Modifier",
+    "name": ".keyboardType()",
+    "platforms": [
+      "iOS",
+      "tvOS"
+    ],
+    "related": [
+      ".textContentType()",
+      ".submitLabel()",
+      ".autocorrectionDisabled()"
+    ],
+    "summary": "Selects which software keyboard layout appears for a text field, such as number pad, email, or URL.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Text(articleBody)\n    .font(.body)\n    .lineSpacing(6)",
+    "discussion": "The value is extra space added on top of the font's built-in leading, so it does not scale with Dynamic Type — at accessibility sizes a fixed 6 points becomes proportionally insignificant. For scaling adjustments prefer Font.leading, and reserve lineSpacing for fine-tuning a specific reading layout.",
+    "kind": "Modifier",
+    "name": ".lineSpacing()",
+    "related": [
+      "Font.Leading",
+      ".multilineTextAlignment()"
+    ],
+    "summary": "Adds a fixed number of points between the lines of wrapped text.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Text(\"Extremely long station name\")\n    .lineLimit(1)\n    .minimumScaleFactor(0.6)",
+    "discussion": "The factor is a floor, not a target: text renders at full size when it fits and only scales when space runs out. Combine it with a line limit for single-line labels like buttons and gauges, and keep the floor conservative — anything below roughly 0.5 tends to become unreadable at small Dynamic Type sizes.",
+    "kind": "Modifier",
+    "name": ".minimumScaleFactor()",
+    "related": [
+      ".allowsTightening()",
+      ".truncationMode()",
+      ".lineLimit()"
+    ],
+    "summary": "Lets text shrink down to a fraction of its set size before truncating.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Text(\"a1b2-c3d4-e5f6\")\n    .monospaced()\nText(\"let x = 42\")\n    .font(.callout.monospaced())",
+    "discussion": "For the system font this resolves to SF Mono while keeping the ambient text style and weight, which suits identifiers, code snippets, and hashes embedded in otherwise proportional UI. There are matching Font.monospaced() and view-level forms, and .fontDesign(.monospaced) achieves the same through the environment.",
+    "kind": "Modifier",
+    "name": ".monospaced()",
+    "related": [
+      ".monospacedDigit()",
+      "Font.Design",
+      ".fontDesign()"
+    ],
+    "summary": "Switches text to a fixed-pitch variant of the current font.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "Text(elapsed, format: .number.precision(.fractionLength(1)))\n    .monospacedDigit()\n    .font(.largeTitle)",
+    "discussion": "This targets tabular figures rather than a monospaced typeface, which makes it the right choice for timers, counters, prices, and any column of numbers that updates in place. Without it, a tick from 1:11 to 1:12 can shift neighboring glyphs because proportional digits differ in width.",
+    "kind": "Modifier",
+    "name": ".monospacedDigit()",
+    "related": [
+      ".monospaced()",
+      "Text.DateStyle"
+    ],
+    "summary": "Renders digits at a uniform width while leaving letters proportional, so changing numbers do not jitter.",
+    "wwdcYear": 2021
+  },
+  {
+    "children": [
+      {
+        "code": ".onKeyPress(keys: [.upArrow, .downArrow]) { press in\n    move(press.key == .upArrow ? -1 : 1)\n    return .handled\n}",
+        "name": ".onKeyPress(keys:action:)",
+        "summary": "Restricts handling to a specific set of key equivalents, receiving the KeyPress for inspection."
+      },
+      {
+        "code": ".onKeyPress(phases: [.down, .repeat]) { press in\n    nudgeSelection(by: press.characters)\n    return .handled\n}",
+        "name": ".onKeyPress(phases:action:)",
+        "summary": "Observes chosen phases — down, repeat, up — enabling press-and-hold and release behavior."
+      }
+    ],
+    "code": "PuzzleBoard()\n    .focusable()\n    .onKeyPress(.escape) {\n        deselectAll()\n        return .handled\n    }",
+    "discussion": "The handler only fires while the modified view or a descendant holds focus, so pairing it with focusable() on non-input views is the usual setup. Returning .handled stops the event; .ignored lets it continue to the system and ancestors — important so standard shortcuts keep working. Handlers run off the main actor's usual event path, so keep them fast and side-effect-light.",
+    "kind": "Modifier",
+    "name": ".onKeyPress()",
+    "platforms": [
+      "iOS",
+      "macOS",
+      "tvOS"
+    ],
+    "related": [
+      "KeyPress",
+      "KeyEquivalent",
+      ".focused()",
+      ".keyboardShortcut()"
+    ],
+    "summary": "Handles hardware keyboard input on the focused view, returning whether the press was consumed.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "VStack {\n    Text(\"Checking\")\n    Text(balance, format: .currency(code: \"USD\"))\n        .privacySensitive()\n}",
+    "discussion": "The mark is inert until an enclosing context applies the .privacy redaction reason — widgets on a locked device are the canonical case. Only views carrying the mark hide, so a widget can keep its layout and labels visible while balances and names become placeholder shapes.",
+    "kind": "Modifier",
+    "name": ".privacySensitive()",
+    "related": [
+      ".redacted()",
+      "RedactionReasons",
+      ".unredacted()"
+    ],
+    "summary": "Marks a view as containing private data so the system can redact it in privacy contexts.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "ScrollView {\n    MessageThread(messages: messages)\n    ComposerField(text: $draft)\n}\n.scrollDismissesKeyboard(.interactively)",
+    "discussion": "Interactive dismissal drags the keyboard down in sync with the scroll gesture, the pattern users know from Messages, while .immediately drops it as soon as scrolling starts. The default varies by container — scrollable content generally dismisses immediately but Form and List lean interactive — so setting it explicitly documents intent.",
+    "kind": "Modifier",
+    "name": ".scrollDismissesKeyboard()",
+    "related": [
+      "ScrollView",
+      ".onSubmit()"
+    ],
+    "summary": "Chooses how scrolling interacts with an open software keyboard: immediately, interactively, or never.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "HStack(spacing: 6) {\n    Text(\"$59.99\")\n        .strikethrough(true, color: .secondary)\n    Text(\"$39.99\").bold()\n}",
+    "discussion": "The 2022 cycle added the pattern parameter, so strikethroughs can be dashed or dotted via Text.LineStyle patterns rather than only solid. A nil color inherits the current foreground style, which keeps the decoration legible across light and dark appearances.",
+    "kind": "Modifier",
+    "name": ".strikethrough()",
+    "related": [
+      ".underline()",
+      "Text.LineStyle"
+    ],
+    "summary": "Draws a line through text, with optional activation flag, pattern, and color.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "TextField(\"City\", text: $city)\n    .submitLabel(.next)\nTextField(\"Notes\", text: $notes)\n    .submitLabel(.done)",
+    "discussion": "In multi-field forms, alternating .next on intermediate fields with .done or .go on the last one telegraphs the flow, while the actual focus movement is your code's job via focus state in .onSubmit(). The label is purely visual metadata and never changes what submission does.",
+    "kind": "Modifier",
+    "name": ".submitLabel()",
+    "related": [
+      "SubmitLabel",
+      ".onSubmit()",
+      "@FocusState"
+    ],
+    "summary": "Sets the label of the keyboard's return key for a text field.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "Form {\n    TagTokenEditor(text: $draftTag)\n        .submitScope()\n    TextField(\"Title\", text: $title)\n}\n.onSubmit { saveDocument() }",
+    "discussion": "Submit triggers normally bubble to every enclosing .onSubmit(), which is wrong for embedded editors like a tag or token field whose return key should act locally. Scoping the subtree cuts that propagation without touching the outer form's handler, and the Boolean parameter lets you toggle the blockade.",
+    "kind": "Modifier",
+    "name": ".submitScope()",
+    "related": [
+      ".onSubmit()",
+      "SubmitTriggers"
+    ],
+    "summary": "Stops submit events from a subtree from reaching onSubmit handlers above it.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "Section {\n    settingsRows\n} header: {\n    Text(\"Advanced Options\")\n        .textCase(nil)   // keep original casing\n}",
+    "discussion": "The transformation is a display-time effect, so the source string, accessibility output, and copy operations keep the original casing. Its most common real-world use is passing nil to suppress the automatic uppercasing that Form and List section headers apply on iOS.",
+    "kind": "Modifier",
+    "name": ".textCase()",
+    "related": [
+      "Section",
+      "Form"
+    ],
+    "summary": "Transforms displayed text to uppercase or lowercase without altering the underlying string.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "TextField(\"Email\", text: $email)\n    .textContentType(.emailAddress)\nSecureField(\"One-time code\", text: $code)\n    .textContentType(.oneTimeCode)",
+    "discussion": "Content type is what unlocks password manager integration, one-time code capture from Messages, and address or contact completion — features users perceive as the platform being smart. Setting .newPassword on sign-up fields additionally triggers strong password generation, and correct types improve keyboard QuickType suggestions.",
+    "kind": "Modifier",
+    "name": ".textContentType()",
+    "related": [
+      ".keyboardType()",
+      "SecureField",
+      ".submitLabel()"
+    ],
+    "summary": "Declares the semantic type of a field's content so the system can offer AutoFill and smart suggestions.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "TextEditor(text: $draft)\n    .textEditorStyle(.plain)\n    .padding(12)\n    .background(.quaternary, in: RoundedRectangle(cornerRadius: 12))",
+    "discussion": "The plain style makes a TextEditor behave like raw editable text, which is what you want when composing it into a custom card or chat bubble whose background you draw yourself. As with other style protocols the setting flows down the environment to all editors in the subtree.",
+    "kind": "Modifier",
+    "name": ".textEditorStyle()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "TextEditor",
+      ".textFieldStyle()"
+    ],
+    "summary": "Applies a style to TextEditor instances, most usefully the plain style that strips default backing and padding.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "TextField(\"Tag\", text: $tag)\n    .textInputAutocapitalization(.never)\nTextField(\"Recipient name\", text: $name)\n    .textInputAutocapitalization(.words)",
+    "discussion": "Sentences is the effective default for most fields, so the modifier mostly earns its keep turning capitalization off for usernames, emails, and codes, or switching to words for proper-noun fields. It guides the shift key only; it never rewrites text the user already entered.",
+    "kind": "Modifier",
+    "name": ".textInputAutocapitalization()",
+    "platforms": [
+      "iOS",
+      "tvOS",
+      "watchOS"
+    ],
+    "related": [
+      "TextInputAutocapitalization",
+      ".autocorrectionDisabled()"
+    ],
+    "summary": "Controls when the software keyboard automatically capitalizes typed text.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "Text(\"Sparkle\")\n    .font(.largeTitle.bold())\n    .textRenderer(WaveRenderer(phase: phase))",
+    "discussion": "The renderer receives a Text.Layout plus a GraphicsContext and can draw runs with per-slice transforms, opacity, and effects, enabling per-glyph animation over genuine text layout rather than exploded character views. Animatable renderer properties integrate with SwiftUI animations, so effects can be driven by ordinary state.",
+    "kind": "Modifier",
+    "name": ".textRenderer()",
+    "related": [
+      "TextRenderer",
+      "Text.Layout",
+      ".customAttribute()"
+    ],
+    "summary": "Hands a Text view's resolved layout to a custom TextRenderer for bespoke drawing and animation.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "HStack(alignment: .firstTextBaseline, spacing: 2) {\n    Text(\"84\").font(.system(.largeTitle, design: .rounded))\n    Text(\"bpm\").textScale(.secondary)\n}",
+    "discussion": "Scale expresses a relationship rather than a size: a value-and-unit pair keeps its hierarchy at every Dynamic Type setting because both pieces derive from the same base font. This beats hardcoding a smaller font for the unit, which would drift out of proportion as the base scales.",
+    "kind": "Modifier",
+    "name": ".textScale()",
+    "related": [
+      ".font()",
+      "dynamicTypeSize"
+    ],
+    "summary": "Marks text as secondary scale so it renders proportionally smaller than neighboring default-scale text.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "Text(\"HEADLINE\")\n    .font(.title2.weight(.semibold))\n    .tracking(3)",
+    "discussion": "Tracking is the tool for stylized display text like spaced-out uppercase headers, since it applies evenly across the run. Because it suppresses ligatures it can subtly change letterforms in fonts that rely on them, and it overrides kerning if both are present on the same Text.",
+    "kind": "Modifier",
+    "name": ".tracking()",
+    "related": [
+      ".kerning()"
+    ],
+    "summary": "Spreads or tightens the space after each character uniformly, disabling ligatures in the process.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Text(\"/Users/dev/app/Sources/Feature/DetailView.swift\")\n    .lineLimit(1)\n    .truncationMode(.middle)",
+    "discussion": "Tail truncation is the default, but middle truncation is markedly better for file paths, URLs, and identifiers whose distinguishing part is at the end. Head truncation suits strings where only the suffix matters, such as trailing digits of an account number.",
+    "kind": "Modifier",
+    "name": ".truncationMode()",
+    "related": [
+      ".lineLimit()",
+      ".minimumScaleFactor()"
+    ],
+    "summary": "Chooses whether the ellipsis lands at the head, middle, or tail when text is cut off.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Text(verbatim: userComment)\n    .typesettingLanguage(.init(languageCode: .thai))",
+    "discussion": "Some scripts need taller line boxes or different glyph shaping than the UI language implies — Thai and Arabic embedded in an English interface are classic cases. Declaring the typesetting language prevents clipped ascenders and wrong glyph variants for that specific run of text without changing localization.",
+    "kind": "Modifier",
+    "name": ".typesettingLanguage()",
+    "related": [
+      "locale",
+      "Text"
+    ],
+    "summary": "Tells the layout engine which language's typographic rules to use, independent of the app's locale.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "Text(\"Terms of Service\")\n    .underline(true, color: .blue)\nText(\"Subtle emphasis\")\n    .underline(pattern: .dot)",
+    "discussion": "Underlines share Text.LineStyle with strikethrough, so dot and dash patterns are available alongside solid. Reserve underlining for genuine emphasis or link affordances — in scrolling UI an underline strongly implies tappability, so pairing it with a non-interactive label can mislead users.",
+    "kind": "Modifier",
+    "name": ".underline()",
+    "related": [
+      ".strikethrough()",
+      "Text.LineStyle",
+      "Link"
+    ],
+    "summary": "Underlines text with an optional activation flag, line pattern, and color.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "VStack(alignment: .leading) {\n    Text(\"Portfolio\").font(.headline)\n        .unredacted()\n    HoldingsList(holdings: .placeholder)\n}\n.redacted(reason: .placeholder)",
+    "discussion": "Skeleton screens usually redact a whole card but keep static chrome readable — section titles, icons, and headers stay real while data rows become placeholder shapes. Applying unredacted below a .redacted() ancestor removes the inherited reasons for just that branch.",
+    "kind": "Modifier",
+    "name": ".unredacted()",
+    "related": [
+      ".redacted()",
+      "RedactionReasons",
+      ".privacySensitive()"
+    ],
+    "summary": "Exempts a subtree from redaction applied by an ancestor.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "TextEditor(text: $essay)\n    .writingToolsBehavior(.complete)\nTextField(\"Regex pattern\", text: $pattern)\n    .writingToolsBehavior(.disabled)",
+    "discussion": "The .complete behavior permits in-place proofreading and rewriting, .limited restricts the experience to a panel without direct mutation, and .disabled opts the field out entirely. Fields holding code, identifiers, or other machine-formatted text are the clearest candidates for opting out, since rewrites would corrupt them.",
+    "kind": "Modifier",
+    "name": ".writingToolsBehavior()",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "TextEditor",
+      "TextField"
+    ],
+    "summary": "Configures how Apple Intelligence Writing Tools engage with a text control, from full inline rewriting to disabled.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "var emphasis = AttributeContainer()\nemphasis.font = .headline\nemphasis.underlineStyle = .single\n\nvar message = AttributedString(\"Due today\")\nmessage.mergeAttributes(emphasis)",
+    "discussion": "Containers separate the description of styling from the text it applies to, which keeps highlight or theme logic reusable. Merge policies let you decide whether incoming attributes win over ones already present, and the same typed property syntax used on AttributedString works here.",
+    "framework": "Foundation",
+    "kind": "Type",
+    "name": "AttributeContainer",
+    "related": [
+      "AttributedString"
+    ],
+    "summary": "A dictionary-like bundle of attributes you can build once and merge onto attributed string runs.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "var text = AttributedString(\"Ship it today\")\nif let range = text.range(of: \"today\") {\n    text[range].foregroundColor = .orange\n    text[range].font = .headline.bold()\n}\nText(text)",
+    "discussion": "Attributes are strongly typed through attribute scopes, so SwiftUI-specific styling like foregroundColor or font is set with plain property syntax on a slice of the string. Text has rendered AttributedString since 2021, and the 2025 cycle made it the storage for rich TextEditor editing, so the same value flows between display, editing, and persistence.",
+    "framework": "Foundation",
+    "kind": "Type",
+    "name": "AttributedString",
+    "related": [
+      "AttributeContainer",
+      "AttributedTextSelection",
+      "Text"
+    ],
+    "summary": "A value-type string that carries typed attribute runs, which Text renders and rich TextEditor edits directly.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "struct NoteRules: AttributedTextFormattingDefinition {\n    struct Scope: AttributeScope {\n        let foregroundColor: AttributeScopes.SwiftUIAttributes.ForegroundColorAttribute\n    }\n    var body: some AttributedTextFormattingDefinition<Scope> {\n        // compose value constraints here\n    }\n}",
+    "discussion": "A definition names an AttributeScope of permitted attributes and composes constraints in its body, and the editor then enforces those rules on every edit, paste, and toolbar action. This keeps app-specific invariants — such as a custom attribute always implying a certain color — true without manually sanitizing text after each change.",
+    "kind": "Protocol",
+    "name": "AttributedTextFormattingDefinition",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      ".attributedTextFormattingDefinition()",
+      "AttributedString",
+      "AttributedTextSelection"
+    ],
+    "summary": "Declares which attributes a rich TextEditor may carry and the rules that keep them in valid combinations.",
+    "wwdcYear": 2025
+  },
+  {
+    "code": "@State private var note = AttributedString(\"Mix bold and color\")\n@State private var selection = AttributedTextSelection()\n\nvar body: some View {\n    TextEditor(text: $note, selection: $selection)\n}",
+    "discussion": "The 2025 rich TextEditor takes a Binding to an AttributedString plus one of these selections, keeping both valid as edits mutate the string — indices are updated for you rather than invalidated. Inspecting the selection lets toolbar controls reflect and modify the formatting of exactly what the user highlighted.",
+    "kind": "Type",
+    "name": "AttributedTextSelection",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "AttributedString",
+      "TextEditor",
+      "AttributedTextFormattingDefinition"
+    ],
+    "summary": "The selection type for rich-text editing, tracking possibly discontiguous selected ranges inside a bound AttributedString.",
+    "wwdcYear": 2025
+  },
+  {
+    "code": "Button(\"Duplicate\") { duplicate() }\n    .keyboardShortcut(\"d\", modifiers: [.command, .shift])\n// In an onKeyPress handler:\n// press.modifiers.contains(.option)",
+    "discussion": "EventModifiers appears throughout the input APIs: keyboard shortcuts declare which modifiers accompany a key, key press values report which were held, and gesture modifiers on macOS can require them. Being an OptionSet, combinations compose with array literal syntax.",
+    "kind": "Type",
+    "name": "EventModifiers",
+    "related": [
+      "KeyEquivalent",
+      ".onKeyPress()",
+      ".keyboardShortcut()"
+    ],
+    "summary": "An option set of keyboard modifier flags — command, shift, option, control, capsLock, and numericPad.",
+    "wwdcYear": 2019
+  },
+  {
+    "children": [
+      {
+        "code": "Text(\"Score\")\n    .font(.system(.title, design: .rounded, weight: .bold))\nText(\"Fixed size\")\n    .font(.system(size: 17, weight: .semibold))",
+        "name": "Font.system()",
+        "summary": "Builds a font from the system typeface, either at a fixed point size or from a Dynamic Type text style, with optional weight and design."
+      },
+      {
+        "code": "Text(\"Brand headline\")\n    .font(.custom(\"ZillaSlab-Bold\", size: 24))\nText(\"Never scales\")\n    .font(.custom(\"ZillaSlab-Bold\", fixedSize: 24))",
+        "name": "Font.custom()",
+        "summary": "Loads a bundled or installed typeface by PostScript or family name, scaling relative to a text style unless you pin it with fixedSize."
+      },
+      {
+        "code": "Text(\"Today\").font(.largeTitle)\nText(\"Section\").font(.headline)\nText(\"Fine print\").font(.footnote)",
+        "name": "Font.largeTitle",
+        "summary": "One of the built-in Dynamic Type styles — largeTitle, title, headline, body, callout, footnote, caption, and friends — that resize with the user's text settings."
+      }
+    ],
+    "code": "VStack(alignment: .leading) {\n    Text(\"Headline\").font(.largeTitle)\n    Text(\"Body copy\")\n        .font(.system(size: 15, design: .serif))\n    Text(\"Caption\")\n        .font(.custom(\"AvenirNext-Medium\", size: 12))\n}",
+    "discussion": "Font values are immutable descriptions rather than live font objects, so you can derive new fonts fluently with instance methods like weight(_:), italic(), leading(_:), or smallCaps(). Prefer the dynamic text styles over fixed sizes so text tracks the user's Dynamic Type setting automatically. A font set with the .font() modifier flows down the environment to every descendant view.",
+    "kind": "Type",
+    "name": "Font",
+    "related": [
+      ".font()",
+      "Font.TextStyle",
+      "Font.Design",
+      "Font.Weight"
+    ],
+    "summary": "The value type that describes a typeface configuration, combining a size or text style with weight, design, and variation details.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Text(\"Rounded\").font(.system(.body, design: .rounded))\nText(\"Serif\").font(.system(.body, design: .serif))\nText(\"Mono\").font(.system(.body, design: .monospaced))",
+    "discussion": "Design changes the entire glyph set while keeping the metrics tied to the same text style, so a rounded headline still scales like a headline. It applies through Font.system(_:design:), the .fontDesign() view modifier, or Font's own instance methods, and pairs well with weights for display typography without shipping font files.",
+    "kind": "Type",
+    "name": "Font.Design",
+    "related": [
+      "Font",
+      ".fontDesign()"
+    ],
+    "summary": "Selects which of the system typeface families to use: default, rounded, serif, or monospaced.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Text(paragraph)\n    .font(.body.leading(.tight))\nText(paragraph)\n    .font(.body.leading(.loose))",
+    "discussion": "Unlike .lineSpacing(), which adds fixed points between lines, leading swaps the font's own metric so the adjustment scales with the text size. It is applied on the font itself through Font.leading(_:), making it useful for dense multiline layouts such as compact cards or notifications.",
+    "kind": "Type",
+    "name": "Font.Leading",
+    "related": [
+      ".lineSpacing()",
+      "Font"
+    ],
+    "summary": "Adjusts a font's built-in line height between standard, tight, and loose presets.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "@ScaledMetric(relativeTo: .headline) private var iconSize = 20.0\n\nvar body: some View {\n    Image(systemName: \"bolt.fill\")\n        .frame(width: iconSize)\n    Text(\"Charging\").font(.system(.headline))\n}",
+    "discussion": "Passing a text style instead of a point size lets the system pick the right metrics for the current Dynamic Type setting. Several APIs accept it as an anchor, notably Font.system(_:design:weight:), Font.custom(_:size:relativeTo:), and @ScaledMetric's relativeTo parameter, so custom measurements grow in step with a chosen role.",
+    "kind": "Type",
+    "name": "Font.TextStyle",
+    "related": [
+      "Font",
+      "@ScaledMetric",
+      "dynamicTypeSize"
+    ],
+    "summary": "An enumeration of the semantic Dynamic Type styles, from largeTitle down to caption2, used wherever an API scales relative to a text role.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Text(\"Thin\").fontWeight(.thin)\nText(\"Black\").fontWeight(.black)\nText(\"Derived\")\n    .font(.system(size: 18).weight(.medium))",
+    "discussion": "Weight is a wrapper over the continuous weight axis rather than a plain enum, with nine named steps. You can apply it when constructing a font, derive it later with Font.weight(_:), or set it view-wide with .fontWeight(). The system may still substitute weights when the user enables the Bold Text accessibility setting, which you can observe via legibilityWeight.",
+    "kind": "Type",
+    "name": "Font.Weight",
+    "related": [
+      ".fontWeight()",
+      "legibilityWeight",
+      "Font"
+    ],
+    "summary": "The stroke weight of a font, spanning ultraLight through black.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "Text(\"LIVE\").fontWidth(.expanded)\nText(\"Breaking headline ticker\")\n    .fontWidth(.compressed)\nText(\"Derived\")\n    .font(.body.width(.condensed))",
+    "discussion": "Width works with typefaces that carry a width variation axis, most notably SF Pro, and lets dense UI like tickers or wide display headers use the same family at different footprints. It is a struct wrapping a raw value, so intermediate widths are possible where the font supports them. Apply it via .fontWidth() or Font.width(_:).",
+    "kind": "Type",
+    "name": "Font.Width",
+    "related": [
+      ".fontWidth()",
+      "Font"
+    ],
+    "summary": "The horizontal expansion of a font along its width axis, with compressed, condensed, standard, and expanded presets.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "Button(\"Save\") { save() }\n    .keyboardShortcut(KeyEquivalent(\"s\"), modifiers: .command)\nButton(\"Cancel\") { cancel() }\n    .keyboardShortcut(.escape, modifiers: [])",
+    "discussion": "KeyEquivalent backs keyboard shortcut and key press APIs, offering statics like .return, .escape, .space, .tab, .delete, and the arrow keys alongside literal characters. Because it is a character rather than a key code, shortcuts follow the user's keyboard layout.",
+    "kind": "Type",
+    "name": "KeyEquivalent",
+    "platforms": [
+      "iOS",
+      "macOS",
+      "tvOS"
+    ],
+    "related": [
+      ".keyboardShortcut()",
+      "KeyPress",
+      "EventModifiers"
+    ],
+    "summary": "A single character representing a keyboard key, expressible directly from a character literal, with named constants for special keys.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "CanvasView()\n    .focusable()\n    .onKeyPress(phases: .down) { press in\n        print(press.key, press.characters, press.modifiers)\n        return .handled\n    }",
+    "discussion": "A KeyPress distinguishes the physical key equivalent from the characters it generated under the current layout and modifiers, so you can match either. Its phase reports down, repeat, or up, letting handlers implement press-and-hold behavior, and handlers return .handled or .ignored to control propagation.",
+    "kind": "Type",
+    "name": "KeyPress",
+    "platforms": [
+      "iOS",
+      "macOS",
+      "tvOS"
+    ],
+    "related": [
+      ".onKeyPress()",
+      "KeyEquivalent",
+      "EventModifiers"
+    ],
+    "summary": "The value delivered to onKeyPress handlers, describing the pressed key, produced characters, modifier flags, and event phase.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "@Environment(\\.legibilityWeight) private var weight\n\nvar body: some View {\n    Text(\"Custom face\")\n        .fontWeight(weight == .bold ? .heavy : .regular)\n}",
+    "discussion": "System text responds to Bold Text automatically; this value exists for the cases that don't, such as custom fonts with hand-picked weights, Canvas drawing, or stroke widths that should grow alongside the text. It reads nil when no preference applies and .bold when the setting is on.",
+    "kind": "Environment Value",
+    "name": "legibilityWeight",
+    "related": [
+      "Font.Weight",
+      ".fontWeight()",
+      "dynamicTypeSize"
+    ],
+    "summary": "Reflects the user's Bold Text accessibility setting so custom drawing can thicken to match.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "let key: LocalizedStringKey = \"welcome.title\"\nText(key)                       // looked up in the string catalog\nText(verbatim: \"Raw string\")   // never localized\nText(\"**Bold** and _italic_ via Markdown\")",
+    "discussion": "Because Text, Button, and most other controls take LocalizedStringKey rather than String, a bare literal is automatically treated as a lookup key, while a String variable is shown verbatim. The type conforms to ExpressibleByStringInterpolation, so interpolated values become format arguments, and since 2021 literal keys also parse basic Markdown for inline styling.",
+    "kind": "Type",
+    "name": "LocalizedStringKey",
+    "related": [
+      "Text",
+      "LocalizedStringResource"
+    ],
+    "summary": "The key type that makes string literals in SwiftUI views resolve through your app's localization tables.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "let title = LocalizedStringResource(\"inbox.title\", table: \"Mail\")\nText(title)\nLabel(String(localized: title), systemImage: \"tray\")",
+    "discussion": "Unlike LocalizedStringKey, this Foundation type can travel across concurrency domains and process boundaries — it is the currency of App Intents and widget configuration — and it remembers its table, bundle, and locale. Text accepts it directly, so shared model code can describe user-facing strings without importing SwiftUI.",
+    "framework": "Foundation",
+    "kind": "Type",
+    "name": "LocalizedStringResource",
+    "related": [
+      "LocalizedStringKey",
+      "Text"
+    ],
+    "summary": "A codable, sendable reference to a localized string that defers resolution until display time.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "@Environment(\\.redactionReasons) private var reasons\n\nvar body: some View {\n    Text(reasons.contains(.placeholder) ? \"–––\" : account.number)\n}",
+    "discussion": "Applying .redacted(reason: .placeholder) turns descendant text and images into neutral shapes, a cheap way to build skeleton loading states from the real layout. The .privacy reason cooperates with .privacySensitive() so only marked views hide, and views read the active reasons from the environment to customize their redacted appearance.",
+    "kind": "Type",
+    "name": "RedactionReasons",
+    "related": [
+      ".redacted()",
+      ".unredacted()",
+      ".privacySensitive()"
+    ],
+    "summary": "The option set explaining why content is redacted: placeholder shapes, privacy, or invalidated widget content.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "TextField(\"Search city\", text: $query)\n    .submitLabel(.search)\nSecureField(\"Password\", text: $password)\n    .submitLabel(.go)",
+    "discussion": "Choosing the right submit label tells users what pressing return will do before they press it, and it changes only the key's appearance — the action still arrives through .onSubmit(). On hardware keyboards and macOS the label has no visual effect but the semantics remain harmless.",
+    "kind": "Type",
+    "name": "SubmitLabel",
+    "related": [
+      ".submitLabel()",
+      ".onSubmit()"
+    ],
+    "summary": "The semantic label shown on the keyboard's return key, such as done, go, search, next, or send.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "List(results) { ResultRow(result: $0) }\n    .searchable(text: $query)\n    .onSubmit(of: .search) {\n        runSearch()\n    }",
+    "discussion": "By default .onSubmit() listens for .text, meaning return presses inside text entry controls. Passing .search instead scopes the handler to a .searchable() field higher in the hierarchy, which keeps a screen's search commit logic separate from its form fields.",
+    "kind": "Type",
+    "name": "SubmitTriggers",
+    "related": [
+      ".onSubmit()",
+      ".searchable()",
+      ".submitScope()"
+    ],
+    "summary": "An option set naming which kinds of submit events an onSubmit handler responds to: text fields, search fields, or both.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "let launch = Date(timeIntervalSinceNow: 3600)\nText(launch, style: .timer)     // 59:59 counting down\nText(launch, style: .relative)  // in 1 hour\nText(launch, style: .date)",
+    "discussion": "When you initialize Text with a Date and one of these styles, the system owns the refresh: .timer and .relative tick without any state or TimelineView on your side, which also works in widgets where your code is not running. The .date and .time styles format once using the current locale.",
+    "kind": "Type",
+    "name": "Text.DateStyle",
+    "related": [
+      "Text",
+      "TimelineView"
+    ],
+    "summary": "Formatting styles that let a Text showing a date update itself live, including timers and relative offsets.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "struct PlainRenderer: TextRenderer {\n    func draw(layout: Text.Layout, in ctx: inout GraphicsContext) {\n        for line in layout {\n            for run in line {\n                ctx.draw(run)\n            }\n        }\n    }\n}",
+    "discussion": "Text.Layout is a collection of lines, each a collection of runs sharing one set of attributes, and runs can be sliced for per-glyph effects. A TextRenderer walks this structure and draws each piece into a GraphicsContext, which is how per-word or per-character animations are built without abandoning real text layout.",
+    "kind": "Type",
+    "name": "Text.Layout",
+    "related": [
+      "TextRenderer",
+      ".textRenderer()",
+      ".customAttribute()"
+    ],
+    "summary": "The resolved typographic layout of a Text — lines, runs, and glyph run slices — handed to a custom TextRenderer.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "Text(\"Deprecated API\")\n    .strikethrough(pattern: .dash, color: .red)\nText(\"Read the details\")\n    .underline(pattern: .dot)",
+    "discussion": "The same type serves the underline and strikethrough modifiers and the underlineStyle attribute on AttributedString, so decorations round-trip between styled strings and modifier-based styling. Patterns include solid, dot, dash, dashDot, and dashDotDot; passing nil for color inherits the text's foreground.",
+    "kind": "Type",
+    "name": "Text.LineStyle",
+    "related": [
+      ".underline()",
+      ".strikethrough()",
+      "AttributedString"
+    ],
+    "summary": "Describes underline and strikethrough decoration, including dash and dot patterns and an optional color.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "Text(longQuote)\n    .multilineTextAlignment(.trailing)\n    .frame(width: 240)",
+    "discussion": "TextAlignment governs how wrapped lines sit relative to each other inside the text's own bounds, which is distinct from how the text frame is positioned in its container. Leading and trailing flip automatically in right-to-left locales, so avoid hardcoding left or right thinking in layout code.",
+    "kind": "Type",
+    "name": "TextAlignment",
+    "related": [
+      ".multilineTextAlignment()",
+      ".frame()"
+    ],
+    "summary": "The enumeration of leading, center, and trailing alignment used for multiline text layout.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "struct Emphasis: TextAttribute {}\n\nText(\"Fresh\").customAttribute(Emphasis())\n// Inside a TextRenderer:\n// if run[Emphasis.self] != nil { /* draw specially */ }",
+    "discussion": "Conforming types carry no required members; they act as typed tags applied with .customAttribute() and read back inside a renderer by subscripting a layout run with the attribute type. This is the plumbing that lets one renderer treat certain words differently — highlighting, springs, shimmer — while leaving the rest of the string untouched.",
+    "kind": "Protocol",
+    "name": "TextAttribute",
+    "related": [
+      ".customAttribute()",
+      "TextRenderer",
+      "Text.Layout"
+    ],
+    "summary": "A marker protocol for custom attributes you attach to Text so a TextRenderer can recognize specific runs.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "TextField(\"Username\", text: $username)\n    .textInputAutocapitalization(.never)\nTextField(\"Full name\", text: $name)\n    .textInputAutocapitalization(.words)",
+    "discussion": "This type replaced the UIKit-flavored autocapitalization API with a SwiftUI-native one. It only influences the shift key's automatic behavior — users can always override it manually — and it has no effect where text arrives from a hardware keyboard.",
+    "kind": "Type",
+    "name": "TextInputAutocapitalization",
+    "platforms": [
+      "iOS",
+      "tvOS",
+      "watchOS"
+    ],
+    "related": [
+      ".textInputAutocapitalization()",
+      ".autocorrectionDisabled()"
+    ],
+    "summary": "Describes when the software keyboard automatically shifts to uppercase: never, by words, by sentences, or for every character.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "@State private var text = \"Hello, world\"\n@State private var selection: TextSelection?\n\nvar body: some View {\n    TextEditor(text: $text, selection: $selection)\n}",
+    "discussion": "Binding a TextSelection? into a TextField or TextEditor lets you read what the user has selected and move the caret programmatically, enabling features like format buttons that act on the selection. The value distinguishes a plain insertion point from ranges, and the binding becomes nil when the field gives up focus.",
+    "kind": "Type",
+    "name": "TextSelection",
+    "platforms": [
+      "iOS",
+      "macOS"
+    ],
+    "related": [
+      "TextEditor",
+      "TextField",
+      "AttributedTextSelection"
+    ],
+    "summary": "A value describing the selected range or insertion point inside an editable text control, bindable from your own state.",
+    "wwdcYear": 2024
+  }
+]

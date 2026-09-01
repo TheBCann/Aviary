@@ -1,0 +1,717 @@
+[
+  {
+    "children": [
+      {
+        "code": "CardView(card: card)\n    .accessibilityAction(named: \"Flip\") { flip(card) }",
+        "name": ".accessibilityAction(named:)",
+        "summary": "Adds a custom, named action to the element's VoiceOver actions menu."
+      },
+      {
+        "code": "TrackRow(track: track)\n    .accessibilityAction {\n        addToQueue(track)\n    } label: {\n        Label(\"Add to Queue\", systemImage: \"text.badge.plus\")\n    }",
+        "name": ".accessibilityAction(action:label:)",
+        "summary": "Variant (2022) that labels the action with an arbitrary view, such as a Label with an icon."
+      }
+    ],
+    "code": "MessageRow(message: message)\n    .accessibilityAction(named: \"Reply\") { reply(to: message) }\n    .accessibilityAction(.magicTap) { togglePlayback() }",
+    "discussion": "Standard kinds cover system gestures — .default for activation, .escape for the two-finger scrub, .magicTap for the two-finger double tap — while the named form adds entries to VoiceOver's actions menu so users can trigger secondary behavior without hunting for hidden buttons. Named actions are the accessible counterpart to swipe actions and long-press menus, which VoiceOver users cannot easily discover otherwise.",
+    "kind": "Modifier",
+    "name": ".accessibilityAction()",
+    "related": [
+      "AccessibilityActionKind",
+      ".accessibilityActions()",
+      ".accessibilityAdjustableAction()"
+    ],
+    "summary": "Attaches a handler for a standard or named accessibility action to a view.",
+    "wwdcYear": 2019
+  },
+  {
+    "children": [
+      {
+        "code": "NoteEditor(text: $note.body)\n    .accessibilityActions(category: .edit) {\n        Button(\"Insert checklist\") { insertChecklist() }\n    }",
+        "name": ".accessibilityActions(category:)",
+        "summary": "Variant (2024) that files the declared actions under a category such as .edit."
+      }
+    ],
+    "code": "NoteRow(note: note)\n    .accessibilityActions {\n        Button(\"Pin\") { pin(note) }\n        Button(\"Delete\", role: .destructive) { delete(note) }\n    }",
+    "discussion": "Introduced in the 2022 cycle, this builder form converts each Button in the closure into a custom action, reusing the button's label and role — a destructive role carries through to how the action is presented. It scales better than chaining many .accessibilityAction(named:) calls and keeps the action list next to the row content it belongs to. iOS 18 added a category: parameter for grouping actions.",
+    "kind": "Modifier",
+    "name": ".accessibilityActions()",
+    "related": [
+      ".accessibilityAction()",
+      "AccessibilityActionCategory"
+    ],
+    "summary": "Declares a group of custom accessibility actions using a view builder of buttons.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "SettingsRow(title: \"Notifications\", isOn: $notificationsOn)\n    .accessibilityActivationPoint(UnitPoint(x: 0.92, y: 0.5))",
+    "discussion": "When a combined element wraps a row whose real control sits at one edge — a toggle at the trailing side, for instance — the default center-point activation can hit dead space. Supplying a UnitPoint (or CGPoint overload) aims the synthesized tap at the actual control so activation behaves as the spoken label promises.",
+    "kind": "Modifier",
+    "name": ".accessibilityActivationPoint()",
+    "related": [
+      ".accessibilityElement()",
+      ".accessibilityAction()"
+    ],
+    "summary": "Redirects where a double-tap activation lands within an element's frame.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "Text(\"Now Playing\")\n    .font(.headline)\n    .accessibilityAddTraits(.isHeader)",
+    "discussion": "Traits tell assistive technologies how an element behaves, which changes both what VoiceOver announces and which rotor and navigation features apply — .isHeader, for example, makes an element reachable through the headings rotor. Standard controls set their own traits, so this modifier matters most for custom views built from shapes, images, or gesture recognizers.",
+    "kind": "Modifier",
+    "name": ".accessibilityAddTraits()",
+    "related": [
+      "AccessibilityTraits",
+      ".accessibilityRemoveTraits()"
+    ],
+    "summary": "Adds semantic traits, such as button or header behavior, to a view's accessibility element.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "QuantityBadge(count: quantity)\n    .accessibilityValue(\"\\(quantity)\")\n    .accessibilityAdjustableAction { direction in\n        switch direction {\n        case .increment: quantity += 1\n        case .decrement: quantity = max(0, quantity - 1)\n        @unknown default: break\n        }\n    }",
+    "discussion": "The handler receives an AccessibilityAdjustmentDirection each time the user swipes up or down on the focused element, which is how custom steppers, ratings, and sliders become operable without visible buttons. Always pair it with .accessibilityValue() so the user hears the new state after each adjustment; without a value the gesture appears to do nothing.",
+    "kind": "Modifier",
+    "name": ".accessibilityAdjustableAction()",
+    "related": [
+      "AccessibilityAdjustmentDirection",
+      ".accessibilityValue()",
+      "Stepper"
+    ],
+    "summary": "Makes an element respond to VoiceOver's increment and decrement swipe gestures.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "TemperatureSparkline(readings: readings)\n    .accessibilityChartDescriptor(TemperatureAXDescriptor(readings: readings))",
+    "discussion": "The argument conforms to AXChartDescriptorRepresentable and produces an AXChartDescriptor — axes, series, and data points — which powers the system Audio Graphs experience: VoiceOver users can hear the data contour as pitch over time and drill into summaries and extrema. Any hand-drawn visualization, not just Swift Charts, can adopt it.",
+    "kind": "Modifier",
+    "name": ".accessibilityChartDescriptor()",
+    "related": [
+      "AXChartDescriptorRepresentable",
+      "Chart",
+      "Canvas"
+    ],
+    "summary": "Attaches an Audio Graphs description to a custom chart view.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "SparklineCanvas(points: sales)\n    .accessibilityChildren {\n        ForEach(sales) { point in\n            Text(\"\\(point.month): \\(point.total) units\")\n        }\n    }",
+    "discussion": "Where .accessibilityRepresentation() replaces an element outright, this modifier turns the view into an accessibility container whose children come from the closure — ideal for Canvas-drawn charts where each bar should be individually navigable. The child views are never displayed; only their accessibility properties exist.",
+    "kind": "Modifier",
+    "name": ".accessibilityChildren()",
+    "related": [
+      ".accessibilityRepresentation()",
+      ".accessibilityElement()",
+      "Canvas"
+    ],
+    "summary": "Provides synthetic accessibility child elements for a view that draws its content directly.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "RecipeCard(recipe: recipe)\n    .accessibilityCustomContent(\"Prep time\", \"\\(recipe.minutes) minutes\")\n    .accessibilityCustomContent(\"Difficulty\", recipe.difficulty, importance: .high)",
+    "discussion": "Custom content keeps dense cards concise: the element's main label stays short while extra facts are exposed through the 'more content' rotor gesture. Each pair takes an importance — .default entries are only read on demand, while .high entries are spoken automatically after the label. Reusable keys can be defined with AccessibilityCustomContentKey to keep call sites consistent.",
+    "kind": "Modifier",
+    "name": ".accessibilityCustomContent()",
+    "related": [
+      "AccessibilityCustomContentKey",
+      ".accessibilityLabel()"
+    ],
+    "summary": "Attaches labeled, secondary details that VoiceOver reveals on demand rather than reading up front.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "DrumPad(samples: kit)\n    .accessibilityDirectTouch(options: .silentOnTouch)",
+    "discussion": "Instruments, games, and signature pads need raw, immediate touch rather than VoiceOver's explore-by-touch interception. AccessibilityDirectTouchOptions tune the behavior: .silentOnTouch suppresses VoiceOver speech inside the area, and .requiresActivation makes the user explicitly activate the element before direct interaction begins, preventing accidental triggering.",
+    "kind": "Modifier",
+    "name": ".accessibilityDirectTouch()",
+    "related": [
+      "AccessibilityDirectTouchOptions",
+      ".accessibilityAddTraits()"
+    ],
+    "summary": "Marks a region where touches pass straight to the app even while VoiceOver is running.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "TrimHandle(position: $trimStart)\n    .accessibilityDragPoint(.center, description: \"Adjust trim start\")",
+    "discussion": "Drag interactions are opaque to assistive technologies unless you describe them; this modifier names the point (as a UnitPoint) where a drag logically begins and what dragging accomplishes. Paired with .accessibilityDropPoint() on targets, it lets VoiceOver users perform drag-and-drop through the actions menu instead of a continuous gesture.",
+    "kind": "Modifier",
+    "name": ".accessibilityDragPoint()",
+    "related": [
+      ".accessibilityDropPoint()",
+      ".draggable()"
+    ],
+    "summary": "Defines an accessible pickup point and description for a draggable view.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "SceneTile(scene: scene)\n    .accessibilityDropPoint(.leading, description: \"Run scene\")",
+    "discussion": "Each declared point becomes a discrete, named destination that assistive technologies can offer when completing a drag, replacing the need to hover a finger precisely over a region. The UnitPoint anchors where the synthesized drop lands within the view's bounds.",
+    "kind": "Modifier",
+    "name": ".accessibilityDropPoint()",
+    "related": [
+      ".accessibilityDragPoint()",
+      ".dropDestination()"
+    ],
+    "summary": "Defines an accessible drop location and description on a drop-target view.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "VStack(alignment: .leading) {\n    Text(stop.name)\n    Text(stop.arrival, style: .relative)\n}\n.accessibilityElement(children: .combine)",
+    "discussion": "The children: parameter takes an AccessibilityChildBehavior — .ignore (the default) makes the view a single opaque element, .combine merges child labels and traits into one element, and .contain keeps children as separately navigable elements inside a container. Combining a multi-line row into one element is one of the highest-impact VoiceOver improvements you can make to a list, since it turns several swipes per row into one.",
+    "kind": "Modifier",
+    "name": ".accessibilityElement()",
+    "related": [
+      "AccessibilityChildBehavior",
+      ".accessibilityChildren()",
+      ".accessibilityLabel()"
+    ],
+    "summary": "Creates a new accessibility element for a view, controlling how its children are exposed.",
+    "wwdcYear": 2019
+  },
+  {
+    "children": [
+      {
+        "code": "TextField(\"Email\", text: $email)\n    .accessibilityFocused($focusedField, equals: .email)\nSecureField(\"Password\", text: $password)\n    .accessibilityFocused($focusedField, equals: .password)",
+        "name": ".accessibilityFocused(_:equals:)",
+        "summary": "Associates the view with one case of a Hashable focus value."
+      }
+    ],
+    "code": "TextField(\"Answer\", text: $answer)\n    .accessibilityFocused($isAnswerFocused)",
+    "discussion": "The Bool form reflects and controls whether this particular view holds accessibility focus, while the equals: form ties many views to one enum-valued state so a single property describes which of them is focused. Moving focus programmatically should be reserved for meaningful context changes; gratuitous focus jumps disorient VoiceOver users.",
+    "kind": "Modifier",
+    "name": ".accessibilityFocused()",
+    "related": [
+      "@AccessibilityFocusState",
+      ".focused()"
+    ],
+    "summary": "Binds a view's assistive-technology focus to an @AccessibilityFocusState property.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "Text(\"Today\")\n    .font(.title2.bold())\n    .accessibilityHeading(.h2)",
+    "discussion": "Unlike the coarse .isHeader trait, this modifier assigns an AccessibilityHeadingLevel from .h1 through .h6, giving long documents a real outline that VoiceOver's headings rotor can walk hierarchically. Levels should reflect logical document structure, not font size — a visually small caption can still be the section's h2.",
+    "kind": "Modifier",
+    "name": ".accessibilityHeading()",
+    "related": [
+      "AccessibilityHeadingLevel",
+      ".accessibilityAddTraits()"
+    ],
+    "summary": "Marks a view as a heading at a specific level for assistive navigation.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "HStack(spacing: 6) {\n    Image(systemName: \"star.fill\")\n        .accessibilityHidden(true)\n    Text(\"Featured\")\n}",
+    "discussion": "This is the right tool for purely decorative images, redundant glyphs, and visual flourishes that would only add noise for VoiceOver users. It differs from opacity or clipping: the view still renders normally, it just stops being an accessibility element. Hiding a view that carries the only copy of some information is a common accessibility bug, so audit with the Accessibility Inspector after using it.",
+    "kind": "Modifier",
+    "name": ".accessibilityHidden()",
+    "related": [
+      ".accessibilityElement()",
+      ".accessibilitySortPriority()"
+    ],
+    "summary": "Removes a view and its descendants from the accessibility tree while leaving it visible on screen.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "Button(\"Archive\", action: archive)\n    .accessibilityHint(\"Moves the conversation out of your inbox\")",
+    "discussion": "VoiceOver speaks the hint after a pause following the label and value, and users can disable hints globally, so a hint must never carry information that is not available elsewhere. Write it as the result of the action rather than an instruction — 'Moves the message to trash' rather than 'Double tap to delete'. Keep hints for actions whose outcome is genuinely non-obvious from the label.",
+    "kind": "Modifier",
+    "name": ".accessibilityHint()",
+    "related": [
+      ".accessibilityLabel()",
+      ".accessibilityAction()"
+    ],
+    "summary": "Adds a short phrase describing what happens when the user activates a view.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "TextField(\"Email\", text: $email)\n    .accessibilityIdentifier(\"signup.emailField\")",
+    "discussion": "The identifier is never spoken by VoiceOver; it exists so XCUITest queries and other automation can locate elements without depending on localized labels. Namespaced dotted strings keep identifiers unique across screens, and because they are invisible to users they can be verbose without cost.",
+    "kind": "Modifier",
+    "name": ".accessibilityIdentifier()",
+    "related": [
+      ".accessibilityLabel()",
+      ".accessibilityInputLabels()"
+    ],
+    "summary": "Assigns a stable, non-user-facing identifier to a view for UI tests and automation.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "PhotoGrid(photos: album.photos)\n    .accessibilityIgnoresInvertColors()",
+    "discussion": "Smart Invert flips interface colors for users who prefer dark, high-contrast rendering, but inverting photos, video, and artwork ruins them; this modifier marks such regions as already color-correct. Apply it to media containers rather than whole screens so genuine UI chrome still inverts as the user expects.",
+    "kind": "Modifier",
+    "name": ".accessibilityIgnoresInvertColors()",
+    "related": [
+      "accessibilityInvertColors",
+      "Image"
+    ],
+    "summary": "Exempts a view from Smart Invert so photographic content keeps its true colors.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "Button(action: compose) {\n    Image(systemName: \"square.and.pencil\")\n}\n.accessibilityLabel(\"Compose message\")\n.accessibilityInputLabels([\"Compose\", \"New message\", \"Write\"])",
+    "discussion": "Users activate controls by saying their visible name, so when the accessibility label is long or differs from what people would naturally say, supply the short utterances they will actually try. The array is ordered by preference, and each entry becomes a valid voice command target — 'Compose' can trigger a button formally labeled 'Compose message'.",
+    "kind": "Modifier",
+    "name": ".accessibilityInputLabels()",
+    "related": [
+      ".accessibilityLabel()",
+      ".accessibilityIdentifier()"
+    ],
+    "summary": "Provides alternative spoken names that Voice Control and Full Keyboard Access accept for a view.",
+    "wwdcYear": 2020
+  },
+  {
+    "children": [
+      {
+        "code": "Text(comment.body)\n    .accessibilityLabel { label in\n        Text(\"Comment\")\n        label\n    }",
+        "name": ".accessibilityLabel(content:)",
+        "summary": "Closure-based variant (2024) that receives the view's existing label so you can augment it instead of replacing it."
+      }
+    ],
+    "code": "Button {\n    toggleFavorite()\n} label: {\n    Image(systemName: isFavorite ? \"star.fill\" : \"star\")\n}\n.accessibilityLabel(\"Favorite\")",
+    "discussion": "The label replaces whatever VoiceOver would otherwise infer from the view's content, which makes it essential for icon-only buttons and custom-drawn controls. This spelling arrived in iOS 14 as the replacement for the deprecated .accessibility(label:) form. The 2024 cycle added variants with an isEnabled: parameter for conditional application and a closure form that lets you prepend or append to the existing label rather than replace it.",
+    "kind": "Modifier",
+    "name": ".accessibilityLabel()",
+    "related": [
+      ".accessibilityValue()",
+      ".accessibilityHint()",
+      ".accessibilityInputLabels()"
+    ],
+    "summary": "Sets the concise, spoken name that assistive technologies use to identify a view.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "@Namespace private var pairing\n\nHStack {\n    Text(\"High\")\n        .accessibilityLabeledPair(role: .label, id: \"high\", in: pairing)\n    Text(\"74°\")\n        .accessibilityLabeledPair(role: .content, id: \"high\", in: pairing)\n}",
+    "discussion": "Both halves reference the same id within a Namespace, with one side marked role: .label and the other role: .content. VoiceOver can then announce the pair together and skip redundant stops, which matters in grids and dashboards where labels and values live in separate cells.",
+    "kind": "Modifier",
+    "name": ".accessibilityLabeledPair()",
+    "related": [
+      "AccessibilityLabeledPairRole",
+      "@Namespace",
+      ".accessibilityLinkedGroup()"
+    ],
+    "summary": "Pairs a label view with the content view it describes so assistive technologies treat them as related.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "@Namespace private var storyLink\n\nHeadlineView(story: story)\n    .accessibilityLinkedGroup(id: story.id, in: storyLink)\nThumbnail(story: story)\n    .accessibilityLinkedGroup(id: story.id, in: storyLink)",
+    "discussion": "Views sharing an id in the same Namespace are linked even when they are not siblings in the layout, so a headline and its thumbnail scattered across a mosaic read as parts of one story. Linking helps VoiceOver users understand relationships that sighted users infer purely from visual proximity.",
+    "kind": "Modifier",
+    "name": ".accessibilityLinkedGroup()",
+    "related": [
+      "@Namespace",
+      ".accessibilityLabeledPair()"
+    ],
+    "summary": "Declares that separated views belong to one logical accessibility group.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "WorkoutMetricsView(session: session)\n    .accessibilityQuickAction(style: .prompt) {\n        Button(\"Pause workout\") { session.pause() }\n    }",
+    "discussion": "Quick actions surface one primary operation — pausing a workout, ending a timer — through the wrist gesture set, with style: .prompt showing a confirmation UI and .outline highlighting the target control. The content builder supplies the Button that runs when the gesture is performed.",
+    "kind": "Modifier",
+    "name": ".accessibilityQuickAction()",
+    "platforms": [
+      "watchOS"
+    ],
+    "related": [
+      "accessibilityQuickActionsEnabled",
+      ".accessibilityAction()"
+    ],
+    "summary": "Registers a watchOS quick action that AssistiveTouch users trigger with a double pinch.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "Image(\"playGlyph\")\n    .onTapGesture(perform: play)\n    .accessibilityLabel(\"Play\")\n    .accessibilityRemoveTraits(.isImage)\n    .accessibilityAddTraits(.isButton)",
+    "discussion": "Use it when a built-in view's default traits misrepresent your usage — an Image acting as a tappable control should not read as an image, and a Text used as a live control should not read as static text. Removal and addition compose, so the usual pattern for a custom control is to remove the inherited trait and add the accurate one.",
+    "kind": "Modifier",
+    "name": ".accessibilityRemoveTraits()",
+    "related": [
+      "AccessibilityTraits",
+      ".accessibilityAddTraits()"
+    ],
+    "summary": "Strips specific traits from a view's accessibility element.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "WaveformScrubber(progress: $progress)\n    .accessibilityRepresentation {\n        Slider(value: $progress, in: 0...1) {\n            Text(\"Playback position\")\n        }\n    }",
+    "discussion": "The replacement view is created only for its accessibility tree, so a completely custom control — a waveform scrubber, a drawn knob — can borrow the full, well-tested semantics of a system Slider or Toggle, including its traits, value formatting, and adjustable behavior. This is usually far less work and more robust than reimplementing those semantics with individual modifiers.",
+    "kind": "Modifier",
+    "name": ".accessibilityRepresentation()",
+    "related": [
+      ".accessibilityChildren()",
+      "Slider"
+    ],
+    "summary": "Replaces a view's accessibility with that of a stand-in view that is never rendered.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "CardFace(card: card)\n    .onTapGesture(perform: flip)\n    .accessibilityRespondsToUserInteraction(true)",
+    "discussion": "Gesture-driven custom views may lack the traits those technologies use to decide which elements deserve a stop in their scanning or numbering, so this modifier explicitly opts a view in (or out). Setting it improves scanning efficiency: Switch Control can skip inert decoration and land only on things that do something.",
+    "kind": "Modifier",
+    "name": ".accessibilityRespondsToUserInteraction()",
+    "related": [
+      ".accessibilityAddTraits()",
+      ".onTapGesture()"
+    ],
+    "summary": "Tells technologies like Switch Control and Voice Control whether an element is genuinely interactive.",
+    "wwdcYear": 2021
+  },
+  {
+    "children": [
+      {
+        "code": "ArticleView(article: article)\n    .accessibilityRotor(.headings) {\n        ForEach(article.sections) { section in\n            AccessibilityRotorEntry(section.title, id: section.id)\n        }\n    }",
+        "name": ".accessibilityRotor(.headings)",
+        "summary": "Overload that replaces a system rotor's contents with your own entries."
+      }
+    ],
+    "code": "List(messages) { message in\n    MessageRow(message: message)\n}\n.accessibilityRotor(\"Unread\", entries: messages.filter(\\.isUnread), entryLabel: \\.subject)",
+    "discussion": "Rotors let users twist to a category — here 'Unread' — and flick vertically to hop directly between matching entries, skipping everything in between. The convenience overload shown takes any Identifiable collection plus a key path for each entry's spoken label; builder-based overloads compose AccessibilityRotorEntry values explicitly and can also replace system rotors like headings or links.",
+    "kind": "Modifier",
+    "name": ".accessibilityRotor()",
+    "related": [
+      "AccessibilitySystemRotor",
+      "AccessibilityRotorEntry",
+      ".accessibilityRotorEntry()"
+    ],
+    "summary": "Adds a custom VoiceOver rotor that jumps between related elements in a view hierarchy.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "ForEach(article.sections) { section in\n    SectionHeader(section: section)\n        .accessibilityRotorEntry(id: section.id, in: headingSpace)\n}",
+    "discussion": "Builder-based rotors created with .accessibilityRotor() can reference entries by id within a Namespace; this modifier marks the concrete view each id resolves to, so choosing the entry moves VoiceOver focus to the right place even across lazy containers. It is the glue between a rotor's data model and the on-screen views.",
+    "kind": "Modifier",
+    "name": ".accessibilityRotorEntry()",
+    "related": [
+      ".accessibilityRotor()",
+      "AccessibilityRotorEntry",
+      "@Namespace"
+    ],
+    "summary": "Tags a view as the navigation target for a rotor entry declared elsewhere.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "PageCanvas(page: pages[index])\n    .accessibilityScrollAction { edge in\n        if edge == .trailing { index = min(index + 1, pages.count - 1) }\n        if edge == .leading { index = max(index - 1, 0) }\n    }",
+    "discussion": "The closure receives the Edge the user scrolled toward, letting paged or canvas-style views that manage their own offsets respond to assistive scrolling even though they are not a ScrollView. Implement it whenever content pans with a drag gesture, because VoiceOver users cannot perform plain drags on an element they have focused.",
+    "kind": "Modifier",
+    "name": ".accessibilityScrollAction()",
+    "related": [
+      ".accessibilityAdjustableAction()",
+      "ScrollView"
+    ],
+    "summary": "Handles VoiceOver's three-finger scroll gesture on a custom view.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "TabGlyph(symbol: \"magnifyingglass\")\n    .accessibilityShowsLargeContentViewer {\n        Label(\"Search\", systemImage: \"magnifyingglass\")\n    }",
+    "discussion": "Bars and tab-like controls often cannot grow with Dynamic Type, and the Large Content Viewer is the system's escape hatch: a long press pops a large HUD version of the control so users at accessibility text sizes can identify it. The trailing-closure form supplies the enlarged representation, typically a Label mirroring the control's icon and title.",
+    "kind": "Modifier",
+    "name": ".accessibilityShowsLargeContentViewer()",
+    "related": [
+      ".dynamicTypeSize()",
+      "dynamicTypeSize"
+    ],
+    "summary": "Shows a magnified preview of a compact control when a user with large text sizes long-presses it.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "HStack {\n    CloseButton(action: dismiss)\n        .accessibilitySortPriority(-1)\n    Text(article.title)\n        .accessibilitySortPriority(1)\n}",
+    "discussion": "Elements default to priority 0 and are visited in layout order; higher priorities are read first within the same container. Use it sparingly to surface the primary content of a composite view before ancillary chrome like dismiss buttons — reordering everything usually signals the layout itself should change.",
+    "kind": "Modifier",
+    "name": ".accessibilitySortPriority()",
+    "related": [
+      ".accessibilityElement()",
+      ".accessibilityHidden()"
+    ],
+    "summary": "Controls the order in which assistive technologies visit sibling accessibility elements.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "TextEditor(text: $source)\n    .font(.system(.body, design: .monospaced))\n    .accessibilityTextContentType(.sourceCode)",
+    "discussion": "Declaring content as source code, console output, or spreadsheet data changes how VoiceOver treats whitespace, punctuation, and navigation granularity — code benefits from line-oriented reading and literal symbols, narrative benefits from flowing sentences. It complements the speech modifiers by describing what the text is rather than dictating individual speech attributes.",
+    "kind": "Modifier",
+    "name": ".accessibilityTextContentType()",
+    "related": [
+      "AccessibilityTextContentType",
+      ".speechAlwaysIncludesPunctuation()",
+      "TextEditor"
+    ],
+    "summary": "Describes the genre of a view's text so speech output can adapt its style.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "Slider(value: $volume, in: 0...100)\n    .accessibilityLabel(\"Volume\")\n    .accessibilityValue(\"\\(Int(volume)) percent\")",
+    "discussion": "Use it when a view represents mutable state that its label alone does not convey, such as the position of a custom slider or the count in a badge. VoiceOver speaks the value after the label and re-reads it when it changes, so keep the string short and free of redundant units already implied by the label. Pair it with .accessibilityAdjustableAction() so users can actually change the value they hear.",
+    "kind": "Modifier",
+    "name": ".accessibilityValue()",
+    "related": [
+      ".accessibilityLabel()",
+      ".accessibilityAdjustableAction()"
+    ],
+    "summary": "Supplies the current value that assistive technologies read after a view's label.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "FloorPlanView(scale: scale)\n    .accessibilityZoomAction { action in\n        switch action.direction {\n        case .zoomIn: scale *= 1.25\n        case .zoomOut: scale /= 1.25\n        @unknown default: break\n        }\n    }",
+    "discussion": "VoiceOver exposes zoom controls for elements carrying this modifier, and the handler receives an AccessibilityZoomGestureAction describing the direction and the anchor point of the request. It replaces pinch gestures that assistive-technology users cannot perform on maps, canvases, and photo viewers.",
+    "kind": "Modifier",
+    "name": ".accessibilityZoomAction()",
+    "related": [
+      "AccessibilityZoomGestureAction",
+      ".accessibilityAdjustableAction()"
+    ],
+    "summary": "Handles assistive zoom-in and zoom-out requests on a view that manages its own magnification.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "Text(\"Strike three, you're out\")\n    .speechAdjustedPitch(-0.3)",
+    "discussion": "Values below zero deepen the voice and values above zero raise it, giving audible contrast for content that plays a distinct role — quoted replies, incoming versus outgoing messages, or emphasized tokens. The adjustment affects speech synthesis only; braille output and the visual rendering are untouched.",
+    "kind": "Modifier",
+    "name": ".speechAdjustedPitch()",
+    "related": [
+      ".speechSpellsOutCharacters()",
+      ".speechAlwaysIncludesPunctuation()",
+      "Text"
+    ],
+    "summary": "Raises or lowers the pitch VoiceOver uses when speaking a view's text.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "Text(\"let total = price * quantity\")\n    .font(.system(.body, design: .monospaced))\n    .speechAlwaysIncludesPunctuation()",
+    "discussion": "Ordinary speech settings elide most punctuation, which destroys meaning in source code, regular expressions, and grammar examples where a semicolon or asterisk is the point. Scope the modifier to the code-bearing text; leaving it on prose makes listening exhausting.",
+    "kind": "Modifier",
+    "name": ".speechAlwaysIncludesPunctuation()",
+    "related": [
+      ".speechSpellsOutCharacters()",
+      ".accessibilityTextContentType()",
+      "Text"
+    ],
+    "summary": "Forces VoiceOver to pronounce every punctuation mark in a view's text.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "ScoreTicker(text: latestUpdate)\n    .speechAnnouncementsQueued()",
+    "discussion": "By default new speech can cut off whatever VoiceOver is saying; queuing is kinder for frequent, low-urgency updates like live score tickers or progress text. Reserve interruption for information the user must hear immediately, and queue everything else so context is never lost mid-sentence.",
+    "kind": "Modifier",
+    "name": ".speechAnnouncementsQueued()",
+    "related": [
+      ".speechAdjustedPitch()",
+      "AccessibilityNotification"
+    ],
+    "summary": "Queues speech from this view behind current announcements instead of interrupting them.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "Text(verificationCode)\n    .speechSpellsOutCharacters()",
+    "discussion": "Confirmation codes, serial numbers, and call signs are useless when pronounced as pseudo-words, so this modifier forces letter-by-letter speech the way a screen reader handles a password field. Apply it to the specific Text carrying the code rather than a whole container to avoid spelling out surrounding prose.",
+    "kind": "Modifier",
+    "name": ".speechSpellsOutCharacters()",
+    "related": [
+      ".speechAdjustedPitch()",
+      ".speechAlwaysIncludesPunctuation()",
+      "Text"
+    ],
+    "summary": "Makes VoiceOver read text character by character instead of as words.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "@AccessibilityFocusState private var isErrorFocused: Bool\n\nvar body: some View {\n    ErrorBanner(message: errorMessage)\n        .accessibilityFocused($isErrorFocused)\n        .onChange(of: errorMessage) { isErrorFocused = true }\n}",
+    "discussion": "It mirrors @FocusState but for accessibility focus: bind it to views with .accessibilityFocused(), read it to learn when VoiceOver lands on a view, or set it to move the cursor programmatically — the standard pattern for pulling focus to a newly appeared error banner or step change. Both Bool and Hashable-value forms exist, and it can target a specific technology via init(for:).",
+    "kind": "Property Wrapper",
+    "name": "@AccessibilityFocusState",
+    "related": [
+      ".accessibilityFocused()",
+      "@FocusState",
+      ".focused()"
+    ],
+    "summary": "Tracks and drives where assistive-technology focus, such as the VoiceOver cursor, currently sits.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "MessageComposer(draft: $draft)\n    .accessibilityActions(category: .edit) {\n        Button(\"Attach photo\") { attachPhoto() }\n    }",
+    "discussion": "Passing a category to .accessibilityActions(category:_:) files those actions under a heading assistive technologies can present separately — .edit collects text-editing operations, while .default is the general bucket. Categorization keeps long action lists scannable on elements that accumulate many custom actions.",
+    "kind": "Type",
+    "name": "AccessibilityActionCategory",
+    "related": [
+      ".accessibilityActions()",
+      ".accessibilityAction()"
+    ],
+    "summary": "Groups custom accessibility actions into named sections such as editing.",
+    "wwdcYear": 2024
+  },
+  {
+    "code": "PlayerView(player: player)\n    .accessibilityAction(.magicTap) { player.togglePlayback() }\n    .accessibilityAction(.escape) { dismissOverlay() }",
+    "discussion": "The .default kind maps to element activation, .escape to the two-finger scrub gesture that should dismiss the current context, and .magicTap to the two-finger double tap reserved for an app's single most important toggle, like play/pause. Handlers attach through .accessibilityAction(_:_:).",
+    "kind": "Type",
+    "name": "AccessibilityActionKind",
+    "related": [
+      ".accessibilityAction()"
+    ],
+    "summary": "Identifies which standard accessibility action a handler responds to.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": ".accessibilityAdjustableAction { direction in\n    if direction == .increment {\n        fontScale += 0.1\n    } else {\n        fontScale -= 0.1\n    }\n}",
+    "discussion": "Delivered to the closure of .accessibilityAdjustableAction() when the user swipes vertically on an adjustable element, it is a simple two-case enum but should still be switched with @unknown default for resilience. The mapping is fixed: swipe up increments, swipe down decrements.",
+    "kind": "Type",
+    "name": "AccessibilityAdjustmentDirection",
+    "related": [
+      ".accessibilityAdjustableAction()"
+    ],
+    "summary": "The direction, increment or decrement, of a VoiceOver adjustment gesture.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "GaugeCluster(speed: speed, fuel: fuel)\n    .accessibilityElement(children: .contain)",
+    "discussion": "Three static values cover the space: .ignore hides descendants and makes the modified view one opaque element, .combine folds child labels, values, and traits into a single synthesized element, and .contain keeps children individually focusable inside a recognized container boundary. Choosing between .combine and .contain is the key decision when tidying list rows versus grouping toolbars.",
+    "kind": "Type",
+    "name": "AccessibilityChildBehavior",
+    "related": [
+      ".accessibilityElement()",
+      ".accessibilityChildren()"
+    ],
+    "summary": "The strategy .accessibilityElement() uses to expose a view's descendants.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": "extension AccessibilityCustomContentKey {\n    static let servings = AccessibilityCustomContentKey(\"Servings\", id: \"servings\")\n}\n\nRecipeCard(recipe: recipe)\n    .accessibilityCustomContent(.servings, \"\\(recipe.servings)\")",
+    "discussion": "Defining keys once — typically as static extensions — keeps the label and identity of a custom-content field consistent across every view that emits it, and lets later modifier applications override earlier values for the same key. The initializer takes the user-visible label plus a stable id string.",
+    "kind": "Type",
+    "name": "AccessibilityCustomContentKey",
+    "related": [
+      ".accessibilityCustomContent()"
+    ],
+    "summary": "A reusable identifier for a piece of accessibility custom content.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "SynthKeyboard(voice: voice)\n    .accessibilityDirectTouch(options: [.silentOnTouch, .requiresActivation])",
+    "discussion": "The .silentOnTouch option stops VoiceOver from speaking when touches land in the area, which matters for latency-sensitive audio apps, while .requiresActivation gates direct interaction behind an explicit activation so exploring users do not trigger the surface by accident. Both combine as usual for an OptionSet.",
+    "kind": "Type",
+    "name": "AccessibilityDirectTouchOptions",
+    "related": [
+      ".accessibilityDirectTouch()"
+    ],
+    "summary": "Option set refining how a direct-touch area behaves under VoiceOver.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "Text(\"Appendix\")\n    .accessibilityHeading(.h1)\nText(\"A.1 Sources\")\n    .accessibilityHeading(.h2)",
+    "discussion": "Modeled on document heading semantics, the levels let VoiceOver users navigate by heading depth the way they would in a well-structured web page. Use .unspecified for a view that should count as a heading without claiming a particular level.",
+    "kind": "Type",
+    "name": "AccessibilityHeadingLevel",
+    "related": [
+      ".accessibilityHeading()"
+    ],
+    "summary": "The outline depth, h1 through h6 or unspecified, assigned by .accessibilityHeading().",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "Text(\"Wind\")\n    .accessibilityLabeledPair(role: .label, id: \"wind\", in: pairing)\nText(\"12 mph\")\n    .accessibilityLabeledPair(role: .content, id: \"wind\", in: pairing)",
+    "discussion": "Passed to .accessibilityLabeledPair(role:id:in:), the .label case marks the descriptive text and .content marks the value being described. Assistive technologies use the roles to read the pair as one coherent unit and to avoid presenting the label twice.",
+    "kind": "Type",
+    "name": "AccessibilityLabeledPairRole",
+    "related": [
+      ".accessibilityLabeledPair()"
+    ],
+    "summary": "Distinguishes the label half from the content half of an accessibility labeled pair.",
+    "wwdcYear": 2020
+  },
+  {
+    "code": "AccessibilityNotification.Announcement(\"Download complete\").post()\n\nAccessibilityNotification.ScreenChanged().post()",
+    "discussion": "Each nested type — Announcement, ScreenChanged, LayoutChanged, PageScrolled — is constructed and sent with .post(), replacing the platform-specific UIAccessibility.post and NSAccessibility calls with one API that works across Apple platforms. Announcements accept the string to speak; screen and layout notifications can optionally direct focus to a particular element.",
+    "framework": "Accessibility",
+    "kind": "Type",
+    "name": "AccessibilityNotification",
+    "related": [
+      ".speechAnnouncementsQueued()",
+      "@AccessibilityFocusState"
+    ],
+    "summary": "A Swift-native way to post assistive-technology notifications like announcements and layout changes.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "@Environment(\\.accessibilityQuickActionsEnabled) private var quickActionsEnabled\n\nvar body: some View {\n    WorkoutControls(showsPauseHint: quickActionsEnabled)\n}",
+    "discussion": "When true, the interface can surface hints or adjust layout to acknowledge that a registered .accessibilityQuickAction() is reachable through the AssistiveTouch double-pinch. It lets apps coordinate their visible UI with the gesture-driven path rather than presenting redundant controls.",
+    "kind": "Environment Value",
+    "name": "accessibilityQuickActionsEnabled",
+    "platforms": [
+      "watchOS"
+    ],
+    "related": [
+      ".accessibilityQuickAction()"
+    ],
+    "summary": "Reports whether the watchOS quick-actions experience is active for the user.",
+    "wwdcYear": 2022
+  },
+  {
+    "code": "ForEach(bookmarks) { bookmark in\n    AccessibilityRotorEntry(bookmark.title, id: bookmark.id)\n}",
+    "discussion": "Entries are declared in the builder passed to .accessibilityRotor(), each carrying a spoken label and the id of the target view; overloads accept a Namespace for cross-hierarchy targets and a preparation closure that can scroll lazily created content into existence before focus moves. Text-range variants support rotors that jump within a single text view.",
+    "kind": "Type",
+    "name": "AccessibilityRotorEntry",
+    "related": [
+      ".accessibilityRotor()",
+      ".accessibilityRotorEntry()",
+      "AccessibilitySystemRotor"
+    ],
+    "summary": "One navigable destination inside a custom accessibility rotor.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "DocumentView(document: document)\n    .accessibilityRotor(.links) {\n        ForEach(document.links) { link in\n            AccessibilityRotorEntry(link.title, id: link.id)\n        }\n    }",
+    "discussion": "Static values such as .headings, .links, .textFields, .images, .tables, .lists, .landmarks, and .misspelledWords name the rotors users already know from system apps. Passing one to .accessibilityRotor(_:entries:) replaces that rotor's automatic contents with your own entries — useful when custom rendering hides the structure VoiceOver would normally detect.",
+    "kind": "Type",
+    "name": "AccessibilitySystemRotor",
+    "related": [
+      ".accessibilityRotor()",
+      "AccessibilityRotorEntry"
+    ],
+    "summary": "Identifies a built-in VoiceOver rotor whose contents a view can supply.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "ConsoleView(log: buildLog)\n    .accessibilityTextContentType(.console)",
+    "discussion": "Values include .plain, .console, .fileSystem, .messaging, .narrative, .sourceCode, .spreadsheet, and .wordProcessing, mirroring the textual contexts UIKit exposes. Applied via .accessibilityTextContentType(), the category influences pronunciation of symbols, treatment of line breaks, and how granular navigation behaves.",
+    "kind": "Type",
+    "name": "AccessibilityTextContentType",
+    "related": [
+      ".accessibilityTextContentType()"
+    ],
+    "summary": "Categorizes text so assistive output matches its genre.",
+    "wwdcYear": 2021
+  },
+  {
+    "code": "let traits: AccessibilityTraits = [.isButton, .isSelected]\n\nText(\"Inbox\")\n    .accessibilityAddTraits(traits)",
+    "discussion": "Because it conforms to SetAlgebra you can build up trait sets with array literals and set operations before applying them with .accessibilityAddTraits() or .accessibilityRemoveTraits(). Common members include .isButton, .isHeader, .isSelected, .isLink, .isSearchField, .updatesFrequently, .playsSound, and .isModal; iOS 17 added .isToggle for switch-like custom controls.",
+    "kind": "Type",
+    "name": "AccessibilityTraits",
+    "related": [
+      ".accessibilityAddTraits()",
+      ".accessibilityRemoveTraits()",
+      ".accessibilityHeading()"
+    ],
+    "summary": "An option set describing the semantic characteristics of an accessibility element.",
+    "wwdcYear": 2019
+  },
+  {
+    "code": ".accessibilityZoomAction { action in\n    let anchor = action.location\n    magnification *= action.direction == .zoomIn ? 1.2 : 0.8\n    refocus(at: anchor)\n}",
+    "discussion": "Its direction property reports .zoomIn or .zoomOut, while location (a UnitPoint) and point (a CGPoint in the view's coordinate space) identify the anchor the zoom should center on. Honoring the anchor keeps the content under the user's focus stationary, matching what a sighted user gets from an anchored pinch.",
+    "kind": "Type",
+    "name": "AccessibilityZoomGestureAction",
+    "related": [
+      ".accessibilityZoomAction()"
+    ],
+    "summary": "Describes an assistive zoom request delivered to an .accessibilityZoomAction() handler.",
+    "wwdcYear": 2023
+  },
+  {
+    "code": "struct RainfallDescriptor: AXChartDescriptorRepresentable {\n    let data: [RainReading]\n\n    func makeChartDescriptor() -> AXChartDescriptor {\n        AXChartDescriptor(title: \"Rainfall\", summary: \"Daily totals\",\n                          xAxis: dayAxis, yAxis: inchesAxis, series: [series])\n    }\n}",
+    "discussion": "Conformers implement makeChartDescriptor() to translate their data into axis descriptors and AXDataSeriesDescriptor values, and may implement updateChartDescriptor(_:) to refresh the descriptor when data changes. The descriptor is attached to a view with .accessibilityChartDescriptor(), after which VoiceOver offers the full Audio Graphs playback and summary experience.",
+    "framework": "Accessibility",
+    "kind": "Protocol",
+    "name": "AXChartDescriptorRepresentable",
+    "related": [
+      ".accessibilityChartDescriptor()",
+      "Chart"
+    ],
+    "summary": "A type that builds the AXChartDescriptor powering Audio Graphs for a custom chart.",
+    "wwdcYear": 2021
+  }
+]
