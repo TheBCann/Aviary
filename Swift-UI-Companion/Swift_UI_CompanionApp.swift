@@ -10,11 +10,18 @@ import SwiftUI
 @main
 struct Swift_UI_CompanionApp: App {
     @State private var model = AppModel()
+    @AppStorage(AppearanceSetting.storageKey)
+    private var appearanceRaw = AppearanceSetting.system.rawValue
+
+    private var preferredScheme: ColorScheme? {
+        (AppearanceSetting(rawValue: appearanceRaw) ?? .system).colorScheme
+    }
 
     var body: some Scene {
         WindowGroup(id: "main") {
             ContentView()
                 .environment(model)
+                .preferredColorScheme(preferredScheme)
         }
         .commands {
             CommandGroup(after: .newItem) {
@@ -34,6 +41,7 @@ struct Swift_UI_CompanionApp: App {
         MenuBarExtra("SwiftUI Companion", systemImage: "swift") {
             MenuBarSearchView()
                 .environment(model)
+                .preferredColorScheme(preferredScheme)
         }
         .menuBarExtraStyle(.window)
     }

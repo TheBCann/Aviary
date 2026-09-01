@@ -35,10 +35,10 @@ enum ApplePlatform: String, CaseIterable, Identifiable, Hashable {
 
     var tint: Color {
         switch self {
-        case .iOS: Theme.iOSTint
-        case .macOS: Theme.macOSTint
-        case .tvOS: Theme.tvOSTint
-        case .watchOS: Theme.watchOSTint
+        case .iOS: .blue
+        case .macOS: .purple
+        case .tvOS: .orange
+        case .watchOS: .red
         }
     }
 }
@@ -84,14 +84,14 @@ enum TopicKind: String, CaseIterable, Identifiable, Hashable {
 
     var tint: Color {
         switch self {
-        case .view: Theme.viewTint
-        case .modifier: Theme.modifierTint
-        case .shape: Theme.shapeTint
-        case .protocolItem: Theme.protocolTint
-        case .scene: Theme.sceneTint
-        case .style: Theme.styleTint
-        case .propertyWrapper: Theme.wrapperTint
-        case .environmentValue: Theme.environmentTint
+        case .view: .blue
+        case .modifier: .purple
+        case .shape: .orange
+        case .protocolItem: .teal
+        case .scene: .indigo
+        case .style: .pink
+        case .propertyWrapper: .green
+        case .environmentValue: .mint
         }
     }
 }

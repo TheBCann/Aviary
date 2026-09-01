@@ -25,10 +25,41 @@ struct TabStripView: View {
             .help("New tab with its own filter")
 
             Spacer()
+
+            AppearanceMenu()
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
         .background(Theme.Surface.bar)
+    }
+}
+
+/// Light / Dark / System appearance switcher, persisted across launches.
+struct AppearanceMenu: View {
+    @AppStorage(AppearanceSetting.storageKey)
+    private var appearanceRaw = AppearanceSetting.system.rawValue
+
+    private var setting: AppearanceSetting {
+        AppearanceSetting(rawValue: appearanceRaw) ?? .system
+    }
+
+    var body: some View {
+        Menu {
+            Picker("Appearance", selection: $appearanceRaw) {
+                ForEach(AppearanceSetting.allCases) { option in
+                    Label(option.title, systemImage: option.symbolName)
+                        .tag(option.rawValue)
+                }
+            }
+            .pickerStyle(.inline)
+            .labelsHidden()
+        } label: {
+            Image(systemName: setting.symbolName)
+        }
+        .menuStyle(.borderlessButton)
+        .menuIndicator(.hidden)
+        .fixedSize()
+        .help("Appearance: \(setting.title)")
     }
 }
 

@@ -240,8 +240,8 @@ struct AvailabilityRow: View {
                         .font(.caption)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(Theme.availableTint.opacity(0.12), in: .capsule)
-                        .foregroundStyle(Theme.availableTint)
+                        .background(.green.opacity(0.12), in: .capsule)
+                        .foregroundStyle(.green)
                 } else {
                     Label(platform.rawValue, systemImage: platform.symbolName)
                         .font(.caption)

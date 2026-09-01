@@ -3,8 +3,7 @@
 //  Swift-UI-Companion
 //
 //  Monospaced code display with lightweight Swift syntax highlighting and a
-//  copy-to-clipboard button, so examples paste straight into Xcode. The
-//  panel renders dark in both appearances, like an embedded editor.
+//  copy-to-clipboard button, so examples paste straight into Xcode.
 //
 
 import SwiftUI
@@ -22,11 +21,12 @@ struct CodeBlockView: View {
                 .padding(14)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .background(Theme.Code.background)
+        .background(.black.opacity(0.04))
+        .background(.background.secondary)
         .clipShape(.rect(cornerRadius: 10))
         .overlay {
             RoundedRectangle(cornerRadius: 10)
-                .strokeBorder(Theme.Code.border, lineWidth: 1)
+                .strokeBorder(.quaternary, lineWidth: 1)
         }
         .overlay(alignment: .topTrailing) {
             Button {
@@ -37,15 +37,11 @@ struct CodeBlockView: View {
                     systemImage: justCopied ? "checkmark" : "doc.on.doc"
                 )
                 .font(.caption)
-                .foregroundStyle(justCopied ? Theme.availableTint : .white.opacity(0.75))
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(.white.opacity(0.1), in: .rect(cornerRadius: 6))
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.bordered)
+            .controlSize(.small)
             .padding(8)
         }
-        .environment(\.colorScheme, .dark)
     }
 
     private func copy() {
@@ -72,20 +68,20 @@ enum SwiftHighlighter {
 
     static func highlight(_ code: String) -> AttributedString {
         var result = AttributedString(code)
-        result.foregroundColor = Theme.Code.plain
+        result.foregroundColor = .primary
 
         // Order matters: later passes skip ranges already claimed.
         var claimed: [Range<AttributedString.Index>] = []
 
-        applyPattern(#"//[^\n]*"#, color: Theme.Code.comment, to: &result, claimed: &claimed)
-        applyPattern(#""[^"\n]*""#, color: Theme.Code.string, to: &result, claimed: &claimed)
-        applyPattern(#"(?<=[\s(\[{,:])\.[a-zA-Z][a-zA-Z0-9]*"#, color: Theme.Code.dotAccess, to: &result, claimed: &claimed)
-        applyPattern(#"@[A-Za-z][A-Za-z0-9]*"#, color: Theme.Code.attribute, to: &result, claimed: &claimed)
-        applyPattern(#"\b[0-9]+(\.[0-9]+)?\b"#, color: Theme.Code.number, to: &result, claimed: &claimed)
-        applyPattern(#"\b[A-Z][A-Za-z0-9]*\b"#, color: Theme.Code.type, to: &result, claimed: &claimed)
+        applyPattern(#"//[^\n]*"#, color: Color(.systemGray), to: &result, claimed: &claimed)
+        applyPattern(#""[^"\n]*""#, color: Color(.systemRed), to: &result, claimed: &claimed)
+        applyPattern(#"(?<=[\s(\[{,:])\.[a-zA-Z][a-zA-Z0-9]*"#, color: Color(.systemPurple), to: &result, claimed: &claimed)
+        applyPattern(#"@[A-Za-z][A-Za-z0-9]*"#, color: Color(.systemOrange), to: &result, claimed: &claimed)
+        applyPattern(#"\b[0-9]+(\.[0-9]+)?\b"#, color: Color(.systemBlue), to: &result, claimed: &claimed)
+        applyPattern(#"\b[A-Z][A-Za-z0-9]*\b"#, color: Color(.systemTeal), to: &result, claimed: &claimed)
         applyPattern(
             #"\b(\#(keywords.joined(separator: "|")))\b"#,
-            color: Theme.Code.keyword,
+            color: Color(.systemPink),
             to: &result,
             claimed: &claimed
         )
