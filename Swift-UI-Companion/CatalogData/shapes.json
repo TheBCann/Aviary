@@ -1,5 +1,22 @@
 [
   {
+    "children": [
+      {
+        "code": "Path { p in\n    p.addArc(center: CGPoint(x: 60, y: 60), radius: 50,\n             startAngle: .degrees(0), endAngle: .degrees(270),\n             clockwise: false)\n}\n.stroke(.teal, lineWidth: 4)",
+        "name": "addArc(center:radius:startAngle:endAngle:clockwise:transform:)",
+        "summary": "The standard form: sweep between two absolute angles around a center point, with the direction chosen by the clockwise flag."
+      },
+      {
+        "code": "Path { p in\n    p.move(to: CGPoint(x: 0, y: 80))\n    p.addArc(tangent1End: CGPoint(x: 0, y: 0),\n             tangent2End: CGPoint(x: 120, y: 0),\n             radius: 24)\n    p.addLine(to: CGPoint(x: 120, y: 0))\n}\n.stroke(.orange, lineWidth: 3)",
+        "name": "addArc(tangent1End:tangent2End:radius:transform:)",
+        "summary": "Rounds the corner between two tangent lines, which is how hand-built rounded rectangles and chamfered outlines get their curves without computing angles."
+      },
+      {
+        "code": "Path { p in\n    p.addRelativeArc(center: CGPoint(x: 50, y: 50), radius: 40,\n                     startAngle: .degrees(-90),\n                     delta: .degrees(progress * 360))\n}\n.stroke(.green, style: StrokeStyle(lineWidth: 6, lineCap: .round))",
+        "name": "addRelativeArc(center:radius:startAngle:delta:transform:)",
+        "summary": "Sweeps by a signed delta instead of to an end angle, so a progress fraction maps directly to the arc length with no clockwise bookkeeping."
+      }
+    ],
     "code": "Path { p in\n    p.move(to: center)\n    p.addArc(center: center, radius: 60,\n             startAngle: .degrees(0),\n             endAngle: .degrees(120),\n             clockwise: false)\n    p.closeSubpath()\n}\n.fill(.teal)",
     "demoID": "arc",
     "discussion": "addArc sweeps from a start to an end angle around a center and radius — pie slices, ring segments, and rounded corners built by hand. Mind the clockwise flag: SwiftUI's flipped y-axis makes it read backwards.",
@@ -52,6 +69,28 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": "Button(\"Save\", action: save)\n    .buttonStyle(.bordered)\n    .buttonBorderShape(.automatic)",
+        "name": ".automatic",
+        "summary": "Defers to the platform's own choice for the current button style, which is also what you get when the modifier is never applied."
+      },
+      {
+        "code": "Button(\"Follow\") { follow() }\n    .buttonStyle(.borderedProminent)\n    .buttonBorderShape(.capsule)",
+        "name": ".capsule",
+        "summary": "Gives bordered buttons a full pill outline, the usual pick for prominent call-to-action buttons."
+      },
+      {
+        "code": "Button(\"Add to Cart\") { addToCart() }\n    .buttonStyle(.bordered)\n    .buttonBorderShape(.roundedRectangle(radius: 6))",
+        "name": ".roundedRectangle(radius:)",
+        "summary": "A rounded rectangle whose corner radius you pick yourself; the parameterless .roundedRectangle uses the system default instead."
+      },
+      {
+        "code": "Button {\n    toggleMute()\n} label: {\n    Image(systemName: \"speaker.slash\")\n}\n.buttonStyle(.bordered)\n.buttonBorderShape(.circle)",
+        "name": ".circle",
+        "summary": "A round border for icon-only buttons, added in the iOS 17 and macOS 14 releases."
+      }
+    ],
     "code": "Button(\"Continue\") { next() }\n    .buttonStyle(.borderedProminent)\n    .buttonBorderShape(.capsule)",
     "discussion": "ButtonBorderShape feeds the buttonBorderShape modifier to round bordered-style buttons as capsules, rounded rectangles, or circles — restyling system buttons without a custom ButtonStyle.",
     "kind": "Shape",
@@ -65,6 +104,23 @@
     "wwdcYear": 2021
   },
   {
+    "children": [
+      {
+        "code": "Capsule(style: .continuous)\n    .fill(.blue.gradient)\n    .frame(width: 120, height: 44)",
+        "name": "Capsule(style:)",
+        "summary": "The only initializer; it defaults to .circular, and passing .continuous smooths where the semicircular ends meet the straight sides."
+      },
+      {
+        "code": "Text(\"Beta\")\n    .padding(.horizontal, 8)\n    .padding(.vertical, 3)\n    .background(.yellow, in: .capsule)",
+        "name": ".capsule",
+        "summary": "Static shorthand available wherever a Shape is expected, keeping clipShape and background call sites terse."
+      },
+      {
+        "code": "Image(\"banner\")\n    .resizable()\n    .scaledToFill()\n    .frame(width: 200, height: 60)\n    .clipShape(.capsule(style: .continuous))",
+        "name": ".capsule(style:)",
+        "summary": "The shorthand with an explicit corner style, for when the continuous curvature matters at a clip or background site."
+      }
+    ],
     "code": "Text(\"NEW\")\n    .font(.caption.bold())\n    .padding(.horizontal, 10)\n    .padding(.vertical, 4)\n    .background(.pink, in: .capsule)\n    .foregroundStyle(.white)",
     "discussion": "Capsule rounds its corners to half of the shorter dimension, giving the classic pill silhouette used for tags, badges, and prominent buttons.",
     "kind": "Shape",
@@ -77,6 +133,18 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "Image(\"avatar\")\n    .resizable()\n    .scaledToFill()\n    .frame(width: 56, height: 56)\n    .clipShape(.circle)",
+        "name": ".circle",
+        "summary": "Static shorthand for Circle() at any Shape-typed parameter, so avatar masks read as a single word."
+      },
+      {
+        "code": "Circle()\n    .inset(by: 4)\n    .stroke(.blue, lineWidth: 8)\n    .frame(width: 80, height: 80)",
+        "name": "inset(by:)",
+        "summary": "Pulls the circle's edge inward by a fixed amount before drawing, which is how strokeBorder keeps a thick outline inside the frame."
+      }
+    ],
     "code": "Circle()\n    .trim(from: 0, to: 0.72)\n    .stroke(.green, style: StrokeStyle(lineWidth: 8, lineCap: .round))\n    .rotationEffect(.degrees(-90))\n    .frame(width: 80, height: 80)",
     "demoID": "trimRing",
     "discussion": "Circle sizes itself to the smaller of its offered dimensions, staying perfectly round. It is the standard avatar mask and the basis of ring-style progress indicators via trimmed strokes.",
@@ -169,6 +237,18 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "RotatedShape(shape: Capsule(), angle: .degrees(-30), anchor: .center)\n    .fill(.pink.opacity(0.6))\n    .frame(width: 140, height: 50)",
+        "name": "RotatedShape(shape:angle:anchor:)",
+        "summary": "Wraps a shape with a rotation about a unit-point anchor, which defaults to the center of the shape's frame."
+      },
+      {
+        "code": "Rectangle()\n    .rotation(.degrees(45), anchor: .topLeading)\n    .stroke(.indigo, lineWidth: 2)\n    .frame(width: 80, height: 80)",
+        "name": ".rotation(_:anchor:)",
+        "summary": "The modifier form on any Shape; it returns a RotatedShape wrapping the receiver, so the result can still be filled, stroked, or used as a clip."
+      }
+    ],
     "code": "RotatedShape(shape: Rectangle(), angle: .degrees(45))\n    .fill(.orange)\n    .frame(width: 100, height: 100)",
     "discussion": "RotatedShape wraps another shape and rotates its path around an anchor — unlike rotationEffect, the result is still a Shape, so it can be filled, stroked, or used as a clip.",
     "kind": "Shape",
@@ -209,6 +289,28 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "UnevenRoundedRectangle(\n    topLeadingRadius: 24,\n    bottomLeadingRadius: 4,\n    bottomTrailingRadius: 4,\n    topTrailingRadius: 24,\n    style: .continuous\n)\n.fill(.mint)",
+        "name": "UnevenRoundedRectangle(topLeadingRadius:bottomLeadingRadius:bottomTrailingRadius:topTrailingRadius:style:)",
+        "summary": "Spells out each corner as its own argument; every radius defaults to zero, so only the curved corners need mentioning."
+      },
+      {
+        "code": "let radii = RectangleCornerRadii(topLeading: 16, topTrailing: 16)\n\nUnevenRoundedRectangle(cornerRadii: radii, style: .continuous)\n    .fill(.indigo.opacity(0.4))\n    .frame(width: 160, height: 80)",
+        "name": "UnevenRoundedRectangle(cornerRadii:style:)",
+        "summary": "Takes the four radii bundled in a RectangleCornerRadii value, which is easier to store, pass around, or compute from state."
+      },
+      {
+        "code": "var radii: RectangleCornerRadii {\n    isAttached\n        ? RectangleCornerRadii(topLeading: 12, topTrailing: 12)\n        : RectangleCornerRadii(topLeading: 12, bottomLeading: 12,\n                               bottomTrailing: 12, topTrailing: 12)\n}\n\nUnevenRoundedRectangle(cornerRadii: radii).fill(.teal)",
+        "name": "RectangleCornerRadii",
+        "summary": "A small value type holding a radius per corner, each defaulting to zero, so a shape's corners can be driven from one stored property."
+      },
+      {
+        "code": "VStack {\n    header\n    content\n}\n.background(.thinMaterial, in: .rect(\n    topLeadingRadius: 20, topTrailingRadius: 20\n))",
+        "name": ".rect(topLeadingRadius:bottomLeadingRadius:bottomTrailingRadius:topTrailingRadius:style:)",
+        "summary": "Static shorthand at Shape-typed sites; omit the corners you want square and the defaults handle the rest."
+      }
+    ],
     "code": "UnevenRoundedRectangle(\n    topLeadingRadius: 20,\n    bottomLeadingRadius: 0,\n    bottomTrailingRadius: 0,\n    topTrailingRadius: 20\n)\n.fill(.indigo)\n.frame(width: 160, height: 80)",
     "demoID": "unevenCorners",
     "discussion": "Added at WWDC '22, UnevenRoundedRectangle rounds each corner independently — handy for tab-like cards and attached panels where only the top edge curves.",

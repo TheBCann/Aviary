@@ -1,107 +1,195 @@
 [
   {
-    "code" : "DocumentGroup(newDocument: TextFile()) { file in\n    EditorView(document: file.$document)\n}",
-    "discussion" : "DocumentGroup binds a FileDocument or ReferenceFileDocument type to editor windows, inheriting the platform's new\/open\/save\/rename machinery, recents, and iCloud integration.",
-    "kind" : "Scene",
-    "name" : "DocumentGroup",
-    "platforms" : [
+    "children": [
+      {
+        "code": "DocumentGroup(newDocument: MarkdownFile()) { config in\n    MarkdownEditor(text: config.$document.text)\n}",
+        "name": "DocumentGroup(newDocument:editor:)",
+        "summary": "The editable form: the value you pass is the template for every file created via New, and the closure gets a configuration carrying a binding to the live document."
+      },
+      {
+        "code": "DocumentGroup(viewing: ReportFile.self) { config in\n    ReportViewer(report: config.document)\n}",
+        "name": "DocumentGroup(viewing:viewer:)",
+        "summary": "A read-only counterpart that registers the app as a viewer for a document type without offering New, Save, or editing."
+      },
+      {
+        "code": "DocumentGroup(editing: Trip.self, contentType: .trip) {\n    TripEditor()\n} prepareDocument: { context in\n    context.insert(Trip(name: \"Untitled Trip\"))\n}",
+        "name": "DocumentGroup(editing:contentType:editor:prepareDocument:)",
+        "summary": "Backs each document with its own SwiftData store for the given model type; prepareDocument seeds the container before a new file is shown (iOS 17, macOS 14)."
+      },
+      {
+        "code": "DocumentGroup(newDocument: TextFile()) { config in\n    VStack {\n        if !config.isEditable { Text(\"Read-only\").font(.caption) }\n        TextEditor(text: config.$document.text)\n    }\n    .navigationTitle(config.fileURL?.lastPathComponent ?? \"Untitled\")\n}",
+        "name": "FileDocumentConfiguration",
+        "summary": "What the editor and viewer closures receive: the document (with a binding projection), its file URL once saved, and whether edits are allowed."
+      }
+    ],
+    "code": "DocumentGroup(newDocument: TextFile()) { file in\n    EditorView(document: file.$document)\n}",
+    "discussion": "DocumentGroup binds a FileDocument or ReferenceFileDocument type to editor windows, inheriting the platform's new/open/save/rename machinery, recents, and iCloud integration.",
+    "kind": "Scene",
+    "name": "DocumentGroup",
+    "platforms": [
       "iOS",
       "macOS"
     ],
-    "related" : [
+    "related": [
       "WindowGroup"
     ],
-    "summary" : "Document-based app scenes with open\/save for free.",
-    "wwdcYear" : 2020
+    "summary": "Document-based app scenes with open/save for free.",
+    "wwdcYear": 2020
   },
   {
-    "code" : "DocumentGroupLaunchScene(\"Sketchpad\") {\n    NewDocumentButton(\"New Sketch\")\n} background: {\n    Image(\"launch-hero\").resizable().scaledToFill()\n}",
-    "discussion" : "Added at WWDC '24, DocumentGroupLaunchScene gives document apps the title-screen treatment — hero background, title, and action buttons for creating or opening documents — replacing the bare document browser as the first screen.",
-    "kind" : "Scene",
-    "name" : "DocumentGroupLaunchScene",
-    "platforms" : [
+    "children": [
+      {
+        "code": "DocumentGroupLaunchScene(\"Sketchpad\") {\n    NewDocumentButton(\"New Sketch\")\n    Button(\"Import…\") { showImporter = true }\n} background: {\n    LinearGradient(colors: [.indigo, .black],\n                   startPoint: .top, endPoint: .bottom)\n}",
+        "name": "DocumentGroupLaunchScene(_:actions:background:)",
+        "summary": "The common shape: a title, a row of action buttons for creating or importing documents, and a full-bleed view drawn behind everything."
+      },
+      {
+        "code": "DocumentGroupLaunchScene(\"Sketchpad\") {\n    NewDocumentButton()\n} background: {\n    Color.indigo\n} overlayAccessoryView: { geo in\n    Mascot().position(x: geo.titleViewFrame.maxX, y: geo.titleViewFrame.minY)\n}",
+        "name": "DocumentGroupLaunchScene(_:actions:background:overlayAccessoryView:)",
+        "summary": "Layers a decorative view above the title card, positioned using the frames the geometry proxy reports."
+      },
+      {
+        "code": "} backgroundAccessoryView: { geo in\n    Image(\"clouds\")\n        .resizable()\n        .frame(width: geo.frame.width)\n        .offset(y: geo.titleViewFrame.minY - 80)\n}",
+        "name": "DocumentLaunchGeometryProxy",
+        "summary": "The proxy handed to accessory closures, exposing the scene's frame and the title view's frame so decorations can anchor to either."
+      },
+      {
+        "code": "DocumentGroupLaunchScene(\"Sketchpad\") {\n    NewDocumentButton(\"New Sketch\")\n    Button(\"Browse Templates\") { showTemplates = true }\n} background: {\n    Image(\"launch-hero\").resizable().scaledToFill()\n}",
+        "name": "NewDocumentButton",
+        "summary": "The stock launch-scene action that creates a blank document and opens it; give it a custom title or rely on the default label."
+      }
+    ],
+    "code": "DocumentGroupLaunchScene(\"Sketchpad\") {\n    NewDocumentButton(\"New Sketch\")\n} background: {\n    Image(\"launch-hero\").resizable().scaledToFill()\n}",
+    "discussion": "Added at WWDC '24, DocumentGroupLaunchScene gives document apps the title-screen treatment — hero background, title, and action buttons for creating or opening documents — replacing the bare document browser as the first screen.",
+    "kind": "Scene",
+    "name": "DocumentGroupLaunchScene",
+    "platforms": [
       "iOS"
     ],
-    "related" : [
+    "related": [
       "DocumentGroup"
     ],
-    "summary" : "A designed launch experience for document-based iOS apps.",
-    "wwdcYear" : 2024
+    "summary": "A designed launch experience for document-based iOS apps.",
+    "wwdcYear": 2024
   },
   {
-    "code" : "MenuBarExtra(\"Companion\", systemImage: \"swift\") {\n    QuickSearchView()\n}\n.menuBarExtraStyle(.window)",
-    "discussion" : "MenuBarExtra installs a status item with either a pull-down menu or, with the window style, a full SwiftUI popover panel. Apps can be menu-bar-only by making it their sole scene. This very app uses one for quick topic search.",
-    "kind" : "Scene",
-    "name" : "MenuBarExtra",
-    "platforms" : [
+    "children": [
+      {
+        "code": "MenuBarExtra(\"Timer\", systemImage: \"timer\") {\n    Button(\"Start\") { timer.start() }\n    Button(\"Stop\") { timer.stop() }\n    Divider()\n    Button(\"Quit\") { NSApp.terminate(nil) }\n}",
+        "name": "MenuBarExtra(_:systemImage:content:)",
+        "summary": "Shows an SF Symbol in the status bar with the title used for accessibility; the content builder becomes the pull-down menu."
+      },
+      {
+        "code": "@AppStorage(\"showMenuBarExtra\") private var showMenuBarExtra = true\n\nMenuBarExtra(\"Companion\", isInserted: $showMenuBarExtra) {\n    QuickSearchView()\n}",
+        "name": "MenuBarExtra(_:isInserted:content:)",
+        "summary": "Ties the status item's presence to a Boolean binding, so a preference toggle can add or remove it while the app runs."
+      },
+      {
+        "code": "MenuBarExtra {\n    StatusMenu()\n} label: {\n    Image(systemName: cpuLoad > 0.8 ? \"flame.fill\" : \"cpu\")\n    Text(cpuLoad, format: .percent)\n}",
+        "name": "MenuBarExtra(content:label:)",
+        "summary": "Supplies an arbitrary view as the status-item label, which is how you show live text or a symbol that changes with state."
+      },
+      {
+        "code": "MenuBarExtra(\"Companion\", systemImage: \"swift\") {\n    QuickSearchView()\n        .frame(width: 320, height: 400)\n}\n.menuBarExtraStyle(.window)",
+        "name": ".menuBarExtraStyle(_:)",
+        "summary": "Picks between the default pull-down menu (.menu) and a floating panel (.window) that can host any SwiftUI hierarchy."
+      }
+    ],
+    "code": "MenuBarExtra(\"Companion\", systemImage: \"swift\") {\n    QuickSearchView()\n}\n.menuBarExtraStyle(.window)",
+    "discussion": "MenuBarExtra installs a status item with either a pull-down menu or, with the window style, a full SwiftUI popover panel. Apps can be menu-bar-only by making it their sole scene. This very app uses one for quick topic search.",
+    "kind": "Scene",
+    "name": "MenuBarExtra",
+    "platforms": [
       "macOS"
     ],
-    "related" : [
+    "related": [
       "Window",
       "Scene"
     ],
-    "summary" : "Puts your app in the macOS menu bar.",
-    "wwdcYear" : 2022
+    "summary": "Puts your app in the macOS menu bar.",
+    "wwdcYear": 2022
   },
   {
-    "code" : "Settings {\n    TabView {\n        GeneralPane()\n            .tabItem { Label(\"General\", systemImage: \"gear\") }\n    }\n}",
-    "discussion" : "Declaring a Settings scene gives the app the standard Settings menu item, ⌘, shortcut, and window. TabViews inside render as settings panes.",
-    "kind" : "Scene",
-    "name" : "Settings",
-    "platforms" : [
+    "code": "Settings {\n    TabView {\n        GeneralPane()\n            .tabItem { Label(\"General\", systemImage: \"gear\") }\n    }\n}",
+    "discussion": "Declaring a Settings scene gives the app the standard Settings menu item, ⌘, shortcut, and window. TabViews inside render as settings panes.",
+    "kind": "Scene",
+    "name": "Settings",
+    "platforms": [
       "macOS"
     ],
-    "related" : [
+    "related": [
       "WindowGroup",
       "@AppStorage"
     ],
-    "summary" : "The macOS Settings window, wired to the app menu.",
-    "wwdcYear" : 2020
+    "summary": "The macOS Settings window, wired to the app menu.",
+    "wwdcYear": 2020
   },
   {
-    "code" : "Window(\"Activity\", id: \"activity\") {\n    ActivityView()\n}\n.keyboardShortcut(\"0\", modifiers: [.command, .option])",
-    "discussion" : "Where WindowGroup multiplies, Window guarantees exactly one instance — right for dashboards, about panels, and utility windows. It joins the Windows menu automatically and opens via its id.",
-    "kind" : "Scene",
-    "name" : "Window",
-    "platforms" : [
+    "children": [
+      {
+        "code": "Window(\"About Companion\", id: \"about\") {\n    AboutView()\n}\n\n// elsewhere:\n@Environment(\\.openWindow) private var openWindow\nopenWindow(id: \"about\")",
+        "name": "Window(_:id:content:)",
+        "summary": "The sole initializer: a title for the Windows menu and a required id that openWindow uses to bring the single instance forward."
+      },
+      {
+        "code": "Window(\"Inspector\", id: \"inspector\") {\n    InspectorView()\n        .frame(minWidth: 280, minHeight: 400)\n}\n.windowResizability(.contentSize)",
+        "name": ".windowResizability(_:)",
+        "summary": "Derives the window's resize limits from its content (.contentSize or .contentMinSize) instead of letting the user drag it anywhere."
+      },
+      {
+        "code": "Window(\"Activity\", id: \"activity\") {\n    ActivityView()\n}\n.defaultSize(width: 480, height: 320)\n.defaultPosition(.topTrailing)",
+        "name": ".defaultPosition(_:)",
+        "summary": "Chooses where the window lands the first time it opens, as a UnitPoint on the screen; the user's later placement is restored after that."
+      },
+      {
+        "code": "Window(\"Now Playing\", id: \"now-playing\") {\n    NowPlayingView()\n}\n.windowLevel(.floating)",
+        "name": ".windowLevel(_:)",
+        "summary": "Moves the window to a different layer — .floating keeps a palette above ordinary windows, .desktop pins it beneath them (macOS 15)."
+      }
+    ],
+    "code": "Window(\"Activity\", id: \"activity\") {\n    ActivityView()\n}\n.keyboardShortcut(\"0\", modifiers: [.command, .option])",
+    "discussion": "Where WindowGroup multiplies, Window guarantees exactly one instance — right for dashboards, about panels, and utility windows. It joins the Windows menu automatically and opens via its id.",
+    "kind": "Scene",
+    "name": "Window",
+    "platforms": [
       "macOS"
     ],
-    "related" : [
+    "related": [
       "WindowGroup",
       "MenuBarExtra"
     ],
-    "summary" : "A single, unique window on macOS.",
-    "wwdcYear" : 2022
+    "summary": "A single, unique window on macOS.",
+    "wwdcYear": 2022
   },
   {
-    "children" : [
+    "children": [
       {
-        "code" : "WindowGroup(\"Library\") {\n    LibraryView()\n}",
-        "name" : "WindowGroup(_:content:)",
-        "summary" : "The basic form: a titled group of identical windows."
+        "code": "WindowGroup(\"Library\") {\n    LibraryView()\n}",
+        "name": "WindowGroup(_:content:)",
+        "summary": "The basic form: a titled group of identical windows."
       },
       {
-        "code" : "WindowGroup(id: \"main\") {\n    ContentView()\n}\n\n\/\/ later:\nopenWindow(id: \"main\")",
-        "name" : "WindowGroup(id:content:)",
-        "summary" : "Adds a stable identifier so openWindow can target the group."
+        "code": "WindowGroup(id: \"main\") {\n    ContentView()\n}\n\n// later:\nopenWindow(id: \"main\")",
+        "name": "WindowGroup(id:content:)",
+        "summary": "Adds a stable identifier so openWindow can target the group."
       },
       {
-        "code" : "WindowGroup(for: Note.ID.self) { $noteID in\n    \/\/ noteID is Note.ID? — nil for a plain new window\n    NoteEditor(id: noteID)\n}\n\n\/\/ later:\nopenWindow(value: note.id)",
-        "discussion" : "The system opens one window per distinct value and hands the content closure a binding to an optional — it is nil when a window opens without a presented value, as from the New Window menu command, so the content must handle that case. openWindow(value:) reuses an existing window when the value already has one, and the defaultValue: overload supplies a fallback that makes the binding non-optional.",
-        "name" : "WindowGroup(for:content:)",
-        "summary" : "Presents a window per value — one editor per document id."
+        "code": "WindowGroup(for: Note.ID.self) { $noteID in\n    // noteID is Note.ID? — nil for a plain new window\n    NoteEditor(id: noteID)\n}\n\n// later:\nopenWindow(value: note.id)",
+        "discussion": "The system opens one window per distinct value and hands the content closure a binding to an optional — it is nil when a window opens without a presented value, as from the New Window menu command, so the content must handle that case. openWindow(value:) reuses an existing window when the value already has one, and the defaultValue: overload supplies a fallback that makes the binding non-optional.",
+        "name": "WindowGroup(for:content:)",
+        "summary": "Presents a window per value — one editor per document id."
       }
     ],
-    "code" : "WindowGroup(id: \"main\") {\n    ContentView()\n}\n\n\/\/ elsewhere:\n@Environment(\\.openWindow) private var openWindow\nopenWindow(id: \"main\")",
-    "discussion" : "WindowGroup can instantiate any number of identical windows (macOS and iPadOS) from one declaration. Give it an id or a presented value type to open specific windows programmatically through the openWindow environment action.",
-    "kind" : "Scene",
-    "name" : "WindowGroup",
-    "related" : [
+    "code": "WindowGroup(id: \"main\") {\n    ContentView()\n}\n\n// elsewhere:\n@Environment(\\.openWindow) private var openWindow\nopenWindow(id: \"main\")",
+    "discussion": "WindowGroup can instantiate any number of identical windows (macOS and iPadOS) from one declaration. Give it an id or a presented value type to open specific windows programmatically through the openWindow environment action.",
+    "kind": "Scene",
+    "name": "WindowGroup",
+    "related": [
       "Window",
       "Scene",
       "openWindow"
     ],
-    "summary" : "The standard scene for an app's main windows.",
-    "wwdcYear" : 2020
+    "summary": "The standard scene for an app's main windows.",
+    "wwdcYear": 2020
   }
 ]

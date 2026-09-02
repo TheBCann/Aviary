@@ -1,5 +1,22 @@
 [
   {
+    "children": [
+      {
+        "code": ".alert(\"Sign out?\", isPresented: $confirmSignOut) {\n    Button(\"Sign Out\", role: .destructive) { signOut() }\n    Button(\"Stay\", role: .cancel) { }\n}",
+        "name": "alert(_:isPresented:actions:)",
+        "summary": "The leanest form: a title, a Boolean binding, and the buttons, with no message body."
+      },
+      {
+        "code": ".alert(\"Remove tag?\", isPresented: $confirmRemove, presenting: pendingTag) { tag in\n    Button(\"Remove \\(tag.name)\", role: .destructive) { remove(tag) }\n    Button(\"Keep\", role: .cancel) { }\n} message: { tag in\n    Text(\"\\(tag.usageCount) items will lose this tag.\")\n}",
+        "name": "alert(_:isPresented:presenting:actions:message:)",
+        "summary": "Threads an optional data value into both closures so the buttons and message can name the thing being acted on."
+      },
+      {
+        "code": ".alert(isPresented: $showError, error: uploadError) { _ in\n    Button(\"Retry\") { retryUpload() }\n    Button(\"Cancel\", role: .cancel) { }\n} message: { error in\n    Text(error.recoverySuggestion ?? \"\")\n}",
+        "name": "alert(isPresented:error:actions:message:)",
+        "summary": "Surfaces a LocalizedError directly, taking the title from its errorDescription while you supply buttons and recovery text."
+      }
+    ],
     "code": ".alert(\"Delete file?\", isPresented: $confirmDelete) {\n    Button(\"Delete\", role: .destructive) { delete() }\n    Button(\"Cancel\", role: .cancel) { }\n} message: {\n    Text(\"This cannot be undone.\")\n}",
     "discussion": "alert binds presentation to a Boolean or optional data, with buttons declared as regular Buttons — roles mark the cancel and destructive ones. Keep alerts for interruptions that need a decision; use confirmationDialog for choice lists.",
     "kind": "Modifier",
@@ -23,6 +40,28 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "Capsule()\n    .fill(isOn ? .green : .gray)\n    .frame(width: isOn ? 160 : 80, height: 32)\n    .animation(.easeInOut(duration: 0.25), value: isOn)",
+        "name": "animation(_:value:)",
+        "summary": "Scopes the animation to changes of one Equatable value, leaving every other update instantaneous."
+      },
+      {
+        "code": "Image(systemName: \"star.fill\")\n    .animation(.bouncy) { content in\n        content\n            .scaleEffect(isFavorite ? 1.3 : 1)\n            .opacity(isFavorite ? 1 : 0.6)\n    }",
+        "name": "animation(_:body:)",
+        "summary": "Animates only the modifiers written inside the body closure, so modifiers outside it stay un-animated."
+      },
+      {
+        "code": "withAnimation(.spring(duration: 0.5, bounce: 0.3)) {\n    isExpanded.toggle()\n}",
+        "name": "Animation.spring(duration:bounce:blendDuration:)",
+        "summary": "The 2023 spring API that takes a perceptual duration and a bounce fraction instead of mass and stiffness."
+      },
+      {
+        "code": "Circle()\n    .scaleEffect(isPulsing ? 1.2 : 1)\n    .animation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true), value: isPulsing)\n    .onAppear { isPulsing = true }",
+        "name": "Animation.repeatForever(autoreverses:)",
+        "summary": "Loops an animation indefinitely, optionally running it backwards on alternate cycles."
+      }
+    ],
     "code": "Circle()\n    .frame(width: isBig ? 120 : 60)\n    .animation(.spring(duration: 0.4), value: isBig)",
     "demoID": "animation",
     "discussion": "The value-based form re-renders with animation whenever the observed value changes, leaving unrelated updates instant. Springs are the platform default feel; use withAnimation instead when the trigger is a specific event rather than a value.",
@@ -37,6 +76,23 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "Image(\"poster\")\n    .resizable()\n    .aspectRatio(16 / 9, contentMode: .fill)\n    .frame(width: 320)\n    .clipped()",
+        "name": "aspectRatio(_:contentMode:)",
+        "summary": "Locks the view to a width-to-height ratio, or with nil, to the ratio its content already has."
+      },
+      {
+        "code": "Image(\"logo\")\n    .resizable()\n    .scaledToFit()\n    .frame(height: 48)",
+        "name": "scaledToFit()",
+        "summary": "Shorthand for aspectRatio(contentMode: .fit): the content's own ratio, sized to sit entirely inside the proposal."
+      },
+      {
+        "code": "Image(\"cover\")\n    .resizable()\n    .scaledToFill()\n    .frame(width: 120, height: 120)\n    .clipShape(.circle)",
+        "name": "scaledToFill()",
+        "summary": "Shorthand for aspectRatio(contentMode: .fill): keeps the content ratio and covers the whole proposal, overflowing if it must."
+      }
+    ],
     "code": "Image(\"poster\")\n    .resizable()\n    .aspectRatio(2 / 3, contentMode: .fit)",
     "discussion": "aspectRatio holds a width-to-height ratio as the view fits or fills its proposal; scaledToFit and scaledToFill are its shorthands using the content's own ratio.",
     "kind": "Modifier",
@@ -98,6 +154,23 @@
     "wwdcYear": 2025
   },
   {
+    "children": [
+      {
+        "code": "Label(\"Inbox\", systemImage: \"tray\")\n    .badge(unreadCount)",
+        "name": "badge(_ count: Int)",
+        "summary": "Shows an integer count and hides itself automatically when the count is zero."
+      },
+      {
+        "code": "Label(\"Updates\", systemImage: \"arrow.down.circle\")\n    .badge(Text(\"Beta\").foregroundStyle(.orange))",
+        "name": "badge(_ label: Text?)",
+        "summary": "Takes a Text value so the badge can carry its own styling, or nil to clear it."
+      },
+      {
+        "code": "List {\n    Label(\"Drafts\", systemImage: \"doc\").badge(3)\n    Label(\"Sent\", systemImage: \"paperplane\").badge(12)\n}\n.badgeProminence(.decreased)",
+        "name": "badgeProminence(_:)",
+        "summary": "Turns the badge treatment up or down for every badge in a list or tab hierarchy."
+      }
+    ],
     "code": "Label(\"Inbox\", systemImage: \"tray\")\n    .badge(unreadCount)",
     "discussion": "badge annotates list rows and tab items with the platform's badge treatment — a number, string, or styled Text. A zero count hides it automatically. This app uses badges for the sidebar's entry counts.",
     "kind": "Modifier",
@@ -126,6 +199,23 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "Image(\"map\")\n    .resizable()\n    .scaledToFill()\n    .frame(width: 200, height: 200)\n    .clipShape(.circle, style: FillStyle(antialiased: false))",
+        "name": "clipShape(_:style:)",
+        "summary": "Clips to any Shape, with a FillStyle to control even-odd filling and antialiasing of the edge."
+      },
+      {
+        "code": "Image(\"banner\")\n    .resizable()\n    .scaledToFill()\n    .frame(height: 160)\n    .clipped()",
+        "name": "clipped(antialiased:)",
+        "summary": "Clips to the view's own rectangular bounds, the usual follow-up to scaledToFill inside a fixed frame."
+      },
+      {
+        "code": "Color.accentColor\n    .frame(height: 80)\n    .clipShape(.rect(\n        topLeadingRadius: 20,\n        topTrailingRadius: 20\n    ))",
+        "name": ".rect(topLeadingRadius:bottomLeadingRadius:bottomTrailingRadius:topTrailingRadius:style:)",
+        "summary": "The shape shorthand for rounding only some corners, with every radius defaulting to zero."
+      }
+    ],
     "code": "Image(\"banner\")\n    .resizable()\n    .scaledToFill()\n    .frame(height: 120)\n    .clipShape(.rect(cornerRadius: 16))",
     "demoID": "clipShape",
     "discussion": "clipShape masks drawing outside the given shape while leaving the layout frame untouched. With the shorthand shape styles — .circle, .capsule, .rect(cornerRadius:) — it replaces the older cornerRadius modifier.",
@@ -140,6 +230,23 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": ".confirmationDialog(\"Sort by\", isPresented: $showSort, titleVisibility: .visible) {\n    Button(\"Name\") { sort = .name }\n    Button(\"Date\") { sort = .date }\n}",
+        "name": "confirmationDialog(_:isPresented:titleVisibility:actions:)",
+        "summary": "Title, Boolean binding, and buttons, where titleVisibility decides whether the title line is drawn at all."
+      },
+      {
+        "code": ".confirmationDialog(\"Discard draft?\", isPresented: $confirmDiscard) {\n    Button(\"Discard\", role: .destructive) { discard() }\n} message: {\n    Text(\"Your unsent changes will be lost.\")\n}",
+        "name": "confirmationDialog(_:isPresented:titleVisibility:actions:message:)",
+        "summary": "Adds a message closure beneath the title for a sentence of explanation."
+      },
+      {
+        "code": ".confirmationDialog(\"Delete?\", isPresented: $confirmDelete, presenting: target) { file in\n    Button(\"Delete \\(file.name)\", role: .destructive) { delete(file) }\n} message: { file in\n    Text(\"\\(file.sizeDescription) will be freed.\")\n}",
+        "name": "confirmationDialog(_:isPresented:titleVisibility:presenting:actions:message:)",
+        "summary": "Passes an optional data value into the buttons and message so the dialog can speak about a specific item."
+      }
+    ],
     "code": ".confirmationDialog(\"Export format?\", isPresented: $choosing) {\n    Button(\"PDF\") { export(.pdf) }\n    Button(\"PNG\") { export(.png) }\n    Button(\"Cancel\", role: .cancel) { }\n}",
     "discussion": "confirmationDialog presents an action sheet on iOS and an alert-style dialog on macOS, for choice sets that would crowd an alert. Give destructive buttons a role and keep a cancel path.",
     "kind": "Modifier",
@@ -152,6 +259,23 @@
     "wwdcYear": 2021
   },
   {
+    "children": [
+      {
+        "code": "ScrollView(.horizontal) {\n    LazyHStack(spacing: 0) {\n        ForEach(pages) { PageView($0).containerRelativeFrame(.horizontal) }\n    }\n}\n.scrollTargetBehavior(.paging)",
+        "name": "containerRelativeFrame(_:alignment:)",
+        "summary": "Fills the container completely along the given axes, no arithmetic required."
+      },
+      {
+        "code": "LazyHStack(spacing: 12) {\n    ForEach(cards) { card in\n        CardView(card)\n            .containerRelativeFrame(.horizontal, count: 3, span: 1, spacing: 12)\n    }\n}",
+        "name": "containerRelativeFrame(_:count:span:spacing:alignment:)",
+        "summary": "Divides the container into count slots and lets the view span some of them, accounting for the spacing between slots."
+      },
+      {
+        "code": "HeroImage()\n    .containerRelativeFrame([.horizontal, .vertical]) { length, axis in\n        axis == .vertical ? length * 0.4 : length\n    }",
+        "name": "containerRelativeFrame(_:alignment:_:)",
+        "summary": "Lets a closure compute the length from the container's length and the axis being sized."
+      }
+    ],
     "code": "ScrollView(.horizontal) {\n    LazyHStack {\n        ForEach(cards) { card in\n            CardView(card)\n                .containerRelativeFrame(.horizontal) { length, _ in\n                    length * 0.8\n                }\n        }\n    }\n}",
     "discussion": "containerRelativeFrame sizes against the nearest container — scroll view, window, stack — by axis, fraction, or grid-like count and span, replacing many GeometryReader hacks. Carousel cards at 80% of the viewport are the canonical use.",
     "kind": "Modifier",
@@ -164,6 +288,28 @@
     "wwdcYear": 2023
   },
   {
+    "children": [
+      {
+        "code": "Text(\"\\(remaining)\")\n    .font(.largeTitle.monospacedDigit())\n    .contentTransition(.numericText(countsDown: true))\n    .animation(.default, value: remaining)",
+        "name": "ContentTransition.numericText(countsDown:)",
+        "summary": "Rolls digits like an odometer, with countsDown flipping the direction of the roll."
+      },
+      {
+        "code": "Text(total, format: .number)\n    .contentTransition(.numericText(value: total))\n    .animation(.snappy, value: total)",
+        "name": "ContentTransition.numericText(value:)",
+        "summary": "The same rolling-digit effect, but it infers direction by comparing the old and new numeric value."
+      },
+      {
+        "code": "Image(systemName: isPlaying ? \"pause.fill\" : \"play.fill\")\n    .contentTransition(.symbolEffect(.replace.downUp))",
+        "name": "ContentTransition.symbolEffect(_:options:)",
+        "summary": "Plays a symbol replace effect when an SF Symbol image swaps to a different symbol."
+      },
+      {
+        "code": "Text(isLarge ? \"Large\" : \"Small\")\n    .font(isLarge ? .largeTitle : .body)\n    .contentTransition(.interpolate)\n    .animation(.easeInOut, value: isLarge)",
+        "name": "ContentTransition.interpolate",
+        "summary": "Interpolates between old and new content where the framework can, such as a font change, instead of crossfading."
+      }
+    ],
     "code": "Text(price, format: .currency(code: \"USD\"))\n    .contentTransition(.numericText())\n    .animation(.snappy, value: price)",
     "demoID": "contentTransition",
     "discussion": "contentTransition describes how in-place content swaps render — numericText rolls digits like a counter, symbolEffect crossfades symbol variants — during an animated state change.",
@@ -177,6 +323,23 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": "NoteRow(note)\n    .contextMenu {\n        Button(\"Pin\", systemImage: \"pin\") { pin(note) }\n        Divider()\n        Button(\"Delete\", systemImage: \"trash\", role: .destructive) { delete(note) }\n    }",
+        "name": "contextMenu(menuItems:)",
+        "summary": "The plain menu: a builder of Buttons, Toggles, Dividers, and nested Menus."
+      },
+      {
+        "code": "PhotoThumb(photo)\n    .contextMenu {\n        Button(\"Share\", systemImage: \"square.and.arrow.up\") { share(photo) }\n    } preview: {\n        Image(photo.name)\n            .resizable()\n            .scaledToFit()\n    }",
+        "name": "contextMenu(menuItems:preview:)",
+        "summary": "On iOS and iPadOS, shows a custom preview view above the menu while it is open."
+      },
+      {
+        "code": "List(files, selection: $selection) { FileRow($0) }\n    .contextMenu(forSelectionType: File.ID.self) { ids in\n        Button(\"Reveal in Finder\") { reveal(ids) }\n    } primaryAction: { ids in\n        open(ids)\n    }",
+        "name": "contextMenu(forSelectionType:menu:primaryAction:)",
+        "summary": "Attached to a List or Table with selection, builds the menu for the set of right-clicked identifiers and optionally handles double-click."
+      }
+    ],
     "code": "FileRow(file)\n    .contextMenu {\n        Button(\"Rename\") { rename(file) }\n        Button(\"Delete\", role: .destructive) { delete(file) }\n    }",
     "discussion": "contextMenu reveals actions on right-click (macOS) or touch-and-hold (iOS). The preview variant shows a custom view alongside the menu. Keep items to Buttons, Toggles, and nested Menus.",
     "kind": "Modifier",
@@ -200,6 +363,18 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "Text(link.title)\n    .draggable(link.url)",
+        "name": "draggable(_:)",
+        "summary": "Turns the view into a drag source whose payload is any Transferable value, previewed with the view itself."
+      },
+      {
+        "code": "ContactRow(contact)\n    .draggable(contact) {\n        Label(contact.name, systemImage: \"person.crop.circle\")\n            .padding(8)\n            .background(.regularMaterial, in: .capsule)\n    }",
+        "name": "draggable(_:preview:)",
+        "summary": "The same source, but with a custom view rendered as the lifted drag image."
+      }
+    ],
     "code": "PhotoThumb(photo)\n    .draggable(photo)",
     "discussion": "draggable starts system drag and drop with any Transferable value, generating the default preview from the view itself. Pair with dropDestination on the receiving side.",
     "kind": "Modifier",
@@ -232,6 +407,18 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": "Button(\"Continue\") { next() }\n    .fixedSize()",
+        "name": "fixedSize()",
+        "summary": "Ignores the proposal on both axes and takes the view's ideal size outright."
+      },
+      {
+        "code": "Text(longDescription)\n    .fixedSize(horizontal: false, vertical: true)",
+        "name": "fixedSize(horizontal:vertical:)",
+        "summary": "Chooses per axis which dimension is pinned at ideal size; vertical-only is the wrap-instead-of-truncate fix."
+      }
+    ],
     "code": "Text(\"Never truncate this label\")\n    .fixedSize(horizontal: false, vertical: true)",
     "discussion": "fixedSize opts a view out of the proposal, per axis — the fix when text truncates instead of wrapping, or when a control should hug content inside a stretchy container. This app's demo pickers use it.",
     "kind": "Modifier",
@@ -244,6 +431,18 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "@FocusState private var isSearchFocused: Bool\n\nTextField(\"Search\", text: $query)\n    .focused($isSearchFocused)\n    .onAppear { isSearchFocused = true }",
+        "name": "focused(_:)",
+        "summary": "Binds to a Bool FocusState that is true only while this one view holds focus."
+      },
+      {
+        "code": "@FocusState private var field: Field?\n\nTextField(\"Username\", text: $username)\n    .focused($field, equals: .username)\nSecureField(\"Password\", text: $password)\n    .focused($field, equals: .password)\n    .onSubmit { field = nil }",
+        "name": "focused(_:equals:)",
+        "summary": "Binds to an enum-valued FocusState and claims focus whenever the state equals this view's case."
+      }
+    ],
     "code": "TextField(\"Email\", text: $email)\n    .focused($focusedField, equals: .email)",
     "discussion": "focused ties a field to a Boolean or enum-valued FocusState binding: reading tells you where focus is, writing moves it. The equals variant scales to whole forms.",
     "kind": "Modifier",
@@ -287,6 +486,23 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "Text(\"Subtitle\")\n    .foregroundStyle(.secondary)\n\nImage(systemName: \"flame.fill\")\n    .foregroundStyle(.orange.gradient)",
+        "name": "foregroundStyle(_:)",
+        "summary": "One style for everything in the subtree: a Color, gradient, material, or hierarchical level."
+      },
+      {
+        "code": "Image(systemName: \"person.crop.circle.badge.checkmark\")\n    .symbolRenderingMode(.palette)\n    .foregroundStyle(.primary, .green)",
+        "name": "foregroundStyle(_:_:)",
+        "summary": "Primary and secondary styles for two-layer content such as hierarchical SF Symbols."
+      },
+      {
+        "code": "Image(systemName: \"cloud.sun.rain.fill\")\n    .symbolRenderingMode(.palette)\n    .foregroundStyle(.gray, .yellow, .blue)",
+        "name": "foregroundStyle(_:_:_:)",
+        "summary": "Three styles mapped onto a symbol's primary, secondary, and tertiary layers."
+      }
+    ],
     "code": "Image(systemName: \"cloud.sun.rain.fill\")\n    .foregroundStyle(.gray, .yellow, .cyan)\n\nText(\"Gradient text\")\n    .foregroundStyle(.linearGradient(\n        colors: [.pink, .orange],\n        startPoint: .leading, endPoint: .trailing))",
     "discussion": "foregroundStyle supersedes foregroundColor and accepts any ShapeStyle: plain colors, gradients, materials, or the semantic .primary/.secondary/.tertiary levels. Passing multiple styles maps them onto the hierarchical layers of SF Symbols.",
     "kind": "Modifier",
@@ -333,6 +549,18 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": ".fullScreenCover(isPresented: $showOnboarding, onDismiss: markOnboarded) {\n    OnboardingFlow()\n}",
+        "name": "fullScreenCover(isPresented:onDismiss:content:)",
+        "summary": "Boolean-driven cover with an optional closure that runs after it goes away."
+      },
+      {
+        "code": ".fullScreenCover(item: $activeVideo) { video in\n    PlayerView(video)\n}",
+        "name": "fullScreenCover(item:onDismiss:content:)",
+        "summary": "Presents while an optional Identifiable item is non-nil and hands the unwrapped item to the content."
+      }
+    ],
     "code": ".fullScreenCover(isPresented: $showingPlayer) {\n    PlayerView()\n}",
     "discussion": "fullScreenCover is sheet without the partial-height card: the destination owns the whole screen and must dismiss itself. Right for immersive flows like onboarding and players.",
     "kind": "Modifier",
@@ -426,6 +654,18 @@
     "wwdcYear": 2020
   },
   {
+    "children": [
+      {
+        "code": "Color.black\n    .ignoresSafeArea(.container, edges: .vertical)",
+        "name": "ignoresSafeArea(_:edges:)",
+        "summary": "Picks which safe-area regions and which edges to extend into; both default to everything."
+      },
+      {
+        "code": "VStack {\n    Spacer()\n    ComposerBar()\n}\n.ignoresSafeArea(.keyboard, edges: .bottom)",
+        "name": "SafeAreaRegions",
+        "summary": "The option set of regions that count as safe area: .container for bars and notches, .keyboard for the software keyboard, .all for both."
+      }
+    ],
     "code": "Image(\"hero\")\n    .resizable()\n    .scaledToFill()\n    .ignoresSafeArea(edges: .top)",
     "discussion": "ignoresSafeArea expands a view into the regions the layout normally avoids, filterable by edge and by region (container vs. keyboard). Backgrounds usually ignore; controls usually shouldn't.",
     "kind": "Modifier",
@@ -454,6 +694,23 @@
     "wwdcYear": 2021
   },
   {
+    "children": [
+      {
+        "code": "Button(\"Find\", systemImage: \"magnifyingglass\") { showFind = true }\n    .keyboardShortcut(\"f\", modifiers: [.command, .shift])",
+        "name": "keyboardShortcut(_:modifiers:)",
+        "summary": "A key equivalent plus modifier flags, with the modifiers defaulting to Command."
+      },
+      {
+        "code": "HStack {\n    Button(\"Cancel\") { dismiss() }\n        .keyboardShortcut(.cancelAction)\n    Button(\"Create\") { create() }\n        .keyboardShortcut(.defaultAction)\n}",
+        "name": "keyboardShortcut(_:)",
+        "summary": "Takes a prebuilt KeyboardShortcut, where .defaultAction wires Return and .cancelAction wires Escape."
+      },
+      {
+        "code": "Button(\"Indent\") { indent() }\n    .keyboardShortcut(\"]\", modifiers: .command, localization: .withoutMirroring)",
+        "name": "keyboardShortcut(_:modifiers:localization:)",
+        "summary": "Adds a localization policy for keys that should or should not be mirrored on right-to-left layouts."
+      }
+    ],
     "code": "Button(\"Save\", action: save)\n    .keyboardShortcut(\"s\", modifiers: .command)",
     "discussion": "keyboardShortcut triggers a button from the keyboard, with .defaultAction mapping to Return and .cancelAction to Escape. Shortcuts surface automatically in the macOS menu discovery overlays.",
     "kind": "Modifier",
@@ -482,6 +739,23 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "Text(article.teaser)\n    .lineLimit(2)",
+        "name": "lineLimit(_ number: Int?)",
+        "summary": "A hard cap on line count, with nil removing any limit inherited from above."
+      },
+      {
+        "code": "TextField(\"Comment\", text: $comment, axis: .vertical)\n    .lineLimit(3...6)",
+        "name": "lineLimit(_ limit: ClosedRange<Int>)",
+        "summary": "A range where the text always reserves room for the lower bound and grows up to the upper bound."
+      },
+      {
+        "code": "Text(item.summary)\n    .lineLimit(3, reservesSpace: true)",
+        "name": "lineLimit(_:reservesSpace:)",
+        "summary": "Caps the lines and, with reservesSpace, keeps the height fixed even when the text is shorter."
+      }
+    ],
     "code": "Text(review.body)\n    .lineLimit(3)\n\nTextField(\"Notes\", text: $notes, axis: .vertical)\n    .lineLimit(2...5)",
     "discussion": "lineLimit bounds how many lines text may occupy, truncating past the cap; the range forms also reserve minimum space so layouts don't jump. This app's list rows cap summaries at two lines.",
     "kind": "Modifier",
@@ -494,6 +768,23 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "List(sections) { section in\n    HeaderRow(section)\n        .listRowSeparator(.hidden, edges: .top)\n}",
+        "name": "listRowSeparator(_:edges:)",
+        "summary": "Hides or shows one row's separator, optionally on just its top or bottom edge."
+      },
+      {
+        "code": "List(alerts) { alert in\n    AlertRow(alert)\n        .listRowSeparatorTint(alert.isCritical ? .red : nil)\n}",
+        "name": "listRowSeparatorTint(_:edges:)",
+        "summary": "Recolors a row's separator instead of hiding it, with nil restoring the default."
+      },
+      {
+        "code": "List {\n    Section(\"Pinned\") {\n        ForEach(pinned) { NoteRow($0) }\n    }\n    .listSectionSeparator(.hidden)\n}",
+        "name": "listSectionSeparator(_:edges:)",
+        "summary": "The same visibility control for the separators that bracket an entire section."
+      }
+    ],
     "code": "List(photos) { photo in\n    PhotoRow(photo)\n        .listRowSeparator(.hidden)\n}",
     "discussion": "listRowSeparator controls the hairline under (and above) individual rows, with listRowSeparatorTint recoloring instead of hiding. Applies per row, not on the List itself.",
     "kind": "Modifier",
@@ -548,6 +839,28 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "List(trips) { TripRow($0) }\n    .navigationTitle(\"Trips\")",
+        "name": "navigationTitle(_ titleKey: LocalizedStringKey)",
+        "summary": "A fixed title from a string literal, with sibling overloads for Text and StringProtocol values."
+      },
+      {
+        "code": "DocumentEditor(document: $document)\n    .navigationTitle($document.name)",
+        "name": "navigationTitle(_ title: Binding<String>)",
+        "summary": "A binding makes the title editable in place, from the title menu on iOS or the window title on macOS."
+      },
+      {
+        "code": "MailboxList(mailbox)\n    .navigationTitle(mailbox.name)\n    .navigationSubtitle(\"\\(mailbox.unreadCount) unread\")",
+        "name": "navigationSubtitle(_:)",
+        "summary": "A secondary line under the title, long a macOS feature and available on iOS and iPadOS from the 26 release."
+      },
+      {
+        "code": "SettingsForm()\n    .navigationTitle(\"Settings\")\n    .navigationBarTitleDisplayMode(.inline)",
+        "name": "navigationBarTitleDisplayMode(_:)",
+        "summary": "iOS and watchOS only: chooses large, inline, or automatic rendering of the bar title."
+      }
+    ],
     "code": "DetailView()\n    .navigationTitle(\"Trip Details\")",
     "discussion": "navigationTitle labels the current navigation destination — large or inline on iOS depending on navigationBarTitleDisplayMode, the window title on macOS. A string binding variant enables renamable document titles.",
     "kind": "Modifier",
@@ -560,6 +873,23 @@
     "wwdcYear": 2020
   },
   {
+    "children": [
+      {
+        "code": "@Namespace private var zoom\n\n.navigationDestination(for: Album.self) { album in\n    AlbumDetail(album)\n        .navigationTransition(.zoom(sourceID: album.id, in: zoom))\n}",
+        "name": "NavigationTransition.zoom(sourceID:in:)",
+        "summary": "The zoom transition, where the destination grows out of the view tagged with the same id and namespace."
+      },
+      {
+        "code": "NavigationLink(value: album) {\n    AlbumCover(album)\n        .matchedTransitionSource(id: album.id, in: zoom)\n}",
+        "name": "matchedTransitionSource(id:in:)",
+        "summary": "Marks the view that a zoom transition starts from and returns to."
+      },
+      {
+        "code": "AlbumCover(album)\n    .matchedTransitionSource(id: album.id, in: zoom) { source in\n        source\n            .clipShape(.rect(cornerRadius: 12))\n            .shadow(radius: 8)\n    }",
+        "name": "matchedTransitionSource(id:in:configuration:)",
+        "summary": "The same marker with a configuration closure that shapes the outgoing snapshot through clipShape, background, and shadow."
+      }
+    ],
     "code": "NavigationLink(value: photo) {\n    PhotoThumb(photo)\n        .matchedTransitionSource(id: photo.id, in: zoomNS)\n}\n.navigationDestination(for: Photo.self) { photo in\n    PhotoDetail(photo)\n        .navigationTransition(.zoom(sourceID: photo.id, in: zoomNS))\n}",
     "discussion": "Introduced at WWDC '24, navigationTransition(.zoom) makes a pushed detail view expand from a tagged source view and shrink back on pop — the system zoom transition previously exclusive to UIKit apps.",
     "kind": "Modifier",
@@ -577,6 +907,18 @@
     "wwdcYear": 2024
   },
   {
+    "children": [
+      {
+        "code": "Card()\n    .offset(dragTranslation)\n    .gesture(DragGesture().onChanged { dragTranslation = $0.translation })",
+        "name": "offset(_:)",
+        "summary": "Shifts by a CGSize, convenient when a drag translation is already in hand."
+      },
+      {
+        "code": "Image(systemName: \"arrow.down\")\n    .offset(y: isBouncing ? 6 : 0)\n    .animation(.easeInOut(duration: 0.4).repeatForever(), value: isBouncing)",
+        "name": "offset(x:y:)",
+        "summary": "Shifts by separate horizontal and vertical amounts, each defaulting to zero."
+      }
+    ],
     "code": "Circle()\n    .offset(x: 40, y: -12)",
     "demoID": "transform",
     "discussion": "offset shifts where the view draws while siblings still see its original frame — ideal for animation and gesture feedback, wrong for actual positioning, where layout containers belong.",
@@ -590,6 +932,18 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "DetailView()\n    .onAppear {\n        analytics.track(.viewedDetail)\n    }",
+        "name": "onAppear(perform:)",
+        "summary": "Runs a synchronous closure just before the view first draws, for analytics, timers, and focus."
+      },
+      {
+        "code": "LiveChart()\n    .onAppear { ticker.start() }\n    .onDisappear { ticker.stop() }",
+        "name": "onDisappear(perform:)",
+        "summary": "The bookend that runs when the view leaves the hierarchy, the place to stop timers and observers."
+      }
+    ],
     "code": "DetailView()\n    .onAppear {\n        logView(\"detail\")\n    }",
     "discussion": "onAppear fires as the view joins the visible hierarchy, with onDisappear as its counterpart. For async loading prefer task, which handles cancellation; onAppear remains right for synchronous side effects like analytics.",
     "kind": "Modifier",
@@ -627,6 +981,23 @@
     "wwdcYear": 2020
   },
   {
+    "children": [
+      {
+        "code": "Text(link.title)\n    .underline(isHovering)\n    .onHover { isHovering = $0 }",
+        "name": "onHover(perform:)",
+        "summary": "Reports a Bool as the pointer enters and leaves the view's bounds."
+      },
+      {
+        "code": "ColorWheel()\n    .onContinuousHover(coordinateSpace: .local) { phase in\n        switch phase {\n        case .active(let point): hoverColor = color(at: point)\n        case .ended: hoverColor = nil\n        }\n    }",
+        "name": "onContinuousHover(coordinateSpace:perform:)",
+        "summary": "Streams the pointer's position while it moves across the view, in whichever coordinate space you choose."
+      },
+      {
+        "code": ".onContinuousHover { phase in\n    if case .active(let location) = phase {\n        crosshair = location\n    }\n}",
+        "name": "HoverPhase",
+        "summary": "The enum delivered to onContinuousHover: .active carries a point and .ended signals the pointer has left."
+      }
+    ],
     "code": "RowView(item)\n    .onHover { isHovering = $0 }\n    .background(isHovering ? .quaternary : .clear)",
     "discussion": "onHover reports when the cursor enters or leaves, for hover highlights and reveal-on-hover controls on macOS and iPadOS pointers. Keep the reaction subtle; touch platforms never see it.",
     "kind": "Modifier",
@@ -643,6 +1014,23 @@
     "wwdcYear": 2020
   },
   {
+    "children": [
+      {
+        "code": "ScrollView { feed }\n    .onScrollGeometryChange(for: CGFloat.self) { geo in\n        geo.contentOffset.y + geo.contentInsets.top\n    } action: { _, offset in\n        headerOpacity = max(0, 1 - offset / 120)\n    }",
+        "name": "onScrollGeometryChange(for:of:action:)",
+        "summary": "Reduces ScrollGeometry to one Equatable value, and the action fires with old and new only when that value changes."
+      },
+      {
+        "code": ".onScrollGeometryChange(for: Bool.self) { geo in\n    geo.contentOffset.y + geo.containerSize.height\n        >= geo.contentSize.height - 40\n} action: { _, nearEnd in\n    if nearEnd { loadMore() }\n}",
+        "name": "ScrollGeometry",
+        "summary": "The snapshot handed to the transform, exposing contentOffset, contentSize, contentInsets, containerSize, and visibleRect."
+      },
+      {
+        "code": "ScrollView { grid }\n    .onScrollPhaseChange { _, newPhase in\n        isScrolling = newPhase != .idle\n    }",
+        "name": "onScrollPhaseChange(_:)",
+        "summary": "Reports transitions between idle, tracking, interacting, decelerating, and animating so work can pause mid-scroll."
+      }
+    ],
     "code": "ScrollView { content }\n    .onScrollGeometryChange(for: Bool.self) { geometry in\n        geometry.contentOffset.y > 100\n    } action: { _, isPast in\n        showCompactHeader = isPast\n    }",
     "discussion": "A WWDC '24 addition: transform the enclosing ScrollView's geometry into any Equatable value and react when it changes — the supported way to build offset-driven effects like collapsing headers.",
     "kind": "Modifier",
@@ -655,6 +1043,23 @@
     "wwdcYear": 2024
   },
   {
+    "children": [
+      {
+        "code": "NavigationStack { results }\n    .searchable(text: $query)\n    .onSubmit(of: .search) {\n        runSearch()\n    }",
+        "name": "onSubmit(of:_:)",
+        "summary": "Chooses which submit triggers count, .text for fields or .search for the search field, before running the action."
+      },
+      {
+        "code": "TextField(\"Message\", text: $draft)\n    .submitLabel(.send)\n    .onSubmit(send)",
+        "name": "submitLabel(_:)",
+        "summary": "Relabels the keyboard's return key as search, go, send, done, and so on to match what submitting will do."
+      },
+      {
+        "code": "Form {\n    TextField(\"Filter\", text: $filter)\n        .submitScope()\n    TextField(\"Name\", text: $name)\n}\n.onSubmit { saveName() }",
+        "name": "submitScope(_:)",
+        "summary": "Fences a subtree so its submissions stop there instead of bubbling up to an outer onSubmit."
+      }
+    ],
     "code": "TextField(\"Search\", text: $query)\n    .onSubmit { runSearch() }",
     "discussion": "onSubmit fires when the user presses Return in a TextField or search field within its scope. Combine with submitLabel to change the keyboard's action key.",
     "kind": "Modifier",
@@ -667,6 +1072,23 @@
     "wwdcYear": 2021
   },
   {
+    "children": [
+      {
+        "code": "Image(\"photo\")\n    .onTapGesture(count: 2) {\n        zoomToFit()\n    }",
+        "name": "onTapGesture(count:perform:)",
+        "summary": "A tap action with an optional required tap count."
+      },
+      {
+        "code": "Canvas { ctx, size in draw(ctx, size) }\n    .onTapGesture(coordinateSpace: .local) { point in\n        addPin(at: point)\n    }",
+        "name": "onTapGesture(count:coordinateSpace:perform:)",
+        "summary": "Also delivers the tap location, in local, global, or a named coordinate space."
+      },
+      {
+        "code": "Tile(item)\n    .onLongPressGesture(minimumDuration: 0.6) {\n        enterEditMode()\n    } onPressingChanged: { pressing in\n        isPressed = pressing\n    }",
+        "name": "onLongPressGesture(minimumDuration:maximumDistance:perform:onPressingChanged:)",
+        "summary": "The press-and-hold sibling, with a pressing-state callback for highlighting while the finger is down."
+      }
+    ],
     "code": "Image(systemName: \"heart\")\n    .onTapGesture(count: 2) {\n        isLiked.toggle()\n    }",
     "discussion": "onTapGesture attaches a discrete tap recognizer, with an optional count for double-taps. Reach for Button instead when the content is semantically a control — it brings accessibility, focus, and styling for free.",
     "kind": "Modifier",
@@ -781,6 +1203,18 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "Circle()\n    .frame(width: 12)\n    .position(handle.location)",
+        "name": "position(_:)",
+        "summary": "Centers the view at a CGPoint in the parent's coordinate space."
+      },
+      {
+        "code": "GeometryReader { geo in\n    Marker()\n        .position(x: geo.size.width * 0.25, y: geo.size.height / 2)\n}",
+        "name": "position(x:y:)",
+        "summary": "The same placement with separate x and y values, each defaulting to zero."
+      }
+    ],
     "code": "Circle()\n    .frame(width: 16)\n    .position(x: 120, y: 60)",
     "discussion": "position places the view's center at a point in the parent's space and makes the view fill its parent's proposal. The quad-curve demo positions its drag handles this way inside a GeometryReader.",
     "kind": "Modifier",
@@ -793,6 +1227,28 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "@State private var detent: PresentationDetent = .medium\n\n.sheet(isPresented: $showPanel) {\n    Panel()\n        .presentationDetents([.medium, .large], selection: $detent)\n}",
+        "name": "presentationDetents(_:selection:)",
+        "summary": "Binds the current detent so you can read which stop the sheet rests at and move it programmatically."
+      },
+      {
+        "code": "Sheet()\n    .presentationDetents([.fraction(0.3), .large])\n    .presentationDragIndicator(.visible)",
+        "name": "PresentationDetent.fraction(_:)",
+        "summary": "A detent at a fraction of the available height."
+      },
+      {
+        "code": "QuickActions()\n    .presentationDetents([.height(220)])",
+        "name": "PresentationDetent.height(_:)",
+        "summary": "A detent at a fixed point height, useful when the sheet's content has a known size."
+      },
+      {
+        "code": "MapView()\n    .sheet(isPresented: .constant(true)) {\n        PlacesList()\n            .presentationDetents([.height(80), .medium, .large])\n            .presentationBackgroundInteraction(.enabled(upThrough: .medium))\n    }",
+        "name": "presentationBackgroundInteraction(_:)",
+        "summary": "Lets touches pass through to the view behind the sheet, optionally only up to a given detent."
+      }
+    ],
     "code": ".sheet(isPresented: $showMap) {\n    MapSheet()\n        .presentationDetents([.medium, .large])\n}",
     "discussion": "presentationDetents lists the heights a sheet can rest at — medium, large, fractions, or fixed points — and the user drags between them. Bind the selection to react to detent changes.",
     "kind": "Modifier",
@@ -808,6 +1264,23 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": ".sheet(isPresented: $showPrefs) {\n    PreferencesForm()\n        .presentationSizing(.form)\n}",
+        "name": "PresentationSizing.form",
+        "summary": "A narrow, form-like sheet size matching the platform's settings-style presentations."
+      },
+      {
+        "code": ".sheet(item: $draft) { draft in\n    DraftEditor(draft)\n        .presentationSizing(.page)\n}",
+        "name": "PresentationSizing.page",
+        "summary": "A larger document-page sizing suited to editors and readers."
+      },
+      {
+        "code": ".sheet(isPresented: $showPicker) {\n    IconPicker()\n        .presentationSizing(.form.fitted(horizontal: false, vertical: true))\n}",
+        "name": "fitted(horizontal:vertical:)",
+        "summary": "Derives from another sizing but hugs the content on the chosen axes instead of filling the preset."
+      }
+    ],
     "code": ".sheet(isPresented: $showInspector) {\n    InspectorView()\n        .presentationSizing(.form)\n}",
     "discussion": "New at WWDC '24, presentationSizing chooses between form, page, and fitted sizing for sheets — replacing ad-hoc frame math with semantic presets that adapt per platform.",
     "kind": "Modifier",
@@ -819,6 +1292,23 @@
     "wwdcYear": 2024
   },
   {
+    "children": [
+      {
+        "code": "ProfileCard(profile ?? .sample)\n    .redacted(reason: profile == nil ? .placeholder : [])",
+        "name": "redacted(reason:)",
+        "summary": "Applies one or more redaction reasons to the subtree, where an empty set means render normally."
+      },
+      {
+        "code": "VStack {\n    Text(\"Latest\").unredacted()\n    ForEach(rows) { RowView($0) }\n}\n.redacted(reason: .placeholder)",
+        "name": "unredacted()",
+        "summary": "Exempts a subtree from redaction applied above it, keeping a heading readable while the rows are placeholders."
+      },
+      {
+        "code": "@Environment(\\.redactionReasons) private var reasons\n\nvar body: some View {\n    if reasons.contains(.placeholder) { SkeletonRow() } else { LiveRow(model) }\n}",
+        "name": "RedactionReasons",
+        "summary": "The option set behind redaction: .placeholder for skeletons, .privacy for sensitive data, .invalidated for stale widget content."
+      }
+    ],
     "code": "ArticleRow(article)\n    .redacted(reason: isLoading ? .placeholder : [])",
     "discussion": "redacted(reason: .placeholder) swaps text and images for neutral blocks — the standard skeleton-loading look with zero layout changes. Remove it with unredacted or by dropping the modifier.",
     "kind": "Modifier",
@@ -868,6 +1358,23 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "ScrollView { messages }\n    .safeAreaInset(edge: .bottom, spacing: 0) {\n        ComposeBar()\n            .background(.bar)\n    }",
+        "name": "safeAreaInset(edge:alignment:spacing:content:)",
+        "summary": "Pins content to a vertical or horizontal edge and insets the safe area by its size, with optional spacing before it."
+      },
+      {
+        "code": "ScrollView(.horizontal) {\n    LazyHStack { cards }\n}\n.safeAreaPadding(.horizontal, 16)",
+        "name": "safeAreaPadding(_:_:)",
+        "summary": "Grows the safe area by a plain length on the chosen edges without adding any view."
+      },
+      {
+        "code": "ScrollView { feed }\n    .safeAreaBar(edge: .bottom) {\n        PlaybackControls()\n            .padding(.horizontal)\n    }",
+        "name": "safeAreaBar(edge:alignment:spacing:content:)",
+        "summary": "The 26-release variant that treats the inset content as a bar, so scroll edge effects render beneath it like a system toolbar."
+      }
+    ],
     "code": "ScrollView { content }\n    .safeAreaInset(edge: .bottom) {\n        ComposeBar().background(.bar)\n    }",
     "discussion": "safeAreaInset attaches a view to an edge and extends the safe area by its size, so scrollable content underneath ends above it instead of hiding behind it — the correct tool for floating bottom bars.",
     "kind": "Modifier",
@@ -906,6 +1413,23 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "ScrollView { gallery }\n    .scrollEdgeEffectStyle(.soft, for: .top)",
+        "name": "ScrollEdgeEffectStyle.soft",
+        "summary": "A gradual blur-and-fade where content passes under a bar, the natural choice for imagery and mixed content."
+      },
+      {
+        "code": "List(rows) { Row($0) }\n    .scrollEdgeEffectStyle(.hard, for: .all)",
+        "name": "ScrollEdgeEffectStyle.hard",
+        "summary": "A crisp dividing line in place of the fade, suited to dense lists and tables."
+      },
+      {
+        "code": "ScrollView { content }\n    .scrollEdgeEffectHidden(true, for: .bottom)",
+        "name": "scrollEdgeEffectHidden(_:for:)",
+        "summary": "Switches the edge effect off entirely on the given edges."
+      }
+    ],
     "code": "ScrollView { content }\n    .scrollEdgeEffectStyle(.soft, for: .top)",
     "discussion": "With Liquid Glass, scrolled content dissolves beneath bars via an edge effect; this modifier picks the soft blur or the hard cutoff per edge — hard suits dense tables, soft suits imagery.",
     "kind": "Modifier",
@@ -948,6 +1472,23 @@
     "wwdcYear": 2023
   },
   {
+    "children": [
+      {
+        "code": "ScrollView(.horizontal) {\n    LazyHStack(spacing: 0) {\n        ForEach(slides) { SlideView($0).containerRelativeFrame(.horizontal) }\n    }\n}\n.scrollTargetBehavior(.paging)",
+        "name": "ScrollTargetBehavior.paging",
+        "summary": "Settles on whole container widths or heights, like a UIScrollView with paging turned on."
+      },
+      {
+        "code": "ScrollView(.horizontal) {\n    LazyHStack { cards }\n        .scrollTargetLayout()\n}\n.scrollTargetBehavior(.viewAligned(limitBehavior: .always))",
+        "name": "ScrollTargetBehavior.viewAligned(limitBehavior:)",
+        "summary": "Snaps to child views of a scrollTargetLayout, with limitBehavior capping how many can fly past in one swipe."
+      },
+      {
+        "code": "LazyVStack(spacing: 16) {\n    ForEach(sections) { SectionCard($0) }\n}\n.scrollTargetLayout()",
+        "name": "scrollTargetLayout(isEnabled:)",
+        "summary": "Marks a lazy stack or grid so its children become the snap targets for viewAligned behavior and id-based scrollPosition."
+      }
+    ],
     "code": "ScrollView(.horizontal) {\n    LazyHStack { cards }\n        .scrollTargetLayout()\n}\n.scrollTargetBehavior(.viewAligned)",
     "discussion": "scrollTargetBehavior makes scrolling settle by rule: paging stops per container width, viewAligned snaps to children marked with scrollTargetLayout. Custom behaviors adopt the ScrollTargetBehavior protocol.",
     "kind": "Modifier",
@@ -1008,6 +1549,23 @@
     "wwdcYear": 2025
   },
   {
+    "children": [
+      {
+        "code": "Picker(\"Size\", selection: $size) { sizes }\n    .sensoryFeedback(.selection, trigger: size)",
+        "name": "sensoryFeedback(_:trigger:)",
+        "summary": "Plays one fixed feedback every time the trigger value changes."
+      },
+      {
+        "code": "StepCounter(count: $count)\n    .sensoryFeedback(trigger: count) { old, new in\n        new > old ? .increase : .decrease\n    }",
+        "name": "sensoryFeedback(trigger:_:)",
+        "summary": "Lets a closure pick the feedback from the old and new values, or return nil to stay silent."
+      },
+      {
+        "code": "DropZone()\n    .sensoryFeedback(.impact(weight: .heavy, intensity: 0.8), trigger: didDrop)",
+        "name": "SensoryFeedback.impact(weight:intensity:)",
+        "summary": "A physical-collision feel with a light, medium, or heavy weight and an intensity from 0 to 1."
+      }
+    ],
     "code": "Toggle(\"Armed\", isOn: $armed)\n    .sensoryFeedback(.success, trigger: armed) { _, new in\n        new == true\n    }",
     "discussion": "sensoryFeedback declares feedback — success, warning, impact, selection — triggered by a value change, letting the system decide how it manifests per device. A condition closure filters which transitions actually play.",
     "kind": "Modifier",
@@ -1164,6 +1722,18 @@
     "wwdcYear": 2025
   },
   {
+    "children": [
+      {
+        "code": "ThumbnailGrid(items)\n    .task(priority: .background) {\n        await prefetchThumbnails()\n    }",
+        "name": "task(priority:_:)",
+        "summary": "Starts the async work when the view appears and cancels it on disappear, with priority defaulting to userInitiated."
+      },
+      {
+        "code": "ResultsList(results)\n    .task(id: query) {\n        results = await search(query)\n    }",
+        "name": "task(id:priority:_:)",
+        "summary": "Restarts the work, cancelling the previous run, whenever the Equatable id changes."
+      }
+    ],
     "code": "List(articles) { ArticleRow($0) }\n    .task {\n        articles = await store.loadArticles()\n    }",
     "discussion": "task starts its async closure when the view appears and cancels it automatically on disappear — structured concurrency's answer to onAppear-plus-Task. The id variant restarts the work whenever the id value changes.",
     "kind": "Modifier",
@@ -1235,6 +1805,23 @@
     "wwdcYear": 2020
   },
   {
+    "children": [
+      {
+        "code": "content\n    .toolbarBackground(.ultraThinMaterial, for: .navigationBar, .tabBar)",
+        "name": "toolbarBackground(_:for:)",
+        "summary": "Paints a ShapeStyle behind the named bars: navigation bar, tab bar, bottom bar, or window toolbar."
+      },
+      {
+        "code": "content\n    .toolbarBackground(.indigo, for: .navigationBar)\n    .toolbarBackgroundVisibility(.visible, for: .navigationBar)",
+        "name": "toolbarBackgroundVisibility(_:for:)",
+        "summary": "Forces a bar's background to show or hide regardless of scroll position, the 2024 name for the old Visibility overload."
+      },
+      {
+        "code": "content\n    .toolbarBackground(.indigo, for: .navigationBar)\n    .toolbarColorScheme(.dark, for: .navigationBar)",
+        "name": "toolbarColorScheme(_:for:)",
+        "summary": "Sets the light or dark scheme of a bar's title and items so they stay legible on a custom background."
+      }
+    ],
     "code": "content\n    .toolbarBackground(.indigo, for: .navigationBar)\n    .toolbarBackground(.visible, for: .navigationBar)",
     "discussion": "toolbarBackground sets the material or color of navigation bars, tab bars, and toolbars per placement, with visibility control alongside. Under the 2025 design, prefer letting glass bars sample content unless branding demands otherwise.",
     "kind": "Modifier",
@@ -1247,6 +1834,28 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": "if showToast {\n    ToastView()\n        .transition(.asymmetric(\n            insertion: .move(edge: .bottom),\n            removal: .opacity\n        ))\n}",
+        "name": ".asymmetric(insertion:removal:)",
+        "summary": "Different transitions for appearing and disappearing."
+      },
+      {
+        "code": "if showSidebar {\n    Sidebar()\n        .transition(.move(edge: .leading))\n}",
+        "name": ".move(edge:)",
+        "summary": "Slides in from, and back out toward, a screen edge."
+      },
+      {
+        "code": "BannerView()\n    .transition(.scale(scale: 0.9).combined(with: .opacity))",
+        "name": "combined(with:)",
+        "summary": "Merges two transitions so they play at once; move plus fade is the everyday pairing."
+      },
+      {
+        "code": "if isDone {\n    Image(systemName: \"checkmark.circle.fill\")\n        .transition(.blurReplace)\n}",
+        "name": ".blurReplace",
+        "summary": "The 2023 addition where the old view blurs out as the new one blurs in with a gentle scale."
+      }
+    ],
     "code": "if showBanner {\n    BannerView()\n        .transition(.move(edge: .top).combined(with: .opacity))\n}",
     "demoID": "transition",
     "discussion": "Transitions describe insertion and removal — opacity, scale, move, push — and only play inside an animated change. Compose them with combined, or split behavior with .asymmetric for different in/out effects.",

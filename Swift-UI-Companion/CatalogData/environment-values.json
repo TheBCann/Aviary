@@ -1,292 +1,331 @@
 [
   {
-    "code" : "@Environment(\\.accessibilityReduceMotion) private var reduceMotion\n\nwithAnimation(reduceMotion ? nil : .spring) {\n    isExpanded.toggle()\n}",
-    "discussion" : "When reduceMotion is on, replace large movement with crossfades or nothing at all. Gate springs and parallax on it; content changes themselves should still occur.",
-    "kind" : "Environment Value",
-    "name" : "accessibilityReduceMotion",
-    "related" : [
+    "code": "@Environment(\\.accessibilityReduceMotion) private var reduceMotion\n\nwithAnimation(reduceMotion ? nil : .spring) {\n    isExpanded.toggle()\n}",
+    "discussion": "When reduceMotion is on, replace large movement with crossfades or nothing at all. Gate springs and parallax on it; content changes themselves should still occur.",
+    "kind": "Environment Value",
+    "name": "accessibilityReduceMotion",
+    "related": [
       ".animation()",
       "colorScheme"
     ],
-    "summary" : "Whether the user asked for fewer animations.",
-    "wwdcYear" : 2019
+    "summary": "Whether the user asked for fewer animations.",
+    "wwdcYear": 2019
   },
   {
-    "code" : "CalendarGrid()\n    .environment(\\.calendar, Calendar(identifier: .iso8601))",
-    "discussion" : "Views read the environment's calendar for week layouts and date math, so injecting one — say, ISO 8601 with Monday weeks — restyles every date view in a subtree consistently.",
-    "kind" : "Environment Value",
-    "name" : "calendar",
-    "related" : [
+    "code": "CalendarGrid()\n    .environment(\\.calendar, Calendar(identifier: .iso8601))",
+    "discussion": "Views read the environment's calendar for week layouts and date math, so injecting one — say, ISO 8601 with Monday weeks — restyles every date view in a subtree consistently.",
+    "kind": "Environment Value",
+    "name": "calendar",
+    "related": [
       "locale",
       "timeZone"
     ],
-    "summary" : "The calendar used for date computation and display.",
-    "wwdcYear" : 2019
+    "summary": "The calendar used for date computation and display.",
+    "wwdcYear": 2019
   },
   {
-    "code" : "@Environment(\\.colorScheme) private var colorScheme\n\nvar body: some View {\n    Image(colorScheme == .dark ? \"logo-dark\" : \"logo-light\")\n}",
-    "discussion" : "Read colorScheme to branch custom drawing between appearances; prefer semantic colors and materials that adapt automatically. Setting preferredColorScheme upstream overrides it for a subtree.",
-    "kind" : "Environment Value",
-    "name" : "colorScheme",
-    "related" : [
+    "code": "@Environment(\\.colorScheme) private var colorScheme\n\nvar body: some View {\n    Image(colorScheme == .dark ? \"logo-dark\" : \"logo-light\")\n}",
+    "discussion": "Read colorScheme to branch custom drawing between appearances; prefer semantic colors and materials that adapt automatically. Setting preferredColorScheme upstream overrides it for a subtree.",
+    "kind": "Environment Value",
+    "name": "colorScheme",
+    "related": [
       "@Environment",
       "colorSchemeContrast"
     ],
-    "summary" : "Whether the view renders in light or dark mode.",
-    "wwdcYear" : 2019
+    "summary": "Whether the view renders in light or dark mode.",
+    "wwdcYear": 2019
   },
   {
-    "code" : "@Environment(\\.colorSchemeContrast) private var contrast\n\nvar borderColor: Color {\n    contrast == .increased ? .black : .gray\n}",
-    "discussion" : "colorSchemeContrast distinguishes standard from increased contrast. Pair custom colors with stronger variants when it is .increased, mirroring what system colors do automatically.",
-    "kind" : "Environment Value",
-    "name" : "colorSchemeContrast",
-    "related" : [
+    "code": "@Environment(\\.colorSchemeContrast) private var contrast\n\nvar borderColor: Color {\n    contrast == .increased ? .black : .gray\n}",
+    "discussion": "colorSchemeContrast distinguishes standard from increased contrast. Pair custom colors with stronger variants when it is .increased, mirroring what system colors do automatically.",
+    "kind": "Environment Value",
+    "name": "colorSchemeContrast",
+    "related": [
       "colorScheme"
     ],
-    "summary" : "Whether Increase Contrast is enabled.",
-    "wwdcYear" : 2019
+    "summary": "Whether Increase Contrast is enabled.",
+    "wwdcYear": 2019
   },
   {
-    "code" : "HStack {\n    Button(\"A\") { }\n    Button(\"B\") { }\n}\n.controlSize(.small)",
-    "demoID" : "controlSize",
-    "discussion" : "controlSize scales buttons, pickers, and progress indicators from mini through extraLarge. Set it on a container to keep a toolbar's controls uniformly compact.",
-    "kind" : "Environment Value",
-    "name" : "controlSize",
-    "platforms" : [
+    "code": "HStack {\n    Button(\"A\") { }\n    Button(\"B\") { }\n}\n.controlSize(.small)",
+    "demoID": "controlSize",
+    "discussion": "controlSize scales buttons, pickers, and progress indicators from mini through extraLarge. Set it on a container to keep a toolbar's controls uniformly compact.",
+    "kind": "Environment Value",
+    "name": "controlSize",
+    "platforms": [
       "iOS",
       "macOS",
       "watchOS"
     ],
-    "related" : [
+    "related": [
       "Button",
       ".buttonStyle()"
     ],
-    "summary" : "The size classification controls should render at.",
-    "wwdcYear" : 2019
+    "summary": "The size classification controls should render at.",
+    "wwdcYear": 2019
   },
   {
-    "code" : "@Environment(\\.dismiss) private var dismiss\n\nButton(\"Done\") { dismiss() }",
-    "discussion" : "Calling dismiss pops the pushed view, closes the sheet or popover, or dismisses the window — whichever presentation the view sits inside. It replaced presentationMode's clunkier API.",
-    "kind" : "Environment Value",
-    "name" : "dismiss",
-    "related" : [
+    "code": "@Environment(\\.dismiss) private var dismiss\n\nButton(\"Done\") { dismiss() }",
+    "discussion": "Calling dismiss pops the pushed view, closes the sheet or popover, or dismisses the window — whichever presentation the view sits inside. It replaced presentationMode's clunkier API.",
+    "kind": "Environment Value",
+    "name": "dismiss",
+    "related": [
       ".sheet()",
       "@Environment"
     ],
-    "summary" : "An action that closes the current presentation.",
-    "wwdcYear" : 2021
+    "summary": "An action that closes the current presentation.",
+    "wwdcYear": 2021
   },
   {
-    "code" : "@Environment(\\.dismissSearch) private var dismissSearch\n\nButton(result.title) {\n    open(result)\n    dismissSearch()\n}",
-    "discussion" : "Call dismissSearch after the user picks a result to close the search UI and clear focus — the search counterpart of dismiss. Like isSearching, read it inside the searchable scope.",
-    "kind" : "Environment Value",
-    "name" : "dismissSearch",
-    "related" : [
+    "code": "@Environment(\\.dismissSearch) private var dismissSearch\n\nButton(result.title) {\n    open(result)\n    dismissSearch()\n}",
+    "discussion": "Call dismissSearch after the user picks a result to close the search UI and clear focus — the search counterpart of dismiss. Like isSearching, read it inside the searchable scope.",
+    "kind": "Environment Value",
+    "name": "dismissSearch",
+    "related": [
       "isSearching",
       ".searchable()"
     ],
-    "summary" : "An action that ends the current search session.",
-    "wwdcYear" : 2021
+    "summary": "An action that ends the current search session.",
+    "wwdcYear": 2021
   },
   {
-    "code" : "@Environment(\\.displayScale) private var scale\n\nRectangle()\n    .frame(height: 1 \/ scale)   \/\/ a true hairline",
-    "discussion" : "displayScale reports 1, 2, or 3× rendering density — what you need to draw true hairlines or rasterize images at native resolution. pixelLength gives the same fact as a point size.",
-    "kind" : "Environment Value",
-    "name" : "displayScale",
-    "related" : [
+    "code": "@Environment(\\.displayScale) private var scale\n\nRectangle()\n    .frame(height: 1 / scale)   // a true hairline",
+    "discussion": "displayScale reports 1, 2, or 3× rendering density — what you need to draw true hairlines or rasterize images at native resolution. pixelLength gives the same fact as a point size.",
+    "kind": "Environment Value",
+    "name": "displayScale",
+    "related": [
       "colorScheme",
       "@Environment"
     ],
-    "summary" : "The screen's points-to-pixels scale factor.",
-    "wwdcYear" : 2019
+    "summary": "The screen's points-to-pixels scale factor.",
+    "wwdcYear": 2019
   },
   {
-    "code" : "@Environment(\\.dynamicTypeSize) private var typeSize\n\nvar body: some View {\n    if typeSize.isAccessibilitySize {\n        VStack { labels }\n    } else {\n        HStack { labels }\n    }\n}",
-    "discussion" : "Read dynamicTypeSize to swap layouts at accessibility sizes, or clamp a subtree's growth with the dynamicTypeSize range modifier while keeping text scalable.",
-    "kind" : "Environment Value",
-    "name" : "dynamicTypeSize",
-    "related" : [
+    "code": "@Environment(\\.dynamicTypeSize) private var typeSize\n\nvar body: some View {\n    if typeSize.isAccessibilitySize {\n        VStack { labels }\n    } else {\n        HStack { labels }\n    }\n}",
+    "discussion": "Read dynamicTypeSize to swap layouts at accessibility sizes, or clamp a subtree's growth with the dynamicTypeSize range modifier while keeping text scalable.",
+    "kind": "Environment Value",
+    "name": "dynamicTypeSize",
+    "related": [
       "@ScaledMetric",
       ".font()"
     ],
-    "summary" : "The user's current text size setting.",
-    "wwdcYear" : 2021
+    "summary": "The user's current text size setting.",
+    "wwdcYear": 2021
   },
   {
-    "code" : "@Environment(\\.editMode) private var editMode\n\nif editMode?.wrappedValue.isEditing == true {\n    ReorderHint()\n}",
-    "discussion" : "editMode carries the active\/inactive editing state EditButton toggles. Read it to swap row content while editing, or write it to enter edit mode programmatically.",
-    "kind" : "Environment Value",
-    "name" : "editMode",
-    "platforms" : [
+    "code": "@Environment(\\.editMode) private var editMode\n\nif editMode?.wrappedValue.isEditing == true {\n    ReorderHint()\n}",
+    "discussion": "editMode carries the active/inactive editing state EditButton toggles. Read it to swap row content while editing, or write it to enter edit mode programmatically.",
+    "kind": "Environment Value",
+    "name": "editMode",
+    "platforms": [
       "iOS"
     ],
-    "related" : [
+    "related": [
       "EditButton",
       "List"
     ],
-    "summary" : "Whether the containing list is in edit mode.",
-    "wwdcYear" : 2019
+    "summary": "Whether the containing list is in edit mode.",
+    "wwdcYear": 2019
   },
   {
-    "code" : "@Environment(\\.horizontalSizeClass) private var sizeClass\n\nvar body: some View {\n    sizeClass == .compact ? AnyView(list) : AnyView(splitView)\n}",
-    "discussion" : "Size classes describe available width coarsely: compact on iPhone portrait, regular on iPad and wide splits. Branching on them is the standard way to choose between phone and tablet arrangements.",
-    "kind" : "Environment Value",
-    "name" : "horizontalSizeClass",
-    "platforms" : [
+    "code": "@Environment(\\.horizontalSizeClass) private var sizeClass\n\nvar body: some View {\n    sizeClass == .compact ? AnyView(list) : AnyView(splitView)\n}",
+    "discussion": "Size classes describe available width coarsely: compact on iPhone portrait, regular on iPad and wide splits. Branching on them is the standard way to choose between phone and tablet arrangements.",
+    "kind": "Environment Value",
+    "name": "horizontalSizeClass",
+    "platforms": [
       "iOS"
     ],
-    "related" : [
+    "related": [
       "ViewThatFits",
       "NavigationSplitView"
     ],
-    "summary" : "Compact or regular width for adaptive layouts.",
-    "wwdcYear" : 2019
+    "summary": "Compact or regular width for adaptive layouts.",
+    "wwdcYear": 2019
   },
   {
-    "code" : "struct FadedStyle: ButtonStyle {\n    @Environment(\\.isEnabled) private var isEnabled\n\n    func makeBody(configuration: Configuration) -> some View {\n        configuration.label\n            .opacity(isEnabled ? 1 : 0.4)\n    }\n}",
-    "discussion" : "isEnabled reflects the nearest .disabled modifier. Custom control styles read it to gray themselves out consistently with system controls.",
-    "kind" : "Environment Value",
-    "name" : "isEnabled",
-    "related" : [
+    "code": "struct FadedStyle: ButtonStyle {\n    @Environment(\\.isEnabled) private var isEnabled\n\n    func makeBody(configuration: Configuration) -> some View {\n        configuration.label\n            .opacity(isEnabled ? 1 : 0.4)\n    }\n}",
+    "discussion": "isEnabled reflects the nearest .disabled modifier. Custom control styles read it to gray themselves out consistently with system controls.",
+    "kind": "Environment Value",
+    "name": "isEnabled",
+    "related": [
       "ButtonStyle",
       "@Environment"
     ],
-    "summary" : "Whether the surrounding context allows interaction.",
-    "wwdcYear" : 2019
+    "summary": "Whether the surrounding context allows interaction.",
+    "wwdcYear": 2019
   },
   {
-    "code" : "@Environment(\\.isSearching) private var isSearching\n\nif isSearching && query.isEmpty {\n    RecentSearches()\n}",
-    "discussion" : "isSearching turns true while search is active, letting the searched content swap in suggestions or recents. It must be read from a view inside the searchable modifier's scope, not the one applying it.",
-    "kind" : "Environment Value",
-    "name" : "isSearching",
-    "related" : [
+    "code": "@Environment(\\.isSearching) private var isSearching\n\nif isSearching && query.isEmpty {\n    RecentSearches()\n}",
+    "discussion": "isSearching turns true while search is active, letting the searched content swap in suggestions or recents. It must be read from a view inside the searchable modifier's scope, not the one applying it.",
+    "kind": "Environment Value",
+    "name": "isSearching",
+    "related": [
       ".searchable()",
       "dismissSearch"
     ],
-    "summary" : "Whether the user is interacting with the search field.",
-    "wwdcYear" : 2021
+    "summary": "Whether the user is interacting with the search field.",
+    "wwdcYear": 2021
   },
   {
-    "code" : "ContentView()\n    .environment(\\.locale, Locale(identifier: \"fr_FR\"))",
-    "discussion" : "The locale environment value drives date, number, and measurement formatting throughout SwiftUI. Override it with .environment for previews and screenshots in other regions.",
-    "kind" : "Environment Value",
-    "name" : "locale",
-    "related" : [
+    "code": "ContentView()\n    .environment(\\.locale, Locale(identifier: \"fr_FR\"))",
+    "discussion": "The locale environment value drives date, number, and measurement formatting throughout SwiftUI. Override it with .environment for previews and screenshots in other regions.",
+    "kind": "Environment Value",
+    "name": "locale",
+    "related": [
       "@Environment",
       "Text"
     ],
-    "summary" : "The locale formatting should adapt to.",
-    "wwdcYear" : 2019
+    "summary": "The locale formatting should adapt to.",
+    "wwdcYear": 2019
   },
   {
-    "code" : "@Environment(\\.modelContext) private var context\n\nButton(\"Add Trip\") {\n    context.insert(Trip(name: \"New Trip\"))\n}",
-    "discussion" : "Apps that attach a modelContainer get a modelContext in the environment: insert and delete models there, and @Query views update automatically. Requires import SwiftData.",
-    "framework" : "SwiftData",
-    "kind" : "Environment Value",
-    "name" : "modelContext",
-    "related" : [
+    "code": "@Environment(\\.modelContext) private var context\n\nButton(\"Add Trip\") {\n    context.insert(Trip(name: \"New Trip\"))\n}",
+    "discussion": "Apps that attach a modelContainer get a modelContext in the environment: insert and delete models there, and @Query views update automatically. Requires import SwiftData.",
+    "framework": "SwiftData",
+    "kind": "Environment Value",
+    "name": "modelContext",
+    "related": [
       "@Query",
       "@Environment"
     ],
-    "summary" : "The SwiftData context for inserts, deletes, and saves.",
-    "wwdcYear" : 2023
+    "summary": "The SwiftData context for inserts, deletes, and saves.",
+    "wwdcYear": 2023
   },
   {
-    "code" : "@Environment(\\.openURL) private var openURL\n\nButton(\"Docs\") {\n    openURL(URL(string: \"https:\/\/developer.apple.com\")!)\n}",
-    "discussion" : "openURL sends a URL to the default browser or owning app. Provide your own OpenURLAction upstream to intercept links — including those inside Markdown Text — for in-app handling.",
-    "kind" : "Environment Value",
-    "name" : "openURL",
-    "related" : [
+    "children": [
+      {
+        "code": "@Environment(\\.openURL) private var openURL\n\nButton(\"Homepage\") {\n    openURL(URL(string: \"https://swift.org\")!)\n}",
+        "name": "openURL(_:)",
+        "summary": "Hands a single URL to the system to open in whichever app or browser claims it."
+      },
+      {
+        "code": "openURL(deepLink) { accepted in\n    if !accepted {\n        showFallbackAlert = true\n    }\n}",
+        "name": "openURL(_:completion:)",
+        "summary": "Opens a URL and reports back through a closure whether the system actually accepted it."
+      },
+      {
+        "code": ".environment(\\.openURL, OpenURLAction { url in\n    router.handle(url)\n    return .handled\n})",
+        "name": "OpenURLAction(handler:)",
+        "summary": "Builds a custom action you inject upstream so a subtree routes its links through your own code."
+      },
+      {
+        "code": ".environment(\\.openURL, OpenURLAction { url in\n    guard url.host == \"internal\" else { return .systemAction }\n    route(to: url)\n    return .handled\n})",
+        "name": "OpenURLAction.Result",
+        "summary": "The verdict your handler returns, choosing between claiming the link, dropping it, or deferring to the system."
+      }
+    ],
+    "code": "@Environment(\\.openURL) private var openURL\n\nButton(\"Docs\") {\n    openURL(URL(string: \"https://developer.apple.com\")!)\n}",
+    "discussion": "openURL sends a URL to the default browser or owning app. Provide your own OpenURLAction upstream to intercept links — including those inside Markdown Text — for in-app handling.",
+    "kind": "Environment Value",
+    "name": "openURL",
+    "related": [
       "Link",
       "openWindow"
     ],
-    "summary" : "An action that opens a URL with system handling.",
-    "wwdcYear" : 2020
+    "summary": "An action that opens a URL with system handling.",
+    "wwdcYear": 2020
   },
   {
-    "code" : "@Environment(\\.openWindow) private var openWindow\n\nButton(\"Show Activity\") {\n    openWindow(id: \"activity\")\n}",
-    "discussion" : "openWindow targets a WindowGroup or Window by identifier, optionally passing a presented value that parameterizes the new window. macOS and iPadOS honor it; this app's menu bar search uses it to raise the main window.",
-    "kind" : "Environment Value",
-    "name" : "openWindow",
-    "platforms" : [
+    "children": [
+      {
+        "code": "@Environment(\\.openWindow) private var openWindow\n\nButton(\"Inspector\") {\n    openWindow(id: \"inspector\")\n}",
+        "name": "openWindow(id:)",
+        "summary": "Raises the scene whose WindowGroup or Window was declared with a matching identifier."
+      },
+      {
+        "code": "// WindowGroup(for: Note.ID.self) { ... }\nButton(\"Open Note\") {\n    openWindow(value: note.id)\n}",
+        "name": "openWindow(value:)",
+        "summary": "Presents a window bound to a value, matching it to a WindowGroup declared for that value's type."
+      },
+      {
+        "code": "Button(\"Edit in Window\") {\n    openWindow(id: \"editor\", value: document.id)\n}",
+        "name": "openWindow(id:value:)",
+        "summary": "Targets a specific window group by identifier and hands it a presented value to parameterize it."
+      }
+    ],
+    "code": "@Environment(\\.openWindow) private var openWindow\n\nButton(\"Show Activity\") {\n    openWindow(id: \"activity\")\n}",
+    "discussion": "openWindow targets a WindowGroup or Window by identifier, optionally passing a presented value that parameterizes the new window. macOS and iPadOS honor it; this app's menu bar search uses it to raise the main window.",
+    "kind": "Environment Value",
+    "name": "openWindow",
+    "platforms": [
       "iOS",
       "macOS"
     ],
-    "related" : [
+    "related": [
       "WindowGroup",
       "Window",
       "dismiss"
     ],
-    "summary" : "An action that opens a scene by id or value.",
-    "wwdcYear" : 2022
+    "summary": "An action that opens a scene by id or value.",
+    "wwdcYear": 2022
   },
   {
-    "code" : "import StoreKit\n\n@Environment(\\.requestReview) private var requestReview\n\n.onChange(of: completedLevels) {\n    if completedLevels == 10 { requestReview() }\n}",
-    "discussion" : "requestReview is a polite request, not a command — the system decides whether the prompt actually appears, capping frequency. Call it after a satisfying moment, never from a button promising a review. Requires import StoreKit.",
-    "framework" : "StoreKit",
-    "kind" : "Environment Value",
-    "name" : "requestReview",
-    "platforms" : [
+    "code": "import StoreKit\n\n@Environment(\\.requestReview) private var requestReview\n\n.onChange(of: completedLevels) {\n    if completedLevels == 10 { requestReview() }\n}",
+    "discussion": "requestReview is a polite request, not a command — the system decides whether the prompt actually appears, capping frequency. Call it after a satisfying moment, never from a button promising a review. Requires import StoreKit.",
+    "framework": "StoreKit",
+    "kind": "Environment Value",
+    "name": "requestReview",
+    "platforms": [
       "iOS",
       "macOS"
     ],
-    "related" : [
+    "related": [
       "ProductView",
       "@Environment"
     ],
-    "summary" : "Asks StoreKit to show the rating prompt when appropriate.",
-    "wwdcYear" : 2022
+    "summary": "Asks StoreKit to show the rating prompt when appropriate.",
+    "wwdcYear": 2022
   },
   {
-    "code" : "@Environment(\\.scenePhase) private var scenePhase\n\nvar body: some View {\n    content.onChange(of: scenePhase) { _, phase in\n        if phase == .background { save() }\n    }\n}",
-    "discussion" : "Observe scenePhase with onChange to pause work, save state, or refresh data as the app moves between foreground and background. Read it at the App level for whole-app transitions.",
-    "kind" : "Environment Value",
-    "name" : "scenePhase",
-    "related" : [
+    "code": "@Environment(\\.scenePhase) private var scenePhase\n\nvar body: some View {\n    content.onChange(of: scenePhase) { _, phase in\n        if phase == .background { save() }\n    }\n}",
+    "discussion": "Observe scenePhase with onChange to pause work, save state, or refresh data as the app moves between foreground and background. Read it at the App level for whole-app transitions.",
+    "kind": "Environment Value",
+    "name": "scenePhase",
+    "related": [
       "Scene",
       "@Environment"
     ],
-    "summary" : "Whether the scene is active, inactive, or backgrounded.",
-    "wwdcYear" : 2020
+    "summary": "Whether the scene is active, inactive, or backgrounded.",
+    "wwdcYear": 2020
   },
   {
-    "code" : "@Environment(\\.supportsMultipleWindows) private var supportsMultipleWindows\n\nif supportsMultipleWindows {\n    Button(\"Open in New Window\") { openWindow(id: \"detail\") }\n}",
-    "discussion" : "supportsMultipleWindows is true on macOS and multi-window iPad configurations, false on iPhone — the check that keeps 'Open in New Window' buttons from appearing where openWindow would do nothing.",
-    "kind" : "Environment Value",
-    "name" : "supportsMultipleWindows",
-    "platforms" : [
+    "code": "@Environment(\\.supportsMultipleWindows) private var supportsMultipleWindows\n\nif supportsMultipleWindows {\n    Button(\"Open in New Window\") { openWindow(id: \"detail\") }\n}",
+    "discussion": "supportsMultipleWindows is true on macOS and multi-window iPad configurations, false on iPhone — the check that keeps 'Open in New Window' buttons from appearing where openWindow would do nothing.",
+    "kind": "Environment Value",
+    "name": "supportsMultipleWindows",
+    "platforms": [
       "iOS",
       "macOS"
     ],
-    "related" : [
+    "related": [
       "openWindow",
       "WindowGroup"
     ],
-    "summary" : "Whether this platform and app can open extra windows.",
-    "wwdcYear" : 2022
+    "summary": "Whether this platform and app can open extra windows.",
+    "wwdcYear": 2022
   },
   {
-    "code" : "FlightBoard(flights)\n    .environment(\\.timeZone, TimeZone(identifier: \"Asia\/Tokyo\")!)",
-    "discussion" : "Override timeZone to preview schedules in another region or pin a departure board to airport local time regardless of the device setting.",
-    "kind" : "Environment Value",
-    "name" : "timeZone",
-    "related" : [
+    "code": "FlightBoard(flights)\n    .environment(\\.timeZone, TimeZone(identifier: \"Asia/Tokyo\")!)",
+    "discussion": "Override timeZone to preview schedules in another region or pin a departure board to airport local time regardless of the device setting.",
+    "kind": "Environment Value",
+    "name": "timeZone",
+    "related": [
       "calendar",
       "locale"
     ],
-    "summary" : "The time zone dates are rendered in.",
-    "wwdcYear" : 2019
+    "summary": "The time zone dates are rendered in.",
+    "wwdcYear": 2019
   },
   {
-    "code" : "@Environment(\\.undoManager) private var undoManager\n\nfunc rename(_ item: Item, to newName: String) {\n    let oldName = item.name\n    item.name = newName\n    undoManager?.registerUndo(withTarget: item) {\n        $0.name = oldName\n    }\n}",
-    "discussion" : "Register undo blocks with the environment's undoManager and the standard Edit-menu items and gestures work without extra wiring. Document-based scenes supply one automatically.",
-    "kind" : "Environment Value",
-    "name" : "undoManager",
-    "related" : [
+    "code": "@Environment(\\.undoManager) private var undoManager\n\nfunc rename(_ item: Item, to newName: String) {\n    let oldName = item.name\n    item.name = newName\n    undoManager?.registerUndo(withTarget: item) {\n        $0.name = oldName\n    }\n}",
+    "discussion": "Register undo blocks with the environment's undoManager and the standard Edit-menu items and gestures work without extra wiring. Document-based scenes supply one automatically.",
+    "kind": "Environment Value",
+    "name": "undoManager",
+    "related": [
       "DocumentGroup",
       "@Environment"
     ],
-    "summary" : "The UndoManager serving the current window.",
-    "wwdcYear" : 2019
+    "summary": "The UndoManager serving the current window.",
+    "wwdcYear": 2019
   }
 ]

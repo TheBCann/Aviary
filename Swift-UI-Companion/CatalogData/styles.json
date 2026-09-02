@@ -1,18 +1,5 @@
 [
   {
-    "code": "Button(\"Get Started\") { begin() }\n    .buttonStyle(.glassProminent)\n\nButton(\"Later\") { skip() }\n    .buttonStyle(.glass)",
-    "discussion": "WWDC '25 added glass and glassProminent button styles: capsule buttons on the refractive glass material with the system's press morphing. Use them for floating controls above content; inside toolbars, glass comes for free.",
-    "kind": "Style",
-    "name": ".buttonStyle(.glass)",
-    "related": [
-      ".glassEffect()",
-      ".buttonStyle()",
-      "GlassEffectContainer"
-    ],
-    "summary": "Buttons rendered on Liquid Glass material.",
-    "wwdcYear": 2025
-  },
-  {
     "children": [
       {
         "code": "Button(\"Continue\") { proceed() }\n    .buttonStyle(.automatic)",
@@ -54,6 +41,53 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "Button(\"Later\") { skip() }\n    .buttonStyle(.glass)",
+        "name": ".glass",
+        "summary": "A translucent capsule that lets the content beneath refract through the button."
+      },
+      {
+        "code": "Button(\"Get Started\") { begin() }\n    .buttonStyle(.glassProminent)\n    .tint(.blue)",
+        "name": ".glassProminent",
+        "summary": "A tinted, filled glass capsule reserved for the screen's main call to action."
+      }
+    ],
+    "code": "Button(\"Get Started\") { begin() }\n    .buttonStyle(.glassProminent)\n\nButton(\"Later\") { skip() }\n    .buttonStyle(.glass)",
+    "discussion": "WWDC '25 added glass and glassProminent button styles: capsule buttons on the refractive glass material with the system's press morphing. Use them for floating controls above content; inside toolbars, glass comes for free.",
+    "kind": "Style",
+    "name": ".buttonStyle(.glass)",
+    "related": [
+      ".glassEffect()",
+      ".buttonStyle()",
+      "GlassEffectContainer"
+    ],
+    "summary": "Buttons rendered on Liquid Glass material.",
+    "wwdcYear": 2025
+  },
+  {
+    "children": [
+      {
+        "code": "DatePicker(\"Due\", selection: $due, displayedComponents: .date)\n    .datePickerStyle(.compact)",
+        "name": ".compact",
+        "summary": "A small inline chip that opens a popover calendar when tapped."
+      },
+      {
+        "code": "DatePicker(\"Start\", selection: $start)\n    .datePickerStyle(.graphical)",
+        "name": ".graphical",
+        "summary": "Lays out a whole month grid, adding a clock when time is included."
+      },
+      {
+        "code": "DatePicker(\"Alarm\", selection: $alarm,\n           displayedComponents: .hourAndMinute)\n    .datePickerStyle(.wheel)",
+        "name": ".wheel",
+        "summary": "Spinning drums per component; available on iOS and watchOS only."
+      },
+      {
+        "code": "DatePicker(\"Expires\", selection: $expires)\n    .datePickerStyle(.field)",
+        "name": ".field",
+        "summary": "A typed-in text field on macOS; .stepperField adds arrows beside it."
+      }
+    ],
     "code": "DatePicker(\"Date\", selection: $date, displayedComponents: .date)\n    .datePickerStyle(.graphical)",
     "demoID": "datePicker",
     "discussion": "datePickerStyle spans compact (tap-to-pop-over), graphical (full calendar), wheel on iOS, and field/stepperField on macOS — same binding, very different footprints.",
@@ -71,6 +105,23 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "DisclosureGroup(\"Advanced\") { AdvancedOptions() }\n    .disclosureGroupStyle(.automatic)",
+        "name": ".automatic",
+        "summary": "Reinstates the platform's chevron look inside a custom-styled scope."
+      },
+      {
+        "code": "struct RowToggle: DisclosureGroupStyle {\n    func makeBody(configuration: Configuration) -> some View {\n        configuration.label\n            .onTapGesture { configuration.isExpanded.toggle() }\n        if configuration.isExpanded { configuration.content }\n    }\n}",
+        "name": "makeBody(configuration:)",
+        "summary": "The protocol's sole requirement; return the view that stands in for the whole group."
+      },
+      {
+        "code": "func makeBody(configuration: Configuration) -> some View {\n    VStack(alignment: .leading) {\n        configuration.label\n        configuration.content\n            .opacity(configuration.isExpanded ? 1 : 0)\n    }\n}",
+        "name": "DisclosureGroupStyleConfiguration",
+        "summary": "Bundles the label view, the content view, and the isExpanded binding a style drives."
+      }
+    ],
     "code": "struct PlusMinus: DisclosureGroupStyle {\n    func makeBody(configuration: Configuration) -> some View {\n        Button {\n            configuration.isExpanded.toggle()\n        } label: {\n            HStack {\n                configuration.label\n                Spacer()\n                Image(systemName: configuration.isExpanded\n                      ? \"minus\" : \"plus\")\n            }\n        }\n        if configuration.isExpanded { configuration.content }\n    }\n}",
     "discussion": "DisclosureGroupStyle exposes the label, content, and isExpanded binding so you can replace the chevron treatment entirely — animated arrows, plus/minus buttons, or full-row toggles.",
     "kind": "Style",
@@ -86,6 +137,23 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": "Form { settingsRows }\n    .formStyle(.automatic)",
+        "name": ".automatic",
+        "summary": "Defers to whatever layout the platform normally gives a Form."
+      },
+      {
+        "code": "Form {\n    Section(\"Account\") {\n        TextField(\"Name\", text: $name)\n        Toggle(\"Sync\", isOn: $sync)\n    }\n}\n.formStyle(.grouped)",
+        "name": ".grouped",
+        "summary": "Rows sit on rounded platters with their labels leading, the Settings-app look."
+      },
+      {
+        "code": "Form {\n    TextField(\"Host\", text: $host)\n    TextField(\"Port\", value: $port, format: .number)\n}\n.formStyle(.columns)",
+        "name": ".columns",
+        "summary": "Aligns every label in a trailing-justified column beside its control, macOS style."
+      }
+    ],
     "code": "Form {\n    TextField(\"Server\", text: $server)\n    Toggle(\"Use TLS\", isOn: $tls)\n}\n.formStyle(.grouped)",
     "discussion": "formStyle selects grouped (rows on platters, labels leading) or columns (aligned label column, macOS settings look) for a Form. Grouped on macOS gives the iOS-like settings design used since Ventura.",
     "kind": "Style",
@@ -102,6 +170,28 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": "Gauge(value: usedBytes, in: 0...capacityBytes) { Text(\"Storage\") }\n    .gaugeStyle(.linearCapacity)",
+        "name": ".linearCapacity",
+        "summary": "A horizontal bar that fills up to the current value, like a storage meter."
+      },
+      {
+        "code": "Gauge(value: temperature, in: -10...40) { Text(\"°C\") }\n    .gaugeStyle(.accessoryLinear)\n    .tint(Gradient(colors: [.blue, .red]))",
+        "name": ".accessoryLinear",
+        "summary": "A slim track with a marker at the current position, sized for widgets."
+      },
+      {
+        "code": "Gauge(value: speed, in: 0...200) { Text(\"km/h\") }\n    .gaugeStyle(.accessoryCircular)",
+        "name": ".accessoryCircular",
+        "summary": "An open ring with a marker on the arc and the label centered inside."
+      },
+      {
+        "code": "Gauge(value: batteryLevel) {\n    Text(\"\\(Int(batteryLevel * 100))%\")\n}\n.gaugeStyle(.accessoryCircularCapacity)",
+        "name": ".accessoryCircularCapacity",
+        "summary": "A ring that fills proportionally, ideal for battery-style readouts."
+      }
+    ],
     "code": "Gauge(value: speed, in: 0...200) { Text(\"km/h\") }\n    .gaugeStyle(.accessoryCircular)\n    .tint(.green)",
     "demoID": "gauge",
     "discussion": "gaugeStyle spans linear and circular families, including the accessory variants designed for widgets and watch complications where space is tight.",
@@ -119,6 +209,23 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": "GroupBox(\"Network\") { networkRows }\n    .groupBoxStyle(.automatic)",
+        "name": ".automatic",
+        "summary": "The stock platter and label placement for the current platform."
+      },
+      {
+        "code": "struct Callout: GroupBoxStyle {\n    func makeBody(configuration: Configuration) -> some View {\n        HStack(alignment: .top) {\n            Image(systemName: \"info.circle\")\n            VStack(alignment: .leading) {\n                configuration.label.bold()\n                configuration.content\n            }\n        }\n        .padding()\n        .background(.yellow.opacity(0.15), in: .rect(cornerRadius: 10))\n    }\n}",
+        "name": "makeBody(configuration:)",
+        "summary": "Builds the box's chrome around the label and content handed in by the configuration."
+      },
+      {
+        "code": "func makeBody(configuration: Configuration) -> some View {\n    VStack(spacing: 4) {\n        configuration.content\n        configuration.label\n            .font(.caption)\n            .foregroundStyle(.secondary)\n    }\n}",
+        "name": "GroupBoxStyleConfiguration",
+        "summary": "Carries just two views, label and content, for the style to arrange."
+      }
+    ],
     "code": "struct CardBox: GroupBoxStyle {\n    func makeBody(configuration: Configuration) -> some View {\n        VStack(alignment: .leading, spacing: 8) {\n            configuration.label.font(.headline)\n            configuration.content\n        }\n        .padding()\n        .background(.background.secondary, in: .rect(cornerRadius: 12))\n    }\n}",
     "discussion": "A GroupBoxStyle receives the label and content and draws its own platter — brand cards and callout boxes that still read as grouped content at the call site.",
     "kind": "Style",
@@ -134,6 +241,28 @@
     "wwdcYear": 2020
   },
   {
+    "children": [
+      {
+        "code": "Label(\"Share\", systemImage: \"square.and.arrow.up\")\n    .labelStyle(.iconOnly)",
+        "name": ".iconOnly",
+        "summary": "Hides the title so only the symbol shows, ideal for cramped toolbars."
+      },
+      {
+        "code": "Label(\"Settings\", systemImage: \"gear\")\n    .labelStyle(.titleOnly)",
+        "name": ".titleOnly",
+        "summary": "Suppresses the icon where a symbol would just add clutter."
+      },
+      {
+        "code": "Menu(\"Actions\") {\n    Button { } label: {\n        Label(\"Duplicate\", systemImage: \"plus.square.on.square\")\n    }\n}\n.labelStyle(.titleAndIcon)",
+        "name": ".titleAndIcon",
+        "summary": "Forces both parts to appear even in contexts that would normally drop one."
+      },
+      {
+        "code": "Label(\"Downloads\", systemImage: \"arrow.down.circle\")\n    .labelStyle(.automatic)",
+        "name": ".automatic",
+        "summary": "Lets each container decide which parts of the label to show."
+      }
+    ],
     "code": "Label(\"Downloads\", systemImage: \"arrow.down.circle\")\n    .labelStyle(.iconOnly)",
     "demoID": "label",
     "discussion": "labelStyle adapts Labels to their surroundings: iconOnly for compact toolbars, titleOnly where symbols would be noise, titleAndIcon to force both. Custom LabelStyles can rearrange the pair arbitrarily.",
@@ -180,6 +309,23 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "Menu(\"Sort\") { sortButtons }\n    .menuStyle(.automatic)",
+        "name": ".automatic",
+        "summary": "Whatever presentation the platform gives a Menu in the current container."
+      },
+      {
+        "code": "Menu(\"Options\") {\n    Button(\"Rename\") { }\n    Button(\"Delete\", role: .destructive) { }\n}\n.menuStyle(.button)\n.buttonStyle(.bordered)",
+        "name": ".button",
+        "summary": "Renders the menu's label as a button that reveals the items when pressed."
+      },
+      {
+        "code": "struct Quiet: MenuStyle {\n    func makeBody(configuration: Configuration) -> some View {\n        Menu(configuration)\n            .buttonStyle(.borderless)\n            .foregroundStyle(.secondary)\n    }\n}",
+        "name": "makeBody(configuration:)",
+        "summary": "Custom MenuStyle hook; rebuild a Menu from the configuration and restyle it."
+      }
+    ],
     "code": "Menu(\"Options\") {\n    Button(\"Rename\") { }\n}\n.menuStyle(.button)",
     "discussion": "menuStyle picks how a Menu presents — the standard button form, or borderlessButton on macOS for toolbar-like menus. Most apps only need it to remove chrome.",
     "kind": "Style",
@@ -230,6 +376,28 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "ProgressView(\"Uploading\", value: sent, total: total)\n    .progressViewStyle(.linear)",
+        "name": ".linear",
+        "summary": "A horizontal bar that fills for determinate progress or shimmers when indeterminate."
+      },
+      {
+        "code": "ProgressView()\n    .progressViewStyle(.circular)\n    .controlSize(.large)",
+        "name": ".circular",
+        "summary": "A ring that fills to the fraction, or spins when there is no value."
+      },
+      {
+        "code": "ProgressView(value: 0.7)\n    .progressViewStyle(.automatic)",
+        "name": ".automatic",
+        "summary": "Picks linear or circular depending on the platform and surrounding context."
+      },
+      {
+        "code": "struct Ring: ProgressViewStyle {\n    func makeBody(configuration: Configuration) -> some View {\n        Circle()\n            .trim(from: 0, to: configuration.fractionCompleted ?? 0)\n            .stroke(.tint, lineWidth: 6)\n            .rotationEffect(.degrees(-90))\n    }\n}",
+        "name": "makeBody(configuration:)",
+        "summary": "Custom ProgressViewStyle hook; read fractionCompleted from the configuration and draw anything."
+      }
+    ],
     "code": "ProgressView(value: 0.4)\n    .progressViewStyle(.circular)",
     "demoID": "progress",
     "discussion": "progressViewStyle picks linear or circular rendering independent of whether progress is determinate. A custom ProgressViewStyle reads fractionCompleted from the configuration to draw gauges of any design.",
@@ -243,6 +411,23 @@
     "wwdcYear": 2020
   },
   {
+    "children": [
+      {
+        "code": "Table(people) {\n    TableColumn(\"Name\", value: \\.name)\n}\n.tableStyle(.automatic)",
+        "name": ".automatic",
+        "summary": "The platform's default table treatment; inset on macOS."
+      },
+      {
+        "code": "Table(orders, selection: $selected) {\n    TableColumn(\"ID\", value: \\.id.description)\n    TableColumn(\"Total\", value: \\.total.formatted())\n}\n.tableStyle(.inset)",
+        "name": ".inset",
+        "summary": "Rows pulled in from the edges with no outer frame."
+      },
+      {
+        "code": "Table(files) {\n    TableColumn(\"Name\", value: \\.name)\n    TableColumn(\"Size\", value: \\.sizeText)\n}\n.tableStyle(.bordered)\n.alternatingRowBackgrounds()",
+        "name": ".bordered",
+        "summary": "Wraps the macOS table in a visible border, the classic Finder-list look."
+      }
+    ],
     "code": "Table(people) {\n    TableColumn(\"Name\", value: \\.name)\n}\n.tableStyle(.bordered(alternatesRowBackgrounds: true))",
     "discussion": "tableStyle switches Table between the inset default and bordered variants on macOS, with alternating row backgrounds controlled separately. Mostly a macOS concern; iOS tables keep list styling.",
     "kind": "Style",
@@ -258,6 +443,28 @@
     "wwdcYear": 2021
   },
   {
+    "children": [
+      {
+        "code": "TabView {\n    ForEach(slides) { SlideView($0) }\n}\n.tabViewStyle(.page(indexDisplayMode: .never))",
+        "name": ".page(indexDisplayMode:)",
+        "summary": "Turns tabs into horizontally swipeable pages and controls the dot indicator; not on macOS."
+      },
+      {
+        "code": "TabView {\n    Tab(\"Library\", systemImage: \"books.vertical\") { LibraryView() }\n    Tab(\"Search\", systemImage: \"magnifyingglass\", role: .search) {\n        SearchView()\n    }\n}\n.tabViewStyle(.sidebarAdaptable)",
+        "name": ".sidebarAdaptable",
+        "summary": "A tab bar that can expand into a sidebar on iPad and Mac, with sections becoming groups."
+      },
+      {
+        "code": "TabView(selection: $tab) {\n    Tab(\"Home\", systemImage: \"house\", value: .home) { HomeView() }\n    Tab(\"Inbox\", systemImage: \"tray\", value: .inbox) { InboxView() }\n}\n.tabViewStyle(.tabBarOnly)",
+        "name": ".tabBarOnly",
+        "summary": "Pins the tabs to a bar and never promotes them into a sidebar."
+      },
+      {
+        "code": "TabView {\n    Tab(\"General\", systemImage: \"gear\") { GeneralPane() }\n    Tab(\"Advanced\", systemImage: \"slider.horizontal.3\") { AdvancedPane() }\n}\n.tabViewStyle(.grouped)",
+        "name": ".grouped",
+        "summary": "macOS-only style that lays the tabs out as a segmented control above the content."
+      }
+    ],
     "code": "TabView {\n    ForEach(slides) { SlideView($0) }\n}\n.tabViewStyle(.page(indexDisplayMode: .automatic))",
     "discussion": "tabViewStyle turns a TabView into swipeable pages (page), the watch's vertical carousel, or sidebarAdaptable (2024) where tabs can promote into a sidebar on iPad and Mac.",
     "kind": "Style",
@@ -270,6 +477,28 @@
     "wwdcYear": 2020
   },
   {
+    "children": [
+      {
+        "code": "TextField(\"Search\", text: $query)\n    .textFieldStyle(.plain)\n    .padding(8)\n    .background(.quaternary, in: .capsule)",
+        "name": ".plain",
+        "summary": "Strips all chrome, the starting point for a fully custom field design."
+      },
+      {
+        "code": "TextField(\"City\", text: $city)\n    .textFieldStyle(.roundedBorder)",
+        "name": ".roundedBorder",
+        "summary": "A rounded outline around the field, the familiar form-entry appearance."
+      },
+      {
+        "code": "TextField(\"Path\", text: $path)\n    .textFieldStyle(.squareBorder)",
+        "name": ".squareBorder",
+        "summary": "A crisp rectangular frame available only on macOS."
+      },
+      {
+        "code": "Form {\n    TextField(\"Email\", text: $email)\n        .textFieldStyle(.automatic)\n}",
+        "name": ".automatic",
+        "summary": "Whatever the surrounding container would give a text field by default."
+      }
+    ],
     "code": "TextField(\"City\", text: $city)\n    .textFieldStyle(.roundedBorder)",
     "discussion": "textFieldStyle switches between plain, roundedBorder, and the macOS squareBorder appearance for every field in scope. Plain is the base for fully custom field designs built with background and overlay.",
     "kind": "Style",
@@ -311,6 +540,28 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "Circle()\n    .fill(AngularGradient(\n        colors: [.red, .yellow, .green, .blue, .red],\n        center: .center,\n        startAngle: .zero,\n        endAngle: .degrees(360)\n    ))",
+        "name": "AngularGradient(colors:center:startAngle:endAngle:)",
+        "summary": "Spreads an evenly spaced color list around the center between two angles."
+      },
+      {
+        "code": "Circle()\n    .fill(AngularGradient(\n        gradient: Gradient(colors: [.orange, .pink, .orange]),\n        center: .center,\n        angle: .degrees(-90)\n    ))",
+        "name": "AngularGradient(gradient:center:angle:)",
+        "summary": "The conic form: a full sweep from a Gradient, rotated by a single angle."
+      },
+      {
+        "code": "AngularGradient(\n    stops: [\n        .init(color: .green, location: 0),\n        .init(color: .green, location: 0.7),\n        .init(color: .red, location: 0.7),\n        .init(color: .red, location: 1)\n    ],\n    center: .center, startAngle: .zero, endAngle: .degrees(270)\n)",
+        "name": "AngularGradient(stops:center:startAngle:endAngle:)",
+        "summary": "Positions each color at an explicit location along the arc via Gradient.Stop values."
+      },
+      {
+        "code": "Circle()\n    .fill(.conicGradient(\n        colors: [.purple, .blue, .cyan, .purple],\n        center: .center,\n        angle: .degrees(45)\n    ))",
+        "name": ".conicGradient(colors:center:angle:)",
+        "summary": "The ShapeStyle shorthand that builds the same sweep without naming the type."
+      }
+    ],
     "code": "Circle()\n    .fill(AngularGradient(\n        colors: [.red, .yellow, .green, .blue, .red],\n        center: .center\n    ))",
     "demoID": "angularGradient",
     "discussion": "AngularGradient (a conic gradient) rotates through its stops around a center, from a start to an end angle — the foundation of color wheels and circular meters.",
@@ -324,6 +575,49 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "withAnimation(.timingCurve(0.68, -0.6, 0.32, 1.6, duration: 0.5)) {\n    isPresented.toggle()\n}",
+        "name": "timingCurve(_:_:_:_:duration:)",
+        "summary": "Four raw Bézier coordinates, the same numbers a CSS cubic-bezier takes."
+      },
+      {
+        "code": "Circle()\n    .scaleEffect(pressed ? 0.9 : 1)\n    .animation(.timingCurve(.easeInOut, duration: 0.3), value: pressed)",
+        "name": "timingCurve(_:duration:)",
+        "summary": "Drives the animation with a UnitCurve, so presets and custom curves share one API."
+      },
+      {
+        "code": "let snappy = UnitCurve.bezier(\n    startControlPoint: UnitPoint(x: 0.2, y: 0.9),\n    endControlPoint: UnitPoint(x: 0.4, y: 1)\n)\nlet halfway = snappy.value(at: 0.5)\nlet motion = Animation.timingCurve(snappy, duration: 0.4)",
+        "name": "UnitCurve.bezier(startControlPoint:endControlPoint:)",
+        "summary": "Builds a reusable cubic curve from two control points that you can also sample directly."
+      }
+    ],
+    "code": "Circle()\n    .offset(x: isOn ? 110 : -110)\n    .animation(\n        .timingCurve(0.42, 0, 0.58, 1, duration: 0.8),\n        value: isOn\n    )",
+    "demoID": "timingCurve",
+    "discussion": "timingCurve defines an animation's pacing as a cubic Bézier: two control points bend the time-versus-progress curve between a standing start and a full stop. easeIn, easeOut, and easeInOut are all presets of this one function. Drag the control points in the demo and replay to feel how the curve's shape becomes motion.",
+    "kind": "Style",
+    "name": "Animation.timingCurve()",
+    "related": [
+      ".animation()",
+      "CustomAnimation",
+      ".addCurve()"
+    ],
+    "summary": "A cubic Bézier timing curve for animations.",
+    "wwdcYear": 2019
+  },
+  {
+    "children": [
+      {
+        "code": "let pressed = Color.accentColor.mix(with: .black, by: 0.15)\nlet raw = Color.red.mix(with: .blue, by: 0.5, in: .device)",
+        "name": "mix(with:by:in:)",
+        "summary": "Interpolates toward another color by a 0–1 fraction, optionally in the device color space."
+      },
+      {
+        "code": "Rectangle()\n    .fill(Color.yellow.mix(with: .blue, by: 0.5, in: .perceptual))\nRectangle()\n    .fill(Color.yellow.mix(with: .blue, by: 0.5, in: .device))",
+        "name": "Gradient.ColorSpace",
+        "summary": "Chooses between perceptual blending, which avoids muddy midpoints, and raw device math."
+      }
+    ],
     "code": "let hover = Color.blue.mix(with: .white, by: 0.2)\n\nRectangle()\n    .fill(Color.red.mix(with: .purple, by: 0.5))",
     "discussion": "A WWDC '24 addition: mix interpolates a color toward another by a given fraction, in perceptual or device color spaces — no more manual component math for hover tints and charts.",
     "kind": "Style",
@@ -336,6 +630,18 @@
     "wwdcYear": 2024
   },
   {
+    "children": [
+      {
+        "code": "let texture = ImagePaint(\n    image: Image(\"linen\"),\n    sourceRect: CGRect(x: 0, y: 0, width: 0.5, height: 0.5),\n    scale: 0.5\n)\nCapsule().stroke(texture, lineWidth: 12)",
+        "name": "ImagePaint(image:sourceRect:scale:)",
+        "summary": "Tiles an image, cropped to a unit-space rectangle and scaled, as a paint."
+      },
+      {
+        "code": "RoundedRectangle(cornerRadius: 12)\n    .fill(.image(Image(\"dots\"), scale: 0.4))\n    .frame(width: 200, height: 100)",
+        "name": ".image(_:sourceRect:scale:)",
+        "summary": "The ShapeStyle static that produces the same tiled fill inline."
+      }
+    ],
     "code": "RoundedRectangle(cornerRadius: 12)\n    .fill(ImagePaint(image: Image(\"dots\"), scale: 0.4))\n    .frame(width: 200, height: 100)",
     "discussion": "ImagePaint repeats a source image (or a cropped portion) as a ShapeStyle — textured fills and patterned borders without a custom shader.",
     "kind": "Style",
@@ -348,6 +654,28 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "LinearGradient(\n    colors: [.purple, .blue],\n    startPoint: .topLeading,\n    endPoint: .bottomTrailing\n)",
+        "name": "LinearGradient(colors:startPoint:endPoint:)",
+        "summary": "Spaces a color list evenly between two unit points."
+      },
+      {
+        "code": "let brand = Gradient(colors: [.indigo, .pink])\n\nRectangle()\n    .fill(LinearGradient(gradient: brand,\n                         startPoint: .leading, endPoint: .trailing))",
+        "name": "LinearGradient(gradient:startPoint:endPoint:)",
+        "summary": "Takes a prebuilt Gradient, letting you reuse one stop list across several fills."
+      },
+      {
+        "code": "LinearGradient(\n    stops: [\n        .init(color: .black, location: 0),\n        .init(color: .black.opacity(0), location: 0.4)\n    ],\n    startPoint: .bottom, endPoint: .top\n)",
+        "name": "LinearGradient(stops:startPoint:endPoint:)",
+        "summary": "Pins each color to an explicit location for hard edges or uneven fades."
+      },
+      {
+        "code": "Text(\"Hello\")\n    .font(.largeTitle.bold())\n    .foregroundStyle(.linearGradient(\n        colors: [.orange, .red],\n        startPoint: .top, endPoint: .bottom\n    ))",
+        "name": ".linearGradient(colors:startPoint:endPoint:)",
+        "summary": "The ShapeStyle shorthand for use anywhere a style is expected, such as foregroundStyle."
+      }
+    ],
     "code": "RoundedRectangle(cornerRadius: 12)\n    .fill(LinearGradient(\n        colors: [.purple, .blue],\n        startPoint: .topLeading,\n        endPoint: .bottomTrailing\n    ))",
     "demoID": "gradientAnchors",
     "discussion": "LinearGradient interpolates between color stops from a start to an end unit point. As a ShapeStyle it slots into fill, background, and foregroundStyle alike; every Color also offers a subtle built-in .gradient variant.",
@@ -362,6 +690,28 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "Text(caption)\n    .padding(8)\n    .background(.ultraThinMaterial, in: .capsule)",
+        "name": ".ultraThinMaterial",
+        "summary": "The lightest blur, letting most of the backdrop's color and shape through."
+      },
+      {
+        "code": "VStack { controls }\n    .padding()\n    .background(.regularMaterial, in: .rect(cornerRadius: 16))",
+        "name": ".regularMaterial",
+        "summary": "The middle weight that balances legibility with a sense of the content behind."
+      },
+      {
+        "code": "sheetContent\n    .presentationBackground(.ultraThickMaterial)",
+        "name": ".ultraThickMaterial",
+        "summary": "The most opaque material, nearly a solid surface with a hint of blur."
+      },
+      {
+        "code": "HStack { playbackButtons }\n    .frame(maxWidth: .infinity)\n    .padding()\n    .background(.bar)",
+        "name": ".bar",
+        "summary": "Matches the material system toolbars and tab bars use."
+      }
+    ],
     "code": "VStack { controls }\n    .padding()\n    .background(.ultraThinMaterial, in: .rect(cornerRadius: 16))",
     "demoID": "material",
     "discussion": "Materials — ultraThin through ultraThick, plus bar — blur whatever is behind them and keep vibrant text legible on top. They are ShapeStyles, so they slot into background and fill; under the 2025 design language, glassEffect supersedes them for floating controls.",
@@ -376,6 +726,28 @@
     "wwdcYear": 2021
   },
   {
+    "children": [
+      {
+        "code": "MeshGradient(\n    width: 2, height: 2,\n    points: [[0, 0], [1, 0], [0, 1], [1, 1]],\n    colors: [.red, .orange, .purple, .blue],\n    smoothsColors: false\n)",
+        "name": "MeshGradient(width:height:points:colors:background:smoothsColors:colorSpace:)",
+        "summary": "The direct form: a grid of unit-space points and a matching flat array of colors."
+      },
+      {
+        "code": "MeshGradient(\n    width: 2, height: 2,\n    locations: .points([[0, 0], [1, 0], [0, 1], [1, 1]]),\n    colors: .colors([.mint, .teal, .indigo, .cyan]),\n    background: .black,\n    colorSpace: .perceptual\n)",
+        "name": "MeshGradient(width:height:locations:colors:background:smoothsColors:colorSpace:)",
+        "summary": "The general form that accepts Bézier control points and pre-resolved colors."
+      },
+      {
+        "code": "let simple: MeshGradient.Locations = .points(grid)\nlet curved: MeshGradient.Locations = .bezierPoints(bezierGrid)",
+        "name": "MeshGradient.Locations",
+        "summary": "Either plain points or full BezierPoints describing how the mesh cells curve."
+      },
+      {
+        "code": "let corner = MeshGradient.BezierPoint(\n    position: [0, 0],\n    leadingControlPoint: [0, 0],\n    topControlPoint: [0, 0],\n    trailingControlPoint: [0.3, 0],\n    bottomControlPoint: [0, 0.3]\n)",
+        "name": "MeshGradient.BezierPoint",
+        "summary": "A vertex plus four control handles that bend the edges meeting at it."
+      }
+    ],
     "code": "MeshGradient(\n    width: 3, height: 3,\n    points: [\n        [0, 0], [0.5, 0], [1, 0],\n        [0, 0.5], [0.7, 0.6], [1, 0.5],\n        [0, 1], [0.5, 1], [1, 1]\n    ],\n    colors: [\n        .indigo, .purple, .pink,\n        .blue, .teal, .orange,\n        .cyan, .mint, .yellow\n    ]\n)",
     "demoID": "meshGradient",
     "discussion": "New at WWDC '24, MeshGradient interpolates colors across a grid of movable control points, producing fluid, organic blends impossible with linear or radial gradients. Animate the points for lava-lamp backgrounds.",
@@ -389,6 +761,28 @@
     "wwdcYear": 2024
   },
   {
+    "children": [
+      {
+        "code": "Circle()\n    .fill(RadialGradient(\n        colors: [.yellow, .orange, .red],\n        center: .center,\n        startRadius: 5,\n        endRadius: 60\n    ))",
+        "name": "RadialGradient(colors:center:startRadius:endRadius:)",
+        "summary": "Fades an evenly spaced color list from an inner to an outer radius in points."
+      },
+      {
+        "code": "let glow = Gradient(colors: [.white, .clear])\n\nCircle()\n    .fill(RadialGradient(gradient: glow, center: .topLeading,\n                         startRadius: 0, endRadius: 120))",
+        "name": "RadialGradient(gradient:center:startRadius:endRadius:)",
+        "summary": "Builds the same glow from a reusable Gradient value."
+      },
+      {
+        "code": "RadialGradient(\n    stops: [\n        .init(color: .white, location: 0),\n        .init(color: .white, location: 0.2),\n        .init(color: .blue, location: 0.25)\n    ],\n    center: .center, startRadius: 0, endRadius: 80\n)",
+        "name": "RadialGradient(stops:center:startRadius:endRadius:)",
+        "summary": "Explicit stop locations produce sharp rings or a tight highlight."
+      },
+      {
+        "code": "Rectangle()\n    .fill(.radialGradient(\n        colors: [.black.opacity(0), .black.opacity(0.6)],\n        center: .center, startRadius: 100, endRadius: 400\n    ))",
+        "name": ".radialGradient(colors:center:startRadius:endRadius:)",
+        "summary": "The ShapeStyle shorthand for backgrounds and strokes without naming the type."
+      }
+    ],
     "code": "Circle()\n    .fill(RadialGradient(\n        colors: [.yellow, .orange, .red],\n        center: .center,\n        startRadius: 5,\n        endRadius: 60\n    ))",
     "demoID": "radialGradient",
     "discussion": "RadialGradient runs its stops from a center unit point between a start and end radius — the go-to for spotlight and glow effects.",
@@ -399,20 +793,6 @@
       "AngularGradient"
     ],
     "summary": "Blends colors outward from a center point.",
-    "wwdcYear": 2019
-  },
-  {
-    "code": "Circle()\n    .offset(x: isOn ? 110 : -110)\n    .animation(\n        .timingCurve(0.42, 0, 0.58, 1, duration: 0.8),\n        value: isOn\n    )",
-    "demoID": "timingCurve",
-    "discussion": "timingCurve defines an animation's pacing as a cubic Bézier: two control points bend the time-versus-progress curve between a standing start and a full stop. easeIn, easeOut, and easeInOut are all presets of this one function. Drag the control points in the demo and replay to feel how the curve's shape becomes motion.",
-    "kind": "Style",
-    "name": "Animation.timingCurve()",
-    "related": [
-      ".animation()",
-      "CustomAnimation",
-      ".addCurve()"
-    ],
-    "summary": "A cubic Bézier timing curve for animations.",
     "wwdcYear": 2019
   }
 ]
