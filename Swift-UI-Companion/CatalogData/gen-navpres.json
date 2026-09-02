@@ -13,6 +13,23 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": ".alert(\"Remove Bookmark?\", isPresented: $confirming) {\n    Button(\"Remove\", role: .destructive, action: remove)\n    Button(\"Cancel\", role: .cancel) { }\n}\n.dialogSeverity(.standard)",
+        "name": ".standard",
+        "summary": "Presents the dialog at ordinary weight, appropriate for routine confirmations."
+      },
+      {
+        "code": ".alert(\"Erase All Annotations?\", isPresented: $confirming) {\n    Button(\"Erase\", role: .destructive, action: eraseAnnotations)\n    Button(\"Cancel\", role: .cancel) { }\n}\n.dialogSeverity(.critical)",
+        "name": ".critical",
+        "summary": "Adopts the caution styling reserved for irreversible, high-stakes operations."
+      },
+      {
+        "code": ".alert(\"Sign Out?\", isPresented: $confirming) {\n    Button(\"Sign Out\", action: signOut)\n    Button(\"Cancel\", role: .cancel) { }\n}\n.dialogSeverity(.automatic)",
+        "name": ".automatic",
+        "summary": "Lets the system infer the appropriate weight from the buttons and context."
+      }
+    ],
     "code": ".alert(\"Erase All Annotations?\", isPresented: $confirmingErase) {\n    Button(\"Erase\", role: .destructive, action: eraseAnnotations)\n    Button(\"Cancel\", role: .cancel) { }\n}\n.dialogSeverity(.critical)",
     "discussion": "Setting .critical adopts the caution styling AppKit reserves for destructive or irreversible operations, signaling weight beyond button roles alone. Keep it for genuinely dangerous confirmations so the styling retains meaning.",
     "kind": "Modifier",
@@ -28,6 +45,18 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": "exportButton\n    .alert(\"Replace Existing File?\", isPresented: $confirmingReplace) {\n        Button(\"Replace\", action: performExport)\n        Button(\"Cancel\", role: .cancel) { }\n    }\n    .dialogSuppressionToggle(isSuppressed: $suppressReplaceWarning)",
+        "name": "dialogSuppressionToggle(isSuppressed:)",
+        "summary": "Adds the checkbox using the system's default suppression wording, bound to your flag."
+      },
+      {
+        "code": ".dialogSuppressionToggle(\n    \"Don't warn me before replacing files\",\n    isSuppressed: $suppressReplaceWarning\n)",
+        "name": "dialogSuppressionToggle(_:isSuppressed:)",
+        "summary": "Supplies your own checkbox label when the default phrasing does not fit the action."
+      }
+    ],
     "code": "@AppStorage(\"suppressReplaceWarning\") private var suppressReplaceWarning = false\n\nexportButton\n    .alert(\"Replace Existing File?\", isPresented: $confirmingReplace) {\n        Button(\"Replace\", action: performExport)\n        Button(\"Cancel\", role: .cancel) { }\n    }\n    .dialogSuppressionToggle(isSuppressed: $suppressReplaceWarning)",
     "discussion": "The binding records the user's preference; your presenting code is responsible for consulting it and skipping the dialog next time, typically via AppStorage. A labeled overload customizes the checkbox text when the default wording does not fit.",
     "kind": "Modifier",
@@ -44,6 +73,23 @@
     "wwdcYear": 2023
   },
   {
+    "children": [
+      {
+        "code": ".fileImporter(isPresented: $importing,\n              allowedContentTypes: [.item]) { open($0) }\n.fileDialogBrowserOptions(.includeHiddenFiles)",
+        "name": "FileDialogBrowserOptions.includeHiddenFiles",
+        "summary": "Reveals dotfiles and other normally hidden entries inside the browser."
+      },
+      {
+        "code": ".fileDialogBrowserOptions([.enumeratePackages, .includeHiddenFiles])",
+        "name": "FileDialogBrowserOptions.enumeratePackages",
+        "summary": "Lets the user descend into bundles as though they were ordinary folders."
+      },
+      {
+        "code": ".fileDialogBrowserOptions(.displayFileExtensions)",
+        "name": "FileDialogBrowserOptions.displayFileExtensions",
+        "summary": "Keeps filename extensions visible regardless of the user's Finder preference."
+      }
+    ],
     "code": ".fileImporter(isPresented: $importing,\n              allowedContentTypes: [.folder, .item]) { open($0) }\n.fileDialogBrowserOptions([.includeHiddenFiles, .displayFileExtensions])",
     "discussion": "The FileDialogBrowserOptions option set includes .includeHiddenFiles, .enumeratePackages, and .displayFileExtensions, covering the needs of developer-oriented and pro apps that must see inside bundles. Options combine as a set, so you can enable several behaviors in one call.",
     "kind": "Modifier",
@@ -141,6 +187,23 @@
     "wwdcYear": 2023
   },
   {
+    "children": [
+      {
+        "code": ".fileExporter(isPresented: $exporting,\n              document: notesDocument,\n              contentType: .plainText,\n              defaultFilename: \"Meeting Notes\") { result in\n    if case .failure(let error) = result { presentError(error) }\n}",
+        "name": "fileExporter(isPresented:document:contentType:defaultFilename:onCompletion:)",
+        "summary": "Writes a single FileDocument to a location the user names."
+      },
+      {
+        "code": ".fileExporter(isPresented: $exporting,\n              documents: selectedPages,\n              contentType: .pdf) { _ in }",
+        "name": "fileExporter(isPresented:documents:contentType:onCompletion:)",
+        "summary": "Exports a whole collection of documents sharing one content type in a single pass."
+      },
+      {
+        "code": ".fileExporter(isPresented: $exporting,\n              item: renderedImage,\n              contentTypes: [.png],\n              defaultFilename: \"Snapshot\") { _ in }",
+        "name": "fileExporter(isPresented:item:contentTypes:defaultFilename:onCompletion:)",
+        "summary": "Saves any Transferable value without adopting the document protocols (iOS 17)."
+      }
+    ],
     "code": ".fileExporter(isPresented: $exporting,\n              document: notesDocument,\n              contentType: .plainText,\n              defaultFilename: \"Meeting Notes\") { result in\n    if case .failure(let error) = result { presentError(error) }\n}",
     "discussion": "The original overloads take a FileDocument or ReferenceFileDocument plus a content type and suggested filename; 2023 added overloads that export any Transferable item or collection without adopting the document protocols. The completion hands back the written URL, with the system handling overwrite prompts and sandbox mediation.",
     "kind": "Modifier",
@@ -175,6 +238,18 @@
     "wwdcYear": 2023
   },
   {
+    "children": [
+      {
+        "code": ".fileImporter(isPresented: $importing,\n              allowedContentTypes: [.pdf]) { result in\n    if case .success(let url) = result { addToLibrary([url]) }\n}",
+        "name": "fileImporter(isPresented:allowedContentTypes:onCompletion:)",
+        "summary": "Opens the picker for exactly one file and returns its security-scoped URL."
+      },
+      {
+        "code": ".fileImporter(isPresented: $importing,\n              allowedContentTypes: [.pdf],\n              allowsMultipleSelection: true) { result in\n    if case .success(let urls) = result { addToLibrary(urls) }\n}",
+        "name": "fileImporter(isPresented:allowedContentTypes:allowsMultipleSelection:onCompletion:)",
+        "summary": "Permits a batch selection and delivers the chosen URLs as an array."
+      }
+    ],
     "code": ".fileImporter(isPresented: $importing,\n              allowedContentTypes: [.pdf],\n              allowsMultipleSelection: true) { result in\n    if case .success(let urls) = result {\n        addToLibrary(urls)\n    }\n}",
     "discussion": "You constrain choices with UTType content types and receive security-scoped URLs in a Result; call startAccessingSecurityScopedResource before reading files outside your sandbox. The allowsMultipleSelection form delivers an array, and the picker itself is the system's, so sandboxing and provider integration come free.",
     "kind": "Modifier",
@@ -192,6 +267,18 @@
     "wwdcYear": 2020
   },
   {
+    "children": [
+      {
+        "code": ".fileMover(isPresented: $movingDraft, file: draftURL) { result in\n    if case .success(let newURL) = result { archivedURL = newURL }\n}",
+        "name": "fileMover(isPresented:file:onCompletion:)",
+        "summary": "Relocates one existing file and reports the URL it landed at."
+      },
+      {
+        "code": ".fileMover(isPresented: $movingDrafts, files: draftURLs) { result in\n    if case .success(let urls) = result { record(urls) }\n}",
+        "name": "fileMover(isPresented:files:onCompletion:)",
+        "summary": "Moves a group of existing files to a destination the user picks."
+      }
+    ],
     "code": ".fileMover(isPresented: $movingDraft, file: draftURL) { result in\n    if case .success(let newURL) = result {\n        archivedURL = newURL\n    }\n}",
     "discussion": "Unlike fileExporter, the file already exists — commonly in your app's temporary or documents directory — and the system moves it rather than writing new content. A multi-file overload accepts a collection of URLs, and the completion reports where each item landed.",
     "kind": "Modifier",
@@ -208,6 +295,18 @@
     "wwdcYear": 2020
   },
   {
+    "children": [
+      {
+        "code": "WindowGroup(\"Reader\") {\n    ReaderWindow()\n}\n.handlesExternalEvents(matching: [\"reader\"])",
+        "name": "handlesExternalEvents(matching:)",
+        "summary": "On a scene, decides which URLs and activities spawn or reuse one of its windows."
+      },
+      {
+        "code": "ReaderWindow(document: doc)\n    .handlesExternalEvents(preferring: [doc.id.uuidString],\n                           allowing: [\"*\"])",
+        "name": "handlesExternalEvents(preferring:allowing:)",
+        "summary": "On a view, arbitrates which already-open window should receive a matching event."
+      }
+    ],
     "code": "WindowGroup(\"Reader\") {\n    ReaderWindow()\n}\n.handlesExternalEvents(matching: [\"reader\"])",
     "discussion": "The scene form's matching set decides whether an event routes to an existing window or spawns a new one in multi-window apps; the view form's preferring and allowing sets arbitrate between open windows. Conditions match against the event's URL and activity identifiers, enabling dedicated viewer windows for particular links.",
     "kind": "Modifier",
@@ -242,6 +341,18 @@
     "wwdcYear": 2023
   },
   {
+    "children": [
+      {
+        "code": ".inspector(isPresented: $showsInspector) {\n    AttributesPane(selection: $selection)\n        .inspectorColumnWidth(280)\n}",
+        "name": "inspectorColumnWidth(_:)",
+        "summary": "Pins the inspector to a single fixed point width."
+      },
+      {
+        "code": "AttributesPane(selection: $selection)\n    .inspectorColumnWidth(min: 220, ideal: 260, max: 340)",
+        "name": "inspectorColumnWidth(min:ideal:max:)",
+        "summary": "Bounds a draggable inspector so the system can persist the user's chosen width."
+      }
+    ],
     "code": ".inspector(isPresented: $showsInspector) {\n    AttributesPane(selection: $selection)\n        .inspectorColumnWidth(min: 220, ideal: 260, max: 340)\n}",
     "discussion": "Apply it inside the inspector content: a single value fixes the pane, while min:ideal:max: allows dragging within bounds, with the user's chosen width persisted by the system. The width applies only when the inspector renders as a column; the compact sheet form ignores it.",
     "kind": "Modifier",
@@ -319,6 +430,23 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "List(albums) { AlbumRow(album: $0) }\n    .navigationTitle(\"Albums\")\n    .navigationBarTitleDisplayMode(.large)",
+        "name": ".large",
+        "summary": "Starts with the prominent title that shrinks to inline once the user scrolls."
+      },
+      {
+        "code": "TrackDetail(track: track)\n    .navigationTitle(track.title)\n    .navigationBarTitleDisplayMode(.inline)",
+        "name": ".inline",
+        "summary": "Renders a small centered title suited to secondary screens."
+      },
+      {
+        "code": "ChildScreen()\n    .navigationBarTitleDisplayMode(.automatic)",
+        "name": ".automatic",
+        "summary": "Inherits whatever mode the previous navigation stack level established."
+      }
+    ],
     "code": "List(albums) { AlbumRow(album: $0) }\n    .navigationTitle(\"Albums\")\n    .navigationBarTitleDisplayMode(.inline)",
     "discussion": "Pass .large for the prominent title that collapses on scroll, .inline for a compact centered title, or .automatic to inherit from the previous stack level. Because inheritance is the default, setting an explicit mode on a root view also shapes what pushed children start from.",
     "kind": "Modifier",
@@ -378,6 +506,18 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": "ThreadList()\n    .navigationSplitViewColumnWidth(320)",
+        "name": "navigationSplitViewColumnWidth(_:)",
+        "summary": "Fixes one column to a constant width."
+      },
+      {
+        "code": "Sidebar()\n    .navigationSplitViewColumnWidth(min: 180, ideal: 220, max: 300)",
+        "name": "navigationSplitViewColumnWidth(min:ideal:max:)",
+        "summary": "Bounds a resizable column so the divider drags only within your limits."
+      }
+    ],
     "code": "NavigationSplitView {\n    Sidebar()\n        .navigationSplitViewColumnWidth(min: 180, ideal: 220, max: 300)\n} content: {\n    ThreadList()\n        .navigationSplitViewColumnWidth(320)\n} detail: {\n    MessageView()\n}",
     "discussion": "Apply it to a column's root view: a single value pins the column, while the min:ideal:max: form lets the user drag the divider within your bounds on macOS and iPadOS. The system persists the user's chosen width between the limits, so prefer the flexible form unless the layout truly requires a constant.",
     "kind": "Modifier",
@@ -390,6 +530,23 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": "NavigationSplitView {\n    MailboxList(selection: $mailbox)\n} detail: {\n    MessageView(mailbox: mailbox)\n}\n.navigationSplitViewStyle(.balanced)",
+        "name": ".balanced",
+        "summary": "Narrows the detail column to make room for the sidebar rather than overlapping it."
+      },
+      {
+        "code": "NavigationSplitView {\n    Sidebar()\n} detail: {\n    MapView(region: $region)\n}\n.navigationSplitViewStyle(.prominentDetail)",
+        "name": ".prominentDetail",
+        "summary": "Keeps the detail column full-size while the leading columns overlay it."
+      },
+      {
+        "code": "NavigationSplitView {\n    Sidebar()\n} detail: {\n    DetailView()\n}\n.navigationSplitViewStyle(.automatic)",
+        "name": ".automatic",
+        "summary": "Defers the column weighting to the platform and current size class."
+      }
+    ],
     "code": "NavigationSplitView {\n    MailboxList(selection: $mailbox)\n} detail: {\n    MessageView(mailbox: mailbox)\n}\n.navigationSplitViewStyle(.balanced)",
     "discussion": "The .balanced style keeps the detail column at reduced width when the sidebar is visible, while .prominentDetail keeps detail full-size and overlays the leading columns. Apply it to the NavigationSplitView itself; .automatic resolves per platform and size class.",
     "kind": "Modifier",
@@ -457,6 +614,18 @@
     "wwdcYear": 2020
   },
   {
+    "children": [
+      {
+        "code": ".sheet(isPresented: $showsNowPlaying) {\n    NowPlayingControls(player: player)\n        .presentationBackground(.thinMaterial)\n}",
+        "name": "presentationBackground(_:)",
+        "summary": "Fills the presentation container with a shape style such as a material or color."
+      },
+      {
+        "code": ".sheet(isPresented: $showsEditor) {\n    Editor(document: $document)\n        .presentationBackground {\n            LinearGradient(colors: [.indigo, .black],\n                           startPoint: .top, endPoint: .bottom)\n        }\n}",
+        "name": "presentationBackground(alignment:content:)",
+        "summary": "Paints the presentation with an arbitrary view, like a gradient, behind its content."
+      }
+    ],
     "code": ".sheet(isPresented: $showsNowPlaying) {\n    NowPlayingControls(player: player)\n        .presentationBackground(.thinMaterial)\n}",
     "discussion": "Unlike stacking a background modifier inside the sheet, this styles the presentation container itself, filling the full sheet shape and letting content underneath show through translucent materials. The view-builder overload accepts arbitrary content such as gradients, aligned within the presentation's bounds.",
     "kind": "Modifier",
@@ -470,6 +639,23 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": "PlaceSearch(results: $results)\n    .presentationDetents([.medium, .large])\n    .presentationBackgroundInteraction(.enabled)",
+        "name": ".enabled",
+        "summary": "Keeps the view behind the sheet interactive at every detent."
+      },
+      {
+        "code": "PlaceSearch(results: $results)\n    .presentationDetents([.height(88), .medium, .large])\n    .presentationBackgroundInteraction(.enabled(upThrough: .medium))",
+        "name": ".enabled(upThrough:)",
+        "summary": "Allows background touches only while the sheet rests at or below a given detent."
+      },
+      {
+        "code": "ConfirmSheet()\n    .presentationDetents([.medium])\n    .presentationBackgroundInteraction(.disabled)",
+        "name": ".disabled",
+        "summary": "Forces the usual dimmed, non-interactive backdrop even when the system would relax it."
+      }
+    ],
     "code": ".sheet(isPresented: $showsSearch) {\n    PlaceSearch(results: $results)\n        .presentationDetents([.height(88), .medium, .large])\n        .presentationBackgroundInteraction(.enabled(upThrough: .medium))\n}",
     "discussion": "By default a sheet blocks the content beneath it; .enabled(upThrough:) keeps the background interactive while the sheet rests at or below a given detent, the pattern behind persistent map or player sheets. Full .enabled removes the dimming barrier at every detent, so reserve it for presentations that truly behave like palettes.",
     "kind": "Modifier",
@@ -483,6 +669,18 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": ".popover(isPresented: $showsLegend) {\n    ChartLegend(series: series)\n        .presentationCompactAdaptation(.popover)\n}",
+        "name": "presentationCompactAdaptation(_:)",
+        "summary": "Applies a single adaptation to both compact axes at once."
+      },
+      {
+        "code": ".popover(isPresented: $showsLegend) {\n    ChartLegend(series: series)\n        .presentationCompactAdaptation(horizontal: .popover, vertical: .sheet)\n}",
+        "name": "presentationCompactAdaptation(horizontal:vertical:)",
+        "summary": "Chooses separate adaptations for horizontally and vertically compact environments."
+      }
+    ],
     "code": ".popover(isPresented: $showsLegend) {\n    ChartLegend(series: series)\n        .presentationCompactAdaptation(.popover)\n}",
     "discussion": "A popover normally becomes a sheet on iPhone; passing .popover keeps the true popover chrome even in compact width, while .fullScreenCover or .none pick other adaptations. The two-axis overload distinguishes horizontally and vertically compact environments for finer control.",
     "kind": "Modifier",
@@ -495,6 +693,18 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": "CommentList(post: post)\n    .presentationDetents([.medium, .large])\n    .presentationContentInteraction(.scrolls)",
+        "name": ".scrolls",
+        "summary": "Prioritizes scrolling embedded content, expanding the sheet only after it reaches the top."
+      },
+      {
+        "code": "FilterList(filters: $filters)\n    .presentationDetents([.medium, .large])\n    .presentationContentInteraction(.resizes)",
+        "name": ".resizes",
+        "summary": "Prioritizes resizing the sheet on an upward drag before any content scrolls."
+      }
+    ],
     "code": ".sheet(isPresented: $showsComments) {\n    CommentList(post: post)\n        .presentationDetents([.medium, .large])\n        .presentationContentInteraction(.scrolls)\n}",
     "discussion": "With multiple detents, an upward drag resizes the sheet by default and only then scrolls; .scrolls flips that priority so embedded scroll views feel native, expanding the sheet only after content reaches its top. Use .resizes to keep the default behavior explicit.",
     "kind": "Modifier",
@@ -587,6 +797,23 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": "DocumentCanvas(document: $document)\n    .navigationTitle(document.name)\n    .toolbarRole(.editor)",
+        "name": ".editor",
+        "summary": "Arranges the bar the way a document editor expects, shifting the title leading on iPad."
+      },
+      {
+        "code": "ArticleView(article: article)\n    .navigationTitle(article.title)\n    .toolbarRole(.browser)",
+        "name": ".browser",
+        "summary": "Adopts a Safari-like arrangement suited to back-and-forward browsing flows."
+      },
+      {
+        "code": "DetailView(item: item)\n    .toolbarRole(.navigationStack)",
+        "name": ".navigationStack",
+        "summary": "Requests the standard pushed-stack layout with a centered title."
+      }
+    ],
     "code": "NavigationStack {\n    DocumentCanvas(document: $document)\n        .navigationTitle(document.name)\n        .toolbarRole(.editor)\n}",
     "discussion": "Roles such as .editor move the title to the leading edge on iPadOS and regroup items the way document editors expect, while .browser mirrors Safari-style arrangement. The role is a hint about meaning rather than explicit layout, so the same declaration adapts sensibly across platforms.",
     "kind": "Modifier",
@@ -599,6 +826,23 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": "List(albums) { AlbumRow(album: $0) }\n    .navigationTitle(\"Albums\")\n    .toolbarTitleDisplayMode(.large)",
+        "name": ".large",
+        "summary": "Shows a prominent title that collapses to inline as the content scrolls."
+      },
+      {
+        "code": "SettingsForm()\n    .navigationTitle(\"Settings\")\n    .toolbarTitleDisplayMode(.inline)",
+        "name": ".inline",
+        "summary": "Keeps a compact centered title that never grows."
+      },
+      {
+        "code": "DocumentCanvas(document: $document)\n    .navigationTitle(document.name)\n    .toolbarTitleDisplayMode(.inlineLarge)",
+        "name": ".inlineLarge",
+        "summary": "Pins a large title inline without the collapse-on-scroll behavior, as document apps do."
+      }
+    ],
     "code": "List(albums) { AlbumRow(album: $0) }\n    .navigationTitle(\"Albums\")\n    .toolbarTitleDisplayMode(.inlineLarge)",
     "discussion": "Unlike the iOS-only navigationBarTitleDisplayMode, this modifier is declared for iOS, macOS, and watchOS and adds the .inlineLarge mode, which keeps a large title pinned inline the way document apps often present it. Modes still inherit down the navigation hierarchy from the first explicit setting.",
     "kind": "Modifier",
@@ -637,6 +881,18 @@
     "wwdcYear": 2024
   },
   {
+    "children": [
+      {
+        "code": "RecipeDetail(recipe: recipe)\n    .userActivity(\"com.shelf.viewingRecipe\", isActive: isSelected) { activity in\n        activity.title = recipe.name\n        activity.userInfo = [\"id\": recipe.id.uuidString]\n    }",
+        "name": "userActivity(_:isActive:_:)",
+        "summary": "Advertises an activity for the current view, optionally gated behind an isActive flag."
+      },
+      {
+        "code": "ForEach(recipes) { recipe in\n    RecipeRow(recipe: recipe)\n        .userActivity(\"com.shelf.viewingRecipe\", element: recipe) { item, activity in\n            activity.title = item.name\n        }\n}",
+        "name": "userActivity(_:element:_:)",
+        "summary": "Binds an activity to a per-element value so list rows each advertise their own."
+      }
+    ],
     "code": "RecipeDetail(recipe: recipe)\n    .userActivity(\"com.shelf.viewingRecipe\") { activity in\n        activity.title = recipe.name\n        activity.userInfo = [\"id\": recipe.id.uuidString]\n        activity.isEligibleForHandoff = true\n    }",
     "discussion": "While the modified view is visible, the system keeps an activity of the given type current, and your closure populates its title, userInfo, and web page URL. The isActive variant scopes advertising to one view among several candidates, such as the selected tab.",
     "kind": "Modifier",
@@ -649,6 +905,23 @@
     "wwdcYear": 2020
   },
   {
+    "children": [
+      {
+        "code": "Alert(title: Text(\"Import Failed\"),\n      message: Text(importError.localizedDescription),\n      dismissButton: .default(Text(\"OK\")))",
+        "name": "Alert(title:message:dismissButton:)",
+        "summary": "Builds a one-button alert that simply acknowledges and closes."
+      },
+      {
+        "code": "Alert(title: Text(\"Delete Draft?\"),\n      message: Text(\"This cannot be undone.\"),\n      primaryButton: .destructive(Text(\"Delete\"), action: delete),\n      secondaryButton: .cancel())",
+        "name": "Alert(title:message:primaryButton:secondaryButton:)",
+        "summary": "Builds a two-button alert pairing a primary action with a secondary one."
+      },
+      {
+        "code": "let erase = Alert.Button.destructive(Text(\"Erase\")) {\n    eraseEverything()\n}",
+        "name": "Alert.Button.destructive(_:action:)",
+        "summary": "Produces a red-tinted button factory for the alert's dangerous choice."
+      }
+    ],
     "code": ".alert(isPresented: $showingImportError) {\n    Alert(title: Text(\"Import Failed\"),\n          message: Text(importError.localizedDescription),\n          dismissButton: .default(Text(\"OK\")))\n}",
     "deprecated": true,
     "discussion": "Alert values were returned from the early alert(isPresented:content:) modifier, with Alert.Button factories like .default, .destructive, and .cancel. The type is deprecated in favor of the modern alert modifiers that take a view builder of role-annotated Buttons, which support more than two actions and text fields.",
@@ -662,6 +935,18 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": ".toolbar(id: \"editor\") {\n    ToolbarItem(id: \"fonts\", placement: .secondaryAction) {\n        FontPickerButton(selection: $font)\n    }\n    .defaultCustomization(.hidden, options: .alwaysAvailable)\n}",
+        "name": "defaultCustomization(_:options:)",
+        "summary": "Sets whether an item shows by default and whether it stays offered in the overflow set."
+      },
+      {
+        "code": ".toolbar(id: \"editor\") {\n    ToolbarItem(id: \"share\", placement: .primaryAction) {\n        ShareButton()\n    }\n    .customizationBehavior(.disabled)\n}",
+        "name": "customizationBehavior(_:)",
+        "summary": "Restricts how the user may move or remove an item during toolbar customization."
+      }
+    ],
     "code": ".toolbar(id: \"editor\") {\n    ToolbarItem(id: \"fonts\", placement: .secondaryAction) {\n        FontPickerButton(selection: $font)\n    }\n    .defaultCustomization(.hidden)\n}",
     "discussion": "Adopted automatically when you give toolbar items stable ids inside a toolbar(id:) declaration, this protocol adds knobs like defaultCustomization(_:options:) for items hidden by default and customizationBehavior(_:) for items that must not be removed. Item ids are persisted, so keep them stable across app versions or user layouts silently reset.",
     "kind": "Protocol",
@@ -700,6 +985,23 @@
     "wwdcYear": 2025
   },
   {
+    "children": [
+      {
+        "code": "@Environment(\\.dismissWindow) private var dismissWindow\n\nButton(\"Close\") { dismissWindow() }",
+        "name": "dismissWindow()",
+        "summary": "Closes the current window scene when called with no arguments."
+      },
+      {
+        "code": "Button(\"Close Statistics\") {\n    dismissWindow(id: \"stats\")\n}",
+        "name": "dismissWindow(id:)",
+        "summary": "Closes the window matching a scene identifier from anywhere in the app."
+      },
+      {
+        "code": "Button(\"Close Report\") {\n    dismissWindow(value: report.id)\n}",
+        "name": "dismissWindow(value:)",
+        "summary": "Closes the window presenting a specific value in a value-based WindowGroup."
+      }
+    ],
     "code": "@Environment(\\.dismissWindow) private var dismissWindow\n\nButton(\"Close Statistics\") {\n    dismissWindow(id: \"stats\")\n}",
     "discussion": "The counterpart to openWindow: calling it with an id, a value, or both closes the matching window from anywhere in the app, not just from inside that window. It only affects scenes created from WindowGroup or Window declarations, and does nothing when no match exists.",
     "kind": "Environment Value",
@@ -750,6 +1052,23 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": "@State private var column = NavigationSplitViewColumn.sidebar\n\nNavigationSplitView(preferredCompactColumn: $column) {\n    LibraryList()\n} detail: {\n    ReaderView()\n}",
+        "name": "NavigationSplitViewColumn.sidebar",
+        "summary": "Names the leading sidebar column of the split view."
+      },
+      {
+        "code": "@State private var column = NavigationSplitViewColumn.content",
+        "name": "NavigationSplitViewColumn.content",
+        "summary": "Names the middle content column of a three-column layout."
+      },
+      {
+        "code": "func openFromLink() {\n    column = .detail\n}",
+        "name": "NavigationSplitViewColumn.detail",
+        "summary": "Names the trailing detail column, handy for jumping straight to it after a deep link."
+      }
+    ],
     "code": "@State private var column = NavigationSplitViewColumn.sidebar\n\nvar body: some View {\n    NavigationSplitView(preferredCompactColumn: $column) {\n        LibraryList()\n    } detail: {\n        ReaderView()\n    }\n}",
     "discussion": "When a split view collapses to a single column on iPhone or in narrow iPad windows, the preferredCompactColumn binding decides whether the sidebar, content, or detail column is frontmost. Writing to the binding also lets you drive the collapsed navigation programmatically, for example jumping straight to detail after a selection arrives from a deep link.",
     "kind": "Type",
@@ -762,6 +1081,28 @@
     "wwdcYear": 2023
   },
   {
+    "children": [
+      {
+        "code": "@State private var visibility = NavigationSplitViewVisibility.all",
+        "name": "NavigationSplitViewVisibility.all",
+        "summary": "Requests that every column of the split view be shown at once."
+      },
+      {
+        "code": "withAnimation { visibility = .doubleColumn }",
+        "name": "NavigationSplitViewVisibility.doubleColumn",
+        "summary": "Shows the primary and detail columns while hiding a third content column."
+      },
+      {
+        "code": "Button(\"Focus Reader\") {\n    visibility = .detailOnly\n}",
+        "name": "NavigationSplitViewVisibility.detailOnly",
+        "summary": "Collapses the leading columns so only the detail view remains."
+      },
+      {
+        "code": "@State private var visibility = NavigationSplitViewVisibility.automatic",
+        "name": "NavigationSplitViewVisibility.automatic",
+        "summary": "Lets the system pick which columns to reveal for the platform and window size."
+      }
+    ],
     "code": "@State private var visibility = NavigationSplitViewVisibility.doubleColumn\n\nvar body: some View {\n    NavigationSplitView(columnVisibility: $visibility) {\n        Sidebar()\n    } detail: {\n        DetailView()\n    }\n}",
     "discussion": "Bind a NavigationSplitViewVisibility to the columnVisibility parameter to observe and control column state programmatically: .all, .doubleColumn, .detailOnly, or .automatic. The system still animates the user's sidebar toggling through the same binding, so your state stays in sync with gestures and toolbar buttons.",
     "kind": "Type",
@@ -861,6 +1202,18 @@
     "wwdcYear": 2020
   },
   {
+    "children": [
+      {
+        "code": "ToolbarItem(placement: .primaryAction) {\n    Button(\"Save\", systemImage: \"square.and.arrow.down\") { save() }\n}",
+        "name": "ToolbarItem(placement:content:)",
+        "summary": "Wraps a view and assigns it a semantic placement in the bar."
+      },
+      {
+        "code": ".toolbar(id: \"editor\") {\n    ToolbarItem(id: \"fonts\", placement: .secondaryAction) {\n        FontPickerButton(selection: $font)\n    }\n}",
+        "name": "ToolbarItem(id:placement:content:)",
+        "summary": "Gives the item a stable id so it can join a user-customizable toolbar."
+      }
+    ],
     "code": ".toolbar {\n    ToolbarItem(placement: .primaryAction) {\n        Button(\"Save\", systemImage: \"square.and.arrow.down\") { save() }\n    }\n    ToolbarItem(placement: .cancellationAction) {\n        Button(\"Cancel\", role: .cancel) { dismiss() }\n    }\n}",
     "discussion": "The placement argument describes intent — .primaryAction, .confirmationAction, .principal, .keyboard — and each platform maps that intent to a physical position, so one declaration lays out correctly on iPhone, iPad, and Mac. Giving an item an explicit id makes it participate in user-customizable toolbars declared with toolbar(id:).",
     "kind": "Type",
@@ -875,6 +1228,18 @@
     "wwdcYear": 2020
   },
   {
+    "children": [
+      {
+        "code": "ToolbarItemGroup(placement: .bottomBar) {\n    Button(\"Markup\", systemImage: \"pencil.tip.crop.circle\", action: markup)\n    Spacer()\n    Button(\"Share\", systemImage: \"square.and.arrow.up\", action: share)\n}",
+        "name": "ToolbarItemGroup(placement:content:)",
+        "summary": "Places several controls under one shared placement."
+      },
+      {
+        "code": "ToolbarItemGroup(placement: .primaryAction) {\n    Button(\"Bold\", systemImage: \"bold\", action: bold)\n    Button(\"Italic\", systemImage: \"italic\", action: italic)\n} label: {\n    Label(\"Format\", systemImage: \"textformat\")\n}",
+        "name": "ToolbarItemGroup(placement:content:label:)",
+        "summary": "Adds a label the system can collapse the group behind when space is tight."
+      }
+    ],
     "code": ".toolbar {\n    ToolbarItemGroup(placement: .bottomBar) {\n        Button(\"Markup\", systemImage: \"pencil.tip.crop.circle\", action: markup)\n        Spacer()\n        Button(\"Share\", systemImage: \"square.and.arrow.up\", action: share)\n    }\n}",
     "discussion": "Grouping avoids repeating the placement for every button and keeps related controls adjacent when the system rearranges bars for size classes. A Spacer inside a .bottomBar group is the idiomatic way to spread actions across the bottom toolbar's full width.",
     "kind": "Type",
@@ -888,6 +1253,28 @@
     "wwdcYear": 2020
   },
   {
+    "children": [
+      {
+        "code": "ToolbarItem(placement: .primaryAction) {\n    Button(\"Add\", systemImage: \"plus\", action: add)\n}",
+        "name": "ToolbarItemPlacement.primaryAction",
+        "summary": "Marks the most important action, landing in each platform's prominent slot."
+      },
+      {
+        "code": "ToolbarItem(placement: .confirmationAction) {\n    Button(\"Done\", action: commit)\n}",
+        "name": "ToolbarItemPlacement.confirmationAction",
+        "summary": "Positions the confirming button where the platform expects a Done or Save."
+      },
+      {
+        "code": "ToolbarItem(placement: .topBarTrailing) {\n    Button(\"Filter\", systemImage: \"line.3.horizontal.decrease\", action: showFilters)\n}",
+        "name": "ToolbarItemPlacement.topBarTrailing",
+        "summary": "Requests the trailing edge of the top bar explicitly, bypassing semantic mapping."
+      },
+      {
+        "code": "ToolbarItem(placement: .bottomBar) {\n    Button(\"Export\", action: export)\n}",
+        "name": "ToolbarItemPlacement.bottomBar",
+        "summary": "Drops the item into the bottom toolbar, common for spread-out action rows."
+      }
+    ],
     "code": ".toolbar {\n    ToolbarItem(placement: .principal) {\n        SyncStatusBadge(state: syncState)\n    }\n    ToolbarItem(placement: .keyboard) {\n        Button(\"Done\") { isEditorFocused = false }\n    }\n}",
     "discussion": "Placements split into semantic roles (.primaryAction, .destructiveAction, .confirmationAction, .cancellationAction, .principal, .status) and positional ones (.topBarLeading, .topBarTrailing, .bottomBar, .keyboard). Preferring the semantic roles lets the same toolbar adapt across platforms, including sheets where confirmation and cancellation land in platform-correct corners.",
     "kind": "Type",
@@ -900,6 +1287,28 @@
     "wwdcYear": 2020
   },
   {
+    "children": [
+      {
+        "code": "ReaderView()\n    .toolbarBackground(.ultraThinMaterial, for: .navigationBar)",
+        "name": "ToolbarPlacement.navigationBar",
+        "summary": "Targets the navigation bar for a background, visibility, or color-scheme modifier."
+      },
+      {
+        "code": "GalleryDetail(photo: photo)\n    .toolbarVisibility(.hidden, for: .tabBar)",
+        "name": "ToolbarPlacement.tabBar",
+        "summary": "Targets the tab bar so a view can hide or restyle it independently."
+      },
+      {
+        "code": "Editor(document: $document)\n    .toolbarBackground(.visible, for: .bottomBar)",
+        "name": "ToolbarPlacement.bottomBar",
+        "summary": "Targets the bottom toolbar region."
+      },
+      {
+        "code": "InspectorPane(selection: $selection)\n    .toolbarBackground(.hidden, for: .windowToolbar)",
+        "name": "ToolbarPlacement.windowToolbar",
+        "summary": "Targets a Mac window's titlebar toolbar."
+      }
+    ],
     "code": "GalleryDetail(photo: photo)\n    .toolbarVisibility(.hidden, for: .tabBar)\n    .toolbarBackground(.ultraThinMaterial, for: .navigationBar)",
     "discussion": "This type parameterizes the for: argument of toolbar visibility, background, and color scheme modifiers, distinguishing whole bars rather than items within them. Values like .tabBar and .windowToolbar let one view opt specific chrome in or out without affecting the others.",
     "kind": "Type",
@@ -913,6 +1322,18 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": ".toolbar {\n    ToolbarItem { Button(\"Undo\", systemImage: \"arrow.uturn.backward\", action: undo) }\n    ToolbarSpacer(.fixed)\n    ToolbarItem { Button(\"Inspector\", systemImage: \"sidebar.trailing\", action: toggleInspector) }\n}",
+        "name": "ToolbarSpacer(.fixed)",
+        "summary": "Inserts a small deliberate gap that splits the shared glass background between neighbors."
+      },
+      {
+        "code": ".toolbar {\n    ToolbarItemGroup { EditButtons() }\n    ToolbarSpacer(.flexible)\n    ToolbarItem { ShareButton() }\n}",
+        "name": "ToolbarSpacer(.flexible)",
+        "summary": "Pushes toolbar clusters apart across whatever width the bar has."
+      }
+    ],
     "code": ".toolbar {\n    ToolbarItem { Button(\"Undo\", systemImage: \"arrow.uturn.backward\", action: undo) }\n    ToolbarItem { Button(\"Redo\", systemImage: \"arrow.uturn.forward\", action: redo) }\n    ToolbarSpacer(.fixed)\n    ToolbarItem { Button(\"Inspector\", systemImage: \"sidebar.trailing\", action: toggleInspector) }\n}",
     "discussion": "Under the 2025 design, adjacent toolbar items merge onto one glass capsule; a ToolbarSpacer breaks that grouping so unrelated actions read as separate clusters. Use .fixed for a small deliberate gap between neighbors and .flexible to push groups apart across the available width.",
     "kind": "Type",

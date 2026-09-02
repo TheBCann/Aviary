@@ -52,6 +52,18 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "VStack {\n    Text(\"Row\")\n}\n.padding(8)\n.border(.secondary)",
+        "name": ".border(_:)",
+        "summary": "Outlines the frame using the default one-point width, useful for quick layout debugging."
+      },
+      {
+        "code": "Text(\"DRAFT\")\n    .padding(6)\n    .border(.red, width: 2)",
+        "name": ".border(_:width:)",
+        "summary": "Outlines the frame with a caller-supplied stroke thickness."
+      }
+    ],
     "code": "Text(\"DRAFT\")\n    .padding(6)\n    .border(.red, width: 2)",
     "discussion": "The border is inset so it renders entirely within the view's bounds, effectively an overlay of a stroked rectangle. For rounded or custom-shaped outlines there is no parameterized variant — reach for an overlay with a strokeBorder on the shape you want instead.",
     "kind": "Modifier",
@@ -333,6 +345,23 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "Circle()\n    .strokeBorder(.teal, lineWidth: 12)\n    .frame(width: 100, height: 100)",
+        "name": ".strokeBorder(_:lineWidth:)",
+        "summary": "Insets the shape and strokes it with a fill style at a plain line width."
+      },
+      {
+        "code": "RoundedRectangle(cornerRadius: 16)\n    .strokeBorder(.orange, style: StrokeStyle(lineWidth: 4, dash: [10, 6]))",
+        "name": ".strokeBorder(_:style:)",
+        "summary": "Insets and strokes the shape with a full StrokeStyle so dashes and rounded caps are available."
+      },
+      {
+        "code": "Capsule()\n    .strokeBorder(style: StrokeStyle(lineWidth: 3))\n    .foregroundStyle(.tint)",
+        "name": ".strokeBorder(style:)",
+        "summary": "Strokes the inset border with the inherited foreground style instead of an explicit one."
+      }
+    ],
     "code": "Circle()\n    .strokeBorder(.teal, lineWidth: 12)\n    .frame(width: 100, height: 100)",
     "discussion": "This method lives on InsettableShape rather than Shape, because it needs inset(by:) to pull the path inward before stroking. It is the right choice for borders that must not spill outside a frame or get clipped by an ancestor, which is exactly what a centered stroke would do.",
     "kind": "Modifier",
@@ -351,6 +380,21 @@
         "code": "Image(systemName: \"person\")\n    .symbolVariant(SymbolVariants.circle.fill)",
         "name": "SymbolVariants",
         "summary": "The type describing available symbol variants, composable via chained properties."
+      },
+      {
+        "code": "Image(systemName: \"heart\")\n    .symbolVariant(.fill)",
+        "name": "SymbolVariants.fill",
+        "summary": "Requests the solid filled rendering of a symbol wherever the glyph offers one."
+      },
+      {
+        "code": "Image(systemName: \"bell\")\n    .symbolVariant(.slash)",
+        "name": "SymbolVariants.slash",
+        "summary": "Overlays the crossed-out form that signals a muted or disabled state."
+      },
+      {
+        "code": "Image(systemName: \"plus\")\n    .symbolVariant(.circle.fill)",
+        "name": "SymbolVariants.circle",
+        "summary": "Encloses the glyph in a circle, and chains with fill for a solid badge."
       }
     ],
     "code": "HStack {\n    Image(systemName: \"heart\")\n    Image(systemName: \"bell\")\n}\n.symbolVariant(isSelected ? .fill : .none)",
@@ -420,6 +464,11 @@
         "code": "Image(systemName: \"checkmark.seal.fill\")\n    .foregroundStyle(Color.accentColor)",
         "name": "Color.accentColor",
         "summary": "The app's accent color, reflecting the asset catalog setting and any .tint overrides in context."
+      },
+      {
+        "code": "let brand = Color(red: 0.12, green: 0.45, blue: 0.95)\nCapsule()\n    .fill(brand)",
+        "name": "Color(red:green:blue:opacity:)",
+        "summary": "Builds a color from explicit sRGB component values."
       }
     ],
     "code": "let brand = Color(red: 0.12, green: 0.45, blue: 0.95)\nlet accent = Color(\"AccentWarm\", bundle: .main)\nCapsule()\n    .fill(brand.opacity(0.8))",
@@ -436,6 +485,23 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "let magenta = Color.Resolved(red: 0.9, green: 0.1, blue: 0.6)\nRectangle()\n    .fill(Color(magenta))",
+        "name": "Color.Resolved(red:green:blue:opacity:)",
+        "summary": "Constructs resolved RGBA values straight from sRGB floats."
+      },
+      {
+        "code": "let resolved = Color.orange.resolve(in: environment)\ncgContext.setFillColor(resolved.cgColor)",
+        "name": "Color.Resolved.cgColor",
+        "summary": "Bridges the resolved components into a CGColor for Core Graphics drawing."
+      },
+      {
+        "code": "let r = resolved.linearRed\nlet g = resolved.linearGreen\nlet b = resolved.linearBlue\nlet luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b",
+        "name": "Color.Resolved.linearRed",
+        "summary": "Exposes the red channel in linear light, alongside linearGreen and linearBlue, for math that needs gamma removed."
+      }
+    ],
     "code": "@Environment(\\.self) private var environment\n\nfunc storedColor(_ color: Color) -> Data? {\n    let resolved = color.resolve(in: environment)\n    return try? JSONEncoder().encode(resolved)\n}",
     "discussion": "Calling resolve(in:) collapses a dynamic Color against the current environment — color scheme, contrast, tint — into plain float components, exposed both as sRGB and linear values. Resolved is Codable and round-trips back into a Color, making it the supported path for persisting user-chosen colors.",
     "kind": "Type",
@@ -476,6 +542,23 @@
     "wwdcYear": 2025
   },
   {
+    "children": [
+      {
+        "code": "Ellipse()\n    .fill(EllipticalGradient(colors: [.yellow, .orange],\n                             endRadiusFraction: 0.7))",
+        "name": "EllipticalGradient(colors:center:startRadiusFraction:endRadiusFraction:)",
+        "summary": "Creates an elliptical gradient from evenly spaced colors."
+      },
+      {
+        "code": "EllipticalGradient(stops: [\n    .init(color: .white, location: 0),\n    .init(color: .blue, location: 0.8)\n])",
+        "name": "EllipticalGradient(stops:center:startRadiusFraction:endRadiusFraction:)",
+        "summary": "Creates an elliptical gradient from explicit stops for uneven transitions."
+      },
+      {
+        "code": "let g = Gradient(colors: [.pink, .purple])\nCircle()\n    .fill(EllipticalGradient(gradient: g, endRadiusFraction: 0.9))",
+        "name": "EllipticalGradient(gradient:center:startRadiusFraction:endRadiusFraction:)",
+        "summary": "Wraps a reusable Gradient value in an elliptical geometry."
+      }
+    ],
     "code": "Ellipse()\n    .fill(EllipticalGradient(\n        colors: [.yellow, .orange],\n        center: .center,\n        startRadiusFraction: 0,\n        endRadiusFraction: 0.7\n    ))",
     "discussion": "Where RadialGradient uses fixed point radii, EllipticalGradient works in fractions of the fill region, so the same value adapts to any frame and stretches with it. The start and end radius fractions define where the first and last stops land relative to the shape's bounds.",
     "kind": "Style",
@@ -533,6 +616,16 @@
         "code": "let stop = Gradient.Stop(color: .cyan, location: 0.3)",
         "name": "Gradient.Stop",
         "summary": "A single color paired with its fractional location along the gradient."
+      },
+      {
+        "code": "let g = Gradient(colors: [.blue, .cyan, .green])",
+        "name": "Gradient(colors:)",
+        "summary": "Builds a gradient whose stops are spaced evenly across the range."
+      },
+      {
+        "code": "let heat = Gradient(stops: [\n    .init(color: .blue, location: 0),\n    .init(color: .yellow, location: 0.65),\n    .init(color: .red, location: 1)\n])",
+        "name": "Gradient(stops:)",
+        "summary": "Builds a gradient from explicit color-and-location stops for uneven spacing."
       }
     ],
     "code": "let heat = Gradient(stops: [\n    .init(color: .blue, location: 0),\n    .init(color: .yellow, location: 0.65),\n    .init(color: .red, location: 1)\n])",
@@ -559,6 +652,11 @@
         "code": "context.addFilter(.shadow(radius: 4, y: 2))\ncontext.addFilter(.hueRotation(.degrees(45)))",
         "name": "GraphicsContext.Filter",
         "summary": "A raster effect — blur, shadow, color matrix, and friends — applied to everything drawn after addFilter."
+      },
+      {
+        "code": "context.drawLayer { layer in\n    layer.addFilter(.blur(radius: 3))\n    layer.fill(circle, with: .color(.mint))\n}",
+        "name": "GraphicsContext.drawLayer(content:)",
+        "summary": "Spawns a scoped child context so filters and blend modes stay fenced to that nested drawing."
       }
     ],
     "code": "Canvas { context, size in\n    let rect = CGRect(origin: .zero, size: size)\n    context.addFilter(.blur(radius: 2))\n    context.fill(Path(ellipseIn: rect), with: .color(.blue))\n    context.stroke(\n        Path(rect),\n        with: .linearGradient(\n            Gradient(colors: [.red, .yellow]),\n            startPoint: .zero,\n            endPoint: CGPoint(x: size.width, y: 0)\n        )\n    )\n}",
@@ -575,6 +673,23 @@
     "wwdcYear": 2021
   },
   {
+    "children": [
+      {
+        "code": "Text(\"Album - Artist\")\n    .foregroundStyle(.secondary)",
+        "name": "HierarchicalShapeStyle.secondary",
+        "summary": "The first step down in prominence from the primary foreground, used for supporting text."
+      },
+      {
+        "code": "Image(systemName: \"circle.fill\")\n    .foregroundStyle(.tertiary)",
+        "name": "HierarchicalShapeStyle.tertiary",
+        "summary": "A further-muted level suited to faint separators and decorative glyphs."
+      },
+      {
+        "code": "RoundedRectangle(cornerRadius: 8)\n    .fill(.quinary)",
+        "name": "HierarchicalShapeStyle.quinary",
+        "summary": "The faintest emphasis level, added in the 2022 cycle for barely-there backing fills."
+      }
+    ],
     "code": "VStack(alignment: .leading) {\n    Text(\"Now Playing\").foregroundStyle(.primary)\n    Text(\"Album - Artist\").foregroundStyle(.secondary)\n}",
     "discussion": "Each level renders the current foreground style at reduced prominence, typically by lowering opacity, so the same markup adapts to light, dark, and vibrant material contexts. Applied to multi-layer SF Symbols via foregroundStyle, the levels map onto the symbol's hierarchical layers.",
     "kind": "Style",
@@ -588,6 +703,23 @@
     "wwdcYear": 2021
   },
   {
+    "children": [
+      {
+        "code": "let renderer = ImageRenderer(content: BadgeView(score: 92))\nrenderer.scale = displayScale",
+        "name": "ImageRenderer(content:)",
+        "summary": "Wraps a view hierarchy so it can be rasterized away from the live display."
+      },
+      {
+        "code": "let renderer = ImageRenderer(content: card)\nrenderer.scale = 3\nif let cg = renderer.cgImage {\n    saveThumbnail(cg)\n}",
+        "name": "ImageRenderer.cgImage",
+        "summary": "Reads the rendered content as a CGImage, the cross-platform bitmap output."
+      },
+      {
+        "code": "renderer.render { size, drawInContext in\n    var box = CGRect(origin: .zero, size: size)\n    guard let pdf = CGContext(url as CFURL, mediaBox: &box, nil) else { return }\n    pdf.beginPDFPage(nil)\n    drawInContext(pdf)\n    pdf.endPDFPage()\n    pdf.closePDF()\n}",
+        "name": "ImageRenderer.render(rasterizationScale:renderer:)",
+        "summary": "Hands you a CGContext callback, the entry point for exporting vector PDF output."
+      }
+    ],
     "code": "let renderer = ImageRenderer(content: ReceiptView(order: order))\nrenderer.scale = displayScale\nif let image = renderer.uiImage {\n    savedImages.append(image)\n}",
     "discussion": "Set scale to match the target display before reading uiImage, nsImage, or cgImage, since the default of 1 produces non-Retina output; render(rasterizationScale:renderer:) hands you a CGContext callback for vector PDF export. ImageRenderer is main-actor bound and an ObservableObject whose objectWillChange fires when the content needs re-rendering.",
     "kind": "Type",
@@ -659,6 +791,21 @@
         "code": "ShaderLibrary.tint(\n    .color(.mint),\n    .float(0.8),\n    .boundingRect\n)",
         "name": "Shader.Argument",
         "summary": "A value passed into a shader function: floats, vectors, colors, bounding rects, images, or data buffers."
+      },
+      {
+        "code": "let shader = ShaderLibrary.wave(.float(elapsedTime))",
+        "name": "Shader.Argument.float(_:)",
+        "summary": "Passes a scalar floating-point value into a shader function."
+      },
+      {
+        "code": "let effect = ShaderLibrary.duotone(.color(.indigo), .color(.orange))",
+        "name": "Shader.Argument.color(_:)",
+        "summary": "Passes a SwiftUI color into a shader, resolved to RGBA components."
+      },
+      {
+        "code": "let shader = ShaderLibrary.radialFade(.boundingRect)\nimage.colorEffect(shader)",
+        "name": "Shader.Argument.boundingRect",
+        "summary": "Supplies the drawn region's rectangle so the shader can work in normalized coordinates."
       }
     ],
     "code": "let shader = ShaderLibrary.ripple(\n    .float2(touchPoint),\n    .float(elapsedTime)\n)\nRectangle()\n    .fill(.blue)\n    .layerEffect(shader, maxSampleOffset: CGSize(width: 20, height: 20))",
@@ -680,6 +827,16 @@
         "code": "let fn = ShaderFunction(library: .default, name: \"wave\")\nlet shader = fn(.float(amplitude), .float(frequency))",
         "name": "ShaderFunction",
         "summary": "A reference to one named Metal function within a library; calling it with arguments yields a Shader."
+      },
+      {
+        "code": "let fn = ShaderFunction(library: .default, name: \"ripple\")\nlet shader = fn(.float(time))",
+        "name": "ShaderLibrary.default",
+        "summary": "The library of Metal functions compiled into the app's main bundle."
+      },
+      {
+        "code": "let library = ShaderLibrary.bundle(.module)\nlet effect = library.pixellate(.float(strength))",
+        "name": "ShaderLibrary.bundle(_:)",
+        "summary": "Scopes function lookup to the default Metal library of another bundle, such as a package module."
       }
     ],
     "code": "let library = ShaderLibrary.bundle(.module)\nlet effect = library.pixellate(.float(strength))\nimage.distortionEffect(effect, maxSampleOffset: .zero)",
@@ -695,6 +852,18 @@
     "wwdcYear": 2023
   },
   {
+    "children": [
+      {
+        "code": "Circle()\n    .fill(.blue.shadow(.drop(color: .black.opacity(0.3), radius: 6, y: 4)))",
+        "name": "ShadowStyle.drop(color:radius:x:y:)",
+        "summary": "A cast shadow that falls outside the filled shape's edges."
+      },
+      {
+        "code": "Circle()\n    .fill(.blue.shadow(.inner(color: .black.opacity(0.5), radius: 6, y: 3)))",
+        "name": "ShadowStyle.inner(color:radius:x:y:)",
+        "summary": "An inset shadow that darkens inward from the edges for a recessed, neumorphic look."
+      }
+    ],
     "code": "Circle()\n    .fill(\n        .blue.shadow(.inner(color: .black.opacity(0.5), radius: 6, y: 3))\n    )",
     "discussion": "ShadowStyle.drop and .inner attach to a style via the shadow(_:) ShapeStyle modifier, so the shadow follows the filled geometry itself — including inner shadows, which the view-level .shadow() modifier cannot produce. This enables neumorphic and inset looks with a single fill expression.",
     "kind": "Type",
@@ -708,6 +877,18 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": "Path { p in\n    p.addEllipse(in: outer)\n    p.addEllipse(in: inner)\n}\n.fill(.blue, style: FillStyle(eoFill: true))",
+        "name": ".fill(_:style:)",
+        "summary": "Paints a shape's interior with a given style and an optional even-odd winding rule."
+      },
+      {
+        "code": "Circle()\n    .fill(style: FillStyle(eoFill: true))\n    .foregroundStyle(.tint)",
+        "name": ".fill(style:)",
+        "summary": "Fills a shape using the inherited foreground style rather than an explicitly named one."
+      }
+    ],
     "code": "Circle()\n    .fill(.blue.gradient)\n    .frame(width: 120, height: 120)",
     "discussion": "The fill(_:style:) method converts a Shape into a view by rasterizing its path with the given style, using an optional FillStyle to control even-odd winding and antialiasing. Since iOS 17 the result is a ShapeView, so you can chain a stroke after a fill on the same shape instead of layering two copies in a ZStack.",
     "kind": "Modifier",
@@ -775,6 +956,23 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "Circle()\n    .stroke(.orange, lineWidth: 4)",
+        "name": ".stroke(_:lineWidth:)",
+        "summary": "Traces a shape's outline with a fill style at a plain line width."
+      },
+      {
+        "code": "Path { p in\n    p.move(to: .zero)\n    p.addLine(to: CGPoint(x: 200, y: 80))\n}\n.stroke(.orange, style: StrokeStyle(lineWidth: 4, dash: [8, 4]))",
+        "name": ".stroke(_:style:)",
+        "summary": "Traces the outline with a full StrokeStyle for dashes, caps, and joins."
+      },
+      {
+        "code": "Circle()\n    .stroke(style: StrokeStyle(lineWidth: 6, lineCap: .round))\n    .foregroundStyle(.green)",
+        "name": ".stroke(style:)",
+        "summary": "Returns the outline as a shape styled by the inherited foreground, ready to fill or clip."
+      }
+    ],
     "code": "Path { p in\n    p.move(to: .zero)\n    p.addLine(to: CGPoint(x: 200, y: 80))\n}\n.stroke(.orange, style: StrokeStyle(lineWidth: 4, dash: [8, 4]))",
     "discussion": "Stroking centers the line on the path, so half of the line width lands outside the shape's frame; use .strokeBorder() when the result must stay inside the bounds. The StrokeStyle overload unlocks caps, joins, miter limits, and dash patterns, and dashPhase animates smoothly for marching-ants effects.",
     "kind": "Modifier",
@@ -830,6 +1028,11 @@
         "code": "Circle()\n    .symmetricDifference(Circle().offset(x: 40))\n    .fill(.orange)",
         "name": "Shape.symmetricDifference()",
         "summary": "Keeps the areas covered by exactly one of the two shapes."
+      },
+      {
+        "code": "Circle()\n    .intersection(Rectangle().size(width: 100, height: 50))\n    .fill(.blue)",
+        "name": ".intersection(_:eoFill:)",
+        "summary": "Keeps only the region where both shapes overlap."
       }
     ],
     "code": "Circle()\n    .union(Capsule().size(width: 140, height: 32))\n    .fill(.red)",
