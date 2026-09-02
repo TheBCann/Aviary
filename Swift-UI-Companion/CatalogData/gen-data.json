@@ -1,5 +1,22 @@
 [
   {
+    "children": [
+      {
+        "code": "WindowGroup { ContentView() }\n    .backgroundTask(.appRefresh(\"com.example.refresh\")) {\n        await store.refreshTimeline()\n    }",
+        "name": "BackgroundTask.appRefresh(_:)",
+        "summary": "Names a BGAppRefreshTask identifier so the scene's handler runs when the system grants a short refresh window."
+      },
+      {
+        "code": "WindowGroup { ContentView() }\n    .backgroundTask(.urlSession(\"com.example.downloads\")) {\n        await downloads.handleSessionEvents()\n    }",
+        "name": "BackgroundTask.urlSession(_:)",
+        "summary": "Targets a single background URLSession by identifier, waking the handler when its transfers need processing."
+      },
+      {
+        "code": "WindowGroup { ContentView() }\n    .backgroundTask(.urlSession(matching: { $0.hasPrefix(\"com.example.export.\") })) { identifier in\n        await exporter.finish(sessionID: identifier)\n    }",
+        "name": "BackgroundTask.urlSession(matching:)",
+        "summary": "Selects background sessions with a predicate closure and passes the matched identifier into the handler."
+      }
+    ],
     "code": "@main struct FeedApp: App {\n    var body: some Scene {\n        WindowGroup { ContentView() }\n            .backgroundTask(.appRefresh(\"com.example.sync\")) {\n                await store.sync()\n            }\n    }\n}",
     "discussion": "The scene modifier ties BackgroundTasks scheduling into the SwiftUI lifecycle: when the system wakes the app for the identified task, the closure runs as structured async work and the run ends when it returns. Cancellation flows through Swift concurrency when the system's time allowance expires, so long operations should check Task.isCancelled and checkpoint their progress.",
     "kind": "Modifier",
@@ -111,6 +128,18 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "WindowGroup { ContentView() }\n    .modelContainer(for: [Recipe.self, Step.self],\n                    isUndoEnabled: true) { result in\n        if case .failure(let error) = result {\n            logger.error(\"Store failed: \\(error)\")\n        }\n    }",
+        "name": ".modelContainer(for:inMemory:isAutosaveEnabled:isUndoEnabled:onSetup:)",
+        "summary": "Convenience form that builds the container from one model type or an array of them, with flags for in-memory stores, autosave, and undo plus a setup callback that reports failure."
+      },
+      {
+        "code": "@main struct RecipesApp: App {\n    let container = try! ModelContainer(\n        for: Recipe.self,\n        migrationPlan: RecipeMigrationPlan.self\n    )\n    var body: some Scene {\n        WindowGroup { ContentView() }.modelContainer(container)\n    }\n}",
+        "name": ".modelContainer(_:)",
+        "summary": "Installs a ModelContainer you constructed yourself, which is the route for migration plans, multiple configurations, or CloudKit settings."
+      }
+    ],
     "code": "@main struct RecipesApp: App {\n    var body: some Scene {\n        WindowGroup { ContentView() }\n            .modelContainer(for: Recipe.self)\n    }\n}",
     "discussion": "The convenience form takes model types and builds a container with sensible defaults — plus flags for in-memory storage, autosave, and undo — while another overload accepts a preconfigured ModelContainer. Everything below the modifier shares the container's main-actor context, so applying it to the WindowGroup is the canonical SwiftData bootstrap.",
     "framework": "SwiftData",
@@ -197,6 +226,18 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "TabView(selection: $tab) {\n    HomeView().tag(Tab.home)\n    SearchView().tag(Tab.search)\n}",
+        "name": ".tag(_:)",
+        "summary": "Attaches a Hashable value that Picker, TabView, and List compare against their selection binding."
+      },
+      {
+        "code": "List(selection: $selectedID) { // Binding<Item.ID?>\n    ForEach(items) { item in\n        Text(item.name)\n            .tag(item.id, includeOptional: true) // false demands an exact type match\n    }\n}",
+        "name": ".tag(_:includeOptional:)",
+        "summary": "Added in 2024, this overload lets you decide whether a non-optional tag may also satisfy an Optional selection of the same underlying type."
+      }
+    ],
     "code": "Picker(\"Sort\", selection: $sort) {\n    Text(\"Name\").tag(SortOrder.name)\n    Text(\"Date\").tag(SortOrder.date)\n}",
     "discussion": "Picker, TabView, and List selection all work by comparing each child's tag to the bound selection value, so the tag's type must match the binding's exactly — an Int tag never matches a String? selection. When the selection is optional, tag the non-optional value; SwiftUI bridges the optionality during comparison.",
     "kind": "Modifier",
@@ -264,6 +305,23 @@
     "wwdcYear": 2023
   },
   {
+    "children": [
+      {
+        "code": "@SectionedFetchRequest(\n    sectionIdentifier: \\Quake.day,\n    sortDescriptors: [SortDescriptor(\\Quake.day, order: .reverse),\n                      SortDescriptor(\\Quake.time, order: .reverse)],\n    predicate: NSPredicate(format: \"magnitude >= 4\"),\n    animation: .default\n) private var quakes: SectionedFetchResults<String, Quake>",
+        "name": "init(sectionIdentifier:sortDescriptors:predicate:animation:)",
+        "summary": "Declares the fetch inline from a section key path, Swift SortDescriptors, an optional predicate, and an animation for result changes."
+      },
+      {
+        "code": "@SectionedFetchRequest(\n    fetchRequest: Quake.recentRequest(limit: 200), // an NSFetchRequest<Quake>\n    sectionIdentifier: \\.day,\n    animation: .default\n) private var quakes: SectionedFetchResults<String, Quake>",
+        "name": "init(fetchRequest:sectionIdentifier:animation:)",
+        "summary": "Wraps a fully configured NSFetchRequest, which is how fetch limits, batch sizes, and relationship prefetching reach a sectioned fetch."
+      },
+      {
+        "code": "struct SortMenu: View {\n    @Binding var config: SectionedFetchRequest<String, Quake>.Configuration\n    var body: some View {\n        Button(\"Strongest first\") {\n            config.sortDescriptors = [\n                SortDescriptor(\\Quake.day, order: .reverse),\n                SortDescriptor(\\Quake.magnitude, order: .reverse)\n            ]\n        }\n    }\n}\n// SortMenu(config: $quakes)",
+        "name": "SectionedFetchRequest.Configuration",
+        "summary": "The nested struct exposed through the $ projection as a Binding, carrying the mutable predicate, sort descriptors, and section key path."
+      }
+    ],
     "code": "@SectionedFetchRequest(\n    sectionIdentifier: \\Quake.day,\n    sortDescriptors: [SortDescriptor(\\Quake.time)]\n) private var quakes: SectionedFetchResults<String, Quake>",
     "discussion": "It extends @FetchRequest with a sectionIdentifier key path whose value partitions results into SectionedFetchResults, which nests directly into List and ForEach as sections of rows. The first sort descriptor must order by the section key so rows land in contiguous groups; like its unsectioned sibling it live-updates when the managed object context saves.",
     "kind": "Property Wrapper",
@@ -304,6 +362,18 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "private struct AccentTintKey: EnvironmentKey {\n    static let defaultValue = Color.blue\n}\nextension EnvironmentValues {\n    var accentTint: Color {\n        get { self[AccentTintKey.self] }\n        set { self[AccentTintKey.self] = newValue }\n    }\n}",
+        "name": "subscript(key:)",
+        "summary": "Reads or writes an entry through its EnvironmentKey type, the accessor a hand-written computed property uses when you are not on @Entry."
+      },
+      {
+        "code": "@Test func accentDefaultsToBlue() {\n    let values = EnvironmentValues()\n    #expect(values.accentTint == .blue)\n}",
+        "name": "init()",
+        "summary": "Produces a standalone values instance holding every entry's default, which is handy for asserting defaults in tests."
+      }
+    ],
     "code": "extension EnvironmentValues {\n    @Entry var accentTint: Color = .blue\n}\n\nContentView()\n    .environment(\\.accentTint, .orange)",
     "discussion": "Each view receives an EnvironmentValues snapshot inherited from its ancestors; modifiers like .environment() override individual entries for a subtree. You extend it with your own keys — since WWDC 2024 a single @Entry declaration replaces the older EnvironmentKey boilerplate — and any descendant can then read the value with @Environment.",
     "kind": "Type",
@@ -331,6 +401,23 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "List(recipes) { RecipeRow(recipe: $0) }\n    .searchable(text: $query)\n    .onChange(of: query) { _, text in\n        recipes.nsPredicate = text.isEmpty\n            ? nil\n            : NSPredicate(format: \"name CONTAINS[cd] %@\", text)\n    }",
+        "name": "nsPredicate",
+        "summary": "A settable filter that re-executes the fetch in place, so a search field can narrow results without rebuilding the wrapper."
+      },
+      {
+        "code": "Picker(\"Order\", selection: $order) { /* cases */ }\n    .onChange(of: order) { _, order in\n        recipes.sortDescriptors = order == .newest\n            ? [SortDescriptor(\\Recipe.createdAt, order: .reverse)]\n            : [SortDescriptor(\\Recipe.name)]\n    }",
+        "name": "sortDescriptors",
+        "summary": "Swaps the ordering at runtime using type-safe Swift SortDescriptors keyed on the entity's properties."
+      },
+      {
+        "code": "recipes.nsSortDescriptors = [\n    NSSortDescriptor(\n        key: \"name\", ascending: true,\n        selector: #selector(NSString.localizedStandardCompare(_:))\n    )\n]",
+        "name": "nsSortDescriptors",
+        "summary": "The Foundation-flavored counterpart to sortDescriptors, useful when you need a custom comparison selector."
+      }
+    ],
     "code": "@FetchRequest(sortDescriptors: [SortDescriptor(\\Recipe.name)])\nprivate var recipes: FetchedResults<Recipe>\n\nvar body: some View {\n    List(recipes) { RecipeRow(recipe: $0) }\n}",
     "discussion": "It behaves like an array of your Core Data entities but stays synchronized with the managed object context, so inserts and deletes ripple into the UI automatically. Since iOS 15 its nsPredicate and sortDescriptors properties are settable at runtime, letting search fields refine the fetch without rebuilding the property wrapper.",
     "kind": "Type",
@@ -358,6 +445,23 @@
     "wwdcYear": 2020
   },
   {
+    "children": [
+      {
+        "code": "let store = ModelConfiguration(\"Library\", cloudKitDatabase: .none)\nlet container = try ModelContainer(\n    for: Recipe.self, Step.self,\n    migrationPlan: RecipeMigrationPlan.self,\n    configurations: store\n)",
+        "name": "init(for:migrationPlan:configurations:)",
+        "summary": "Throwing initializer that takes a variadic list of model types, an optional migration plan, and one or more configurations describing the stores."
+      },
+      {
+        "code": "@MainActor\nfunc seed(_ container: ModelContainer) throws {\n    let context = container.mainContext\n    context.insert(Recipe(name: \"Pancakes\"))\n    try context.save()\n}",
+        "name": "mainContext",
+        "summary": "The main-actor ModelContext that the UI reads and writes, the same one .modelContainer() places in the environment."
+      },
+      {
+        "code": "Button(\"Reset Library\", role: .destructive) {\n    container.deleteAllData()\n    showResetConfirmation = false\n}",
+        "name": "deleteAllData()",
+        "summary": "Wipes every persisted object across the container's stores, a blunt tool for sign-out or reset flows."
+      }
+    ],
     "code": "let config = ModelConfiguration(isStoredInMemoryOnly: true)\nlet container = try ModelContainer(\n    for: Recipe.self, Step.self,\n    configurations: config\n)",
     "discussion": "You initialize it with model types and optional ModelConfiguration values controlling store location, in-memory operation, or CloudKit syncing; its mainContext property is the main-actor context the UI uses. Apps that need custom migration plans or multiple stores create the container manually and pass it to .modelContainer() instead of using the convenience form.",
     "framework": "SwiftData",
@@ -388,6 +492,18 @@
     "wwdcYear": 2023
   },
   {
+    "children": [
+      {
+        "code": "final class Settings: ObservableObject {\n    var theme = Theme.system {\n        willSet { objectWillChange.send() }\n    }\n}",
+        "name": "objectWillChange",
+        "summary": "The publisher SwiftUI subscribes to; call send() on it yourself when a change happens outside a @Published property."
+      },
+      {
+        "code": "final class Feed: ObservableObject {\n    typealias ObjectWillChangePublisher = ObservableObjectPublisher\n    let objectWillChange = ObservableObjectPublisher()\n    private(set) var items: [Post] = []\n\n    func replace(with latest: [Post]) {\n        objectWillChange.send()\n        items = latest\n    }\n}",
+        "name": "ObjectWillChangePublisher",
+        "summary": "The associated publisher type, which defaults to Combine's ObservableObjectPublisher unless you supply your own Never-failing publisher."
+      }
+    ],
     "code": "final class CartModel: ObservableObject {\n    @Published var items: [Item] = []\n    var total: Decimal {\n        items.map(\\.price).reduce(0, +)\n    }\n}",
     "discussion": "Conforming classes get a synthesized objectWillChange publisher that fires before any @Published property mutates, which is what @StateObject, @ObservedObject, and @EnvironmentObject subscribe to. On OS versions from 2023 onward the @Observable macro supersedes it with per-property tracking, but ObservableObject remains the model protocol for Combine-era code and for @FocusedObject.",
     "framework": "Combine",
@@ -403,6 +519,28 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "let intercept = OpenURLAction { url in\n    guard url.host == \"example.com\" else { return .systemAction }\n    router.open(url)\n    return .handled\n}",
+        "name": "init(handler:)",
+        "summary": "Builds a custom action from a closure that inspects each URL and returns a Result deciding its fate."
+      },
+      {
+        "code": "@Environment(\\.openURL) private var openURL\n\nButton(\"Help Center\") {\n    openURL(URL(string: \"https://example.com/help\")!)\n}",
+        "name": "callAsFunction(_:)",
+        "summary": "Fire-and-forget invocation that hands the URL to whichever handler or system opener is in effect."
+      },
+      {
+        "code": "openURL(url) { accepted in\n    if !accepted { showCopyLinkAlert = true }\n}",
+        "name": "callAsFunction(_:completion:)",
+        "summary": "Variant that reports through a Bool whether anything accepted the URL, so you can offer a fallback when nothing did."
+      },
+      {
+        "code": "OpenURLAction { url in\n    if url.scheme == \"myapp\" { return .handled }\n    if url.host == \"ads.example\" { return .discarded }\n    return .systemAction(url.strippingTrackingParameters())\n}",
+        "name": "OpenURLAction.Result",
+        "summary": "The nested type a handler returns: handled, discarded, systemAction, or systemAction with a substitute URL."
+      }
+    ],
     "code": "Text(\"[Read the docs](https://example.com/docs)\")\n    .environment(\\.openURL, OpenURLAction { url in\n        route(url) ? .handled : .systemAction\n    })",
     "discussion": "Reading @Environment(\\.openURL) gives you this action for launching URLs from code. Since WWDC 2021 you can also install your own OpenURLAction into the environment; its handler returns .handled, .discarded, or .systemAction to short-circuit, swallow, or forward each URL — the mechanism that lets you hijack Markdown links inside Text.",
     "kind": "Type",

@@ -55,6 +55,18 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "Text(\"Due: \") + Text(dueDate, style: .date).bold()\nText(\"Total: \") + Text(total, format: .currency(code: \"USD\")).bold()",
+        "name": "Text.bold()",
+        "summary": "The original Text-returning form, which is the one you can chain inside a concatenation of Text values."
+      },
+      {
+        "code": "Label(\"Inbox\", systemImage: \"tray\")\n    .bold(unreadCount > 0)",
+        "name": ".bold(_:)",
+        "summary": "Takes a Bool so emphasis can track state, and as a View modifier it also thickens SF Symbol strokes in the subtree."
+      }
+    ],
     "code": "Text(\"Total due\")\n    .bold()\nText(\"Row title\")\n    .bold(isHighlighted)",
     "discussion": "Originally a Text-only modifier, bold gained a view-level form in 2022 that boldens the environment font for a whole subtree, including Label and Image symbol content. The bold(_:) overload takes a Bool, which is cleaner than wrapping the modifier in a conditional.",
     "kind": "Modifier",
@@ -81,6 +93,18 @@
     "wwdcYear": 2024
   },
   {
+    "children": [
+      {
+        "code": "MiniGauge(value: level)\n    .dynamicTypeSize(.medium)",
+        "name": ".dynamicTypeSize(_: DynamicTypeSize)",
+        "summary": "Freezes the subtree at one specific size, overriding the user's preference entirely for that branch."
+      },
+      {
+        "code": "TabLabel(\"Library\")\n    .dynamicTypeSize(DynamicTypeSize.small ... .xxLarge)\nBadgeRow()\n    .dynamicTypeSize(...DynamicTypeSize.accessibility1)",
+        "name": ".dynamicTypeSize(_: some RangeExpression)",
+        "summary": "Accepts any range whose bounds are DynamicTypeSize values, clamping the user's choice into that window while honoring every size inside it."
+      }
+    ],
     "code": "StatusBadge()\n    .dynamicTypeSize(...DynamicTypeSize.accessibility2)\nCompactMeter()\n    .dynamicTypeSize(.large)",
     "discussion": "The range form is the accessibility-friendly use: capping a dense component at an upper bound keeps layouts workable while still honoring smaller preferences. Pinning to a single size silences the user's setting entirely and should be reserved for genuinely size-critical chrome.",
     "kind": "Modifier",
@@ -160,6 +184,18 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": "Text(\"Note: \").bold() + Text(\"draft saved locally\").italic()\nText(\"Source: \") + Text(citation).italic()",
+        "name": "Text.italic()",
+        "summary": "The Text-returning form, usable mid-concatenation to slant only part of a sentence."
+      },
+      {
+        "code": "Text(message.body)\n    .italic(message.isSystemGenerated)",
+        "name": ".italic(_:)",
+        "summary": "Bool-controlled variant so a row can flip between upright and slanted without wrapping the view in a conditional."
+      }
+    ],
     "code": "Text(\"The Swift Programming Language\")\n    .italic()\nText(\"Quoted phrase\")\n    .italic(isQuote)",
     "discussion": "For fonts with a true italic face the system uses it; otherwise an oblique slant is synthesized. Like bold, the modifier started on Text and now also works view-wide, and it composes with weight and design changes since each derives a new Font value.",
     "kind": "Modifier",
@@ -226,6 +262,18 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "Text(commit.hash.prefix(7))\n    .font(.footnote.monospaced())",
+        "name": "Font.monospaced()",
+        "summary": "The Font instance method from 2021 that derives a fixed-pitch font from any system text style, keeping its size and weight."
+      },
+      {
+        "code": "Text(payload)\n    .monospaced(showsRawJSON)\n    .textSelection(.enabled)",
+        "name": ".monospaced(_:)",
+        "summary": "The Text and View modifier form added in the 16.4 releases, taking a Bool so the switch to fixed pitch can follow state."
+      }
+    ],
     "code": "Text(\"a1b2-c3d4-e5f6\")\n    .monospaced()\nText(\"let x = 42\")\n    .font(.callout.monospaced())",
     "discussion": "For the system font this resolves to SF Mono while keeping the ambient text style and weight, which suits identifiers, code snippets, and hashes embedded in otherwise proportional UI. There are matching Font.monospaced() and view-level forms, and .fontDesign(.monospaced) achieves the same through the environment.",
     "kind": "Modifier",
@@ -307,6 +355,18 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": "Text(task.title)\n    .strikethrough(task.isDone, color: .secondary)",
+        "name": ".strikethrough(_:color:)",
+        "summary": "The original overload: a solid line toggled by a Bool, tinted by an optional color that otherwise inherits the foreground."
+      },
+      {
+        "code": "Text(\"Was $80\")\n    .strikethrough(pattern: .dashDot, color: .red)",
+        "name": ".strikethrough(_:pattern:color:)",
+        "summary": "Adds a Text.LineStyle.Pattern argument so the line can be dotted or dashed instead of solid."
+      }
+    ],
     "code": "HStack(spacing: 6) {\n    Text(\"$59.99\")\n        .strikethrough(true, color: .secondary)\n    Text(\"$39.99\").bold()\n}",
     "discussion": "The 2022 cycle added the pattern parameter, so strikethroughs can be dashed or dotted via Text.LineStyle patterns rather than only solid. A nil color inherits the current foreground style, which keeps the decoration legible across light and dark appearances.",
     "kind": "Modifier",
@@ -450,6 +510,18 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "Text(verbatim: review.body)\n    .typesettingLanguage(Locale.Language(identifier: review.languageTag))",
+        "name": ".typesettingLanguage(_: Locale.Language, isEnabled:)",
+        "summary": "Takes a full Locale.Language, which can carry script and region alongside the language for precise shaping."
+      },
+      {
+        "code": "Text(verbatim: verse)\n    .typesettingLanguage(Locale.LanguageCode.arabic, isEnabled: shapesArabic)",
+        "name": ".typesettingLanguage(_: Locale.LanguageCode, isEnabled:)",
+        "summary": "Shorthand overload accepting just a language code when script and region do not matter, with an enable flag for conditional use."
+      }
+    ],
     "code": "Text(verbatim: userComment)\n    .typesettingLanguage(.init(languageCode: .thai))",
     "discussion": "Some scripts need taller line boxes or different glyph shaping than the UI language implies — Thai and Arabic embedded in an English interface are classic cases. Declaring the typesetting language prevents clipped ascenders and wrong glyph variants for that specific run of text without changing localization.",
     "kind": "Modifier",
@@ -462,6 +534,18 @@
     "wwdcYear": 2023
   },
   {
+    "children": [
+      {
+        "code": "Text(\"Learn more\")\n    .underline(isHovering, color: .accentColor)",
+        "name": ".underline(_:color:)",
+        "summary": "The original overload drawing a solid underline, toggled by a Bool and tinted by an optional color."
+      },
+      {
+        "code": "Text(misspelledWord)\n    .underline(pattern: .dot, color: .red)",
+        "name": ".underline(_:pattern:color:)",
+        "summary": "Adds a pattern argument so the underline can be dotted or dashed, which suits spell-check or tentative-state styling."
+      }
+    ],
     "code": "Text(\"Terms of Service\")\n    .underline(true, color: .blue)\nText(\"Subtle emphasis\")\n    .underline(pattern: .dot)",
     "discussion": "Underlines share Text.LineStyle with strikethrough, so dot and dash patterns are available alongside solid. Reserve underlining for genuine emphasis or link affordances — in scrolling UI an underline strongly implies tappability, so pairing it with a non-interactive label can mislead users.",
     "kind": "Modifier",
@@ -504,6 +588,23 @@
     "wwdcYear": 2024
   },
   {
+    "children": [
+      {
+        "code": "var warning = AttributeContainer()\nwarning.foregroundColor = .red\nwarning.font = .callout.weight(.semibold)\ntext[range].mergeAttributes(warning)",
+        "name": "AttributeContainer()",
+        "summary": "Creates an empty container that you fill through typed dynamic-member properties such as font or foregroundColor."
+      },
+      {
+        "code": "var theme = AttributeContainer()\ntheme.font = .body\nvar accent = AttributeContainer()\naccent.font = .title\naccent.foregroundColor = .indigo\n// keepCurrent preserves theme's .body font but still gains .indigo\nlet merged = theme.merging(accent, mergePolicy: .keepCurrent)",
+        "name": "merging(_:mergePolicy:)",
+        "summary": "Returns a new container combining two attribute sets, with the policy deciding which side wins on keys both define."
+      },
+      {
+        "code": "var attrs = AttributeContainer()\nattrs[AttributeScopes.SwiftUIAttributes.ForegroundColorAttribute.self] = .mint\nlet color = attrs[AttributeScopes.SwiftUIAttributes.ForegroundColorAttribute.self]",
+        "name": "subscript(_: K.Type)",
+        "summary": "Reads or writes a single attribute by its key type, the route to take when you hold the key generically rather than through a scope property."
+      }
+    ],
     "code": "var emphasis = AttributeContainer()\nemphasis.font = .headline\nemphasis.underlineStyle = .single\n\nvar message = AttributedString(\"Due today\")\nmessage.mergeAttributes(emphasis)",
     "discussion": "Containers separate the description of styling from the text it applies to, which keeps highlight or theme logic reusable. Merge policies let you decide whether incoming attributes win over ones already present, and the same typed property syntax used on AttributedString works here.",
     "framework": "Foundation",
@@ -516,6 +617,28 @@
     "wwdcYear": 2021
   },
   {
+    "children": [
+      {
+        "code": "let banner = AttributedString(\n    localized: \"You have **\\(unread)** unread messages\",\n    comment: \"Inbox header count\"\n)\nText(banner)",
+        "name": "AttributedString(localized:table:bundle:locale:comment:)",
+        "summary": "Resolves the key through your string catalog and parses the localized value as Markdown, so translators control emphasis placement."
+      },
+      {
+        "code": "let note = try AttributedString(\n    markdown: \"Shipped **today** — [track it](https://example.com/t/42)\",\n    options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)\n)\nText(note)",
+        "name": "AttributedString(markdown:options:baseURL:)",
+        "summary": "Parses Markdown into attribute runs at runtime, throwing on malformed syntax unless the options relax the failure policy."
+      },
+      {
+        "code": "for run in text.runs where run.link != nil {\n    print(String(text[run.range].characters))\n}\nfor (font, range) in text.runs[\\.font] {\n    print(font as Any, range)\n}",
+        "name": "runs",
+        "summary": "A collection of the string's uniform attribute stretches, which you can walk directly or project onto one attribute with a key path."
+      },
+      {
+        "code": "var highlight = AttributeContainer()\nhighlight.backgroundColor = .yellow\ntext.mergeAttributes(highlight)                         // incoming wins\ntext[range].mergeAttributes(highlight, mergePolicy: .keepCurrent)",
+        "name": "mergeAttributes(_:mergePolicy:)",
+        "summary": "Layers a container onto the string in place, with the policy choosing whether existing or incoming values survive a clash."
+      }
+    ],
     "code": "var text = AttributedString(\"Ship it today\")\nif let range = text.range(of: \"today\") {\n    text[range].foregroundColor = .orange\n    text[range].font = .headline.bold()\n}\nText(text)",
     "discussion": "Attributes are strongly typed through attribute scopes, so SwiftUI-specific styling like foregroundColor or font is set with plain property syntax on a slice of the string. Text has rendered AttributedString since 2021, and the 2025 cycle made it the storage for rich TextEditor editing, so the same value flows between display, editing, and persistence.",
     "framework": "Foundation",
@@ -530,6 +653,23 @@
     "wwdcYear": 2021
   },
   {
+    "children": [
+      {
+        "code": "struct Scope: AttributeScope {\n    let foregroundColor: AttributeScopes.SwiftUIAttributes.ForegroundColorAttribute\n    let backgroundColor: AttributeScopes.SwiftUIAttributes.BackgroundColorAttribute\n    let highlight: HighlightAttribute   // your own AttributedStringKey\n}",
+        "name": "Scope",
+        "summary": "The associated AttributeScope whose stored properties enumerate exactly which attributes the editor may keep on its text."
+      },
+      {
+        "code": "var body: some AttributedTextFormattingDefinition<Scope> {\n    HighlightsAreYellow()\n    NoColorOutsideHighlights()\n}",
+        "name": "body",
+        "summary": "The composable body listing value constraints; leaving it empty permits the scope's attributes with no further rules."
+      },
+      {
+        "code": "struct HighlightsAreYellow: AttributedTextValueConstraint {\n    typealias Scope = NoteRules.Scope\n    typealias AttributeKey = AttributeScopes.SwiftUIAttributes.BackgroundColorAttribute\n\n    func constrain(_ container: inout Attributes) {\n        container.backgroundColor = container.highlight != nil ? .yellow : nil\n    }\n}",
+        "name": "AttributedTextValueConstraint.constrain(_:)",
+        "summary": "The rule type that body is built from; constrain rewrites one attribute key so it stays consistent with the rest of the container on every edit."
+      }
+    ],
     "code": "struct NoteRules: AttributedTextFormattingDefinition {\n    struct Scope: AttributeScope {\n        let foregroundColor: AttributeScopes.SwiftUIAttributes.ForegroundColorAttribute\n    }\n    var body: some AttributedTextFormattingDefinition<Scope> {\n        // compose value constraints here\n    }\n}",
     "discussion": "A definition names an AttributeScope of permitted attributes and composes constraints in its body, and the editor then enforces those rules on every edit, paste, and toolbar action. This keeps app-specific invariants — such as a custom attribute always implying a certain color — true without manually sanitizing text after each change.",
     "kind": "Protocol",
@@ -547,6 +687,23 @@
     "wwdcYear": 2025
   },
   {
+    "children": [
+      {
+        "code": "switch selection.indices(in: note) {\ncase .insertionPoint(let index):\n    status = \"Caret at \\(note.characters.distance(from: note.startIndex, to: index))\"\ncase .ranges(let set):\n    status = \"\\(set.ranges.count) range(s) selected\"\n}",
+        "name": "indices(in:)",
+        "summary": "Resolves the selection against a particular string, reporting either a lone caret or the set of highlighted ranges."
+      },
+      {
+        "code": "var hasHighlight: Bool {\n    if case .ranges(let set) = selection.indices(in: note) {\n        return !set.isEmpty\n    }\n    return false\n}",
+        "name": "Indices",
+        "summary": "The enum returned by indices(in:), whose two cases separate an insertion point from one or more selected ranges."
+      },
+      {
+        "code": "Button(\"Bold\") {\n    note.transformAttributes(in: &selection) { attrs in\n        attrs.font = .body.bold()\n    }\n}",
+        "name": "AttributedString.transformAttributes(in:_:)",
+        "summary": "Mutates attributes over the selected text through a container closure and updates the selection so it remains valid afterward."
+      }
+    ],
     "code": "@State private var note = AttributedString(\"Mix bold and color\")\n@State private var selection = AttributedTextSelection()\n\nvar body: some View {\n    TextEditor(text: $note, selection: $selection)\n}",
     "discussion": "The 2025 rich TextEditor takes a Binding to an AttributedString plus one of these selections, keeping both valid as edits mutate the string — indices are updated for you rather than invalidated. Inspecting the selection lets toolbar controls reflect and modify the formatting of exactly what the user highlighted.",
     "kind": "Type",
@@ -670,6 +827,23 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": "let key = KeyEquivalent(Character(prefs.quickAddKey))\nButton(\"Quick Add\") { add() }\n    .keyboardShortcut(key, modifiers: [.command, .option])",
+        "name": "KeyEquivalent(_:)",
+        "summary": "Wraps any Character, which is how shortcuts sourced from preferences or data are built instead of from literals."
+      },
+      {
+        "code": "Board()\n    .focusable()\n    .onKeyPress(.upArrow) { moveSelection(-1); return .handled }\n    .onKeyPress(.downArrow) { moveSelection(1); return .handled }",
+        "name": "KeyEquivalent.upArrow",
+        "summary": "One of the four arrow constants (upArrow, downArrow, leftArrow, rightArrow) used for navigation shortcuts and key press matching."
+      },
+      {
+        "code": "let shortcut: KeyEquivalent = \"n\"\nText(\"Press ⌘\\(shortcut.character.uppercased())\")",
+        "name": "character",
+        "summary": "Exposes the underlying Character so you can display or compare the key, for example when rendering a shortcut hint."
+      }
+    ],
     "code": "Button(\"Save\") { save() }\n    .keyboardShortcut(KeyEquivalent(\"s\"), modifiers: .command)\nButton(\"Cancel\") { cancel() }\n    .keyboardShortcut(.escape, modifiers: [])",
     "discussion": "KeyEquivalent backs keyboard shortcut and key press APIs, offering statics like .return, .escape, .space, .tab, .delete, and the arrow keys alongside literal characters. Because it is a character rather than a key code, shortcuts follow the user's keyboard layout.",
     "kind": "Type",
@@ -688,6 +862,28 @@
     "wwdcYear": 2020
   },
   {
+    "children": [
+      {
+        "code": "Viewport()\n    .focusable()\n    .onKeyPress(phases: [.down, .up]) { press in\n        isPanning = press.phase == .down\n        return .handled\n    }",
+        "name": "KeyPress.Phases",
+        "summary": "An option set choosing which lifecycle moments a handler sees: the initial down, autorepeat, key up, or all of them."
+      },
+      {
+        "code": ".onKeyPress { press in\n    guard press.characters == \"j\" else { return .ignored }\n    showNext()\n    return .handled\n}",
+        "name": "KeyPress.Result",
+        "summary": "The handler's return value: handled consumes the event, ignored lets it travel on to ancestors and system shortcuts."
+      },
+      {
+        "code": ".onKeyPress(phases: .down) { press in\n    if press.key == .escape { cancelEditing(); return .handled }\n    return .ignored\n}",
+        "name": "key",
+        "summary": "The layout-independent KeyEquivalent that was pressed, which is what you compare against constants like escape."
+      },
+      {
+        "code": ".onKeyPress(characters: .decimalDigits) { press in\n    enterDigit(press.characters)\n    return .handled\n}",
+        "name": "characters",
+        "summary": "The text the press generated under the current layout and modifiers, for matching typed letters rather than physical keys."
+      }
+    ],
     "code": "CanvasView()\n    .focusable()\n    .onKeyPress(phases: .down) { press in\n        print(press.key, press.characters, press.modifiers)\n        return .handled\n    }",
     "discussion": "A KeyPress distinguishes the physical key equivalent from the characters it generated under the current layout and modifiers, so you can match either. Its phase reports down, repeat, or up, letting handlers implement press-and-hold behavior, and handlers return .handled or .ignored to control propagation.",
     "kind": "Type",
@@ -719,6 +915,28 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "let titleKey = LocalizedStringKey(section.titleKey)   // e.g. \"settings.privacy\"\nText(titleKey)",
+        "name": "LocalizedStringKey(_:)",
+        "summary": "Turns a runtime String into a key, forcing the catalog lookup that passing a String variable straight to Text would skip."
+      },
+      {
+        "code": "Text(\"Pace: \\(pace, specifier: \"%.1f\") min/km\")\nText(\"Lap \\(lapIndex + 1, specifier: \"%02d\")\")",
+        "name": "StringInterpolation.appendInterpolation(_:specifier:)",
+        "summary": "Formats an interpolated number with a printf-style specifier while keeping the surrounding sentence localizable."
+      },
+      {
+        "code": "Text(\"Total \\(total, format: .currency(code: \"EUR\"))\")\nText(\"Synced \\(lastSync, format: .relative(presentation: .named))\")",
+        "name": "StringInterpolation.appendInterpolation(_:format:)",
+        "summary": "Interpolates a value through a Foundation FormatStyle, so currencies, dates, and measurements localize together with the string."
+      },
+      {
+        "code": "Text(\"Tap \\(Image(systemName: \"plus.circle\")) to add a stop\")\nText(\"Swipe \\(Image(systemName: \"arrow.left\")) to archive\")\n    .foregroundStyle(.secondary)",
+        "name": "StringInterpolation.appendInterpolation(_: Image)",
+        "summary": "Embeds an Image inline in the text run, which is how an SF Symbol lands mid-sentence in localized copy."
+      }
+    ],
     "code": "let key: LocalizedStringKey = \"welcome.title\"\nText(key)                       // looked up in the string catalog\nText(verbatim: \"Raw string\")   // never localized\nText(\"**Bold** and _italic_ via Markdown\")",
     "discussion": "Because Text, Button, and most other controls take LocalizedStringKey rather than String, a bare literal is automatically treated as a lookup key, while a String variable is shown verbatim. The type conforms to ExpressibleByStringInterpolation, so interpolated values become format arguments, and since 2021 literal keys also parse basic Markdown for inline styling.",
     "kind": "Type",
@@ -731,6 +949,28 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "static let emptyState = LocalizedStringResource(\n    \"library.empty\",\n    table: \"Library\",\n    comment: \"Shown when the user has no documents\"\n)",
+        "name": "LocalizedStringResource(_:table:locale:bundle:comment:)",
+        "summary": "The main initializer, where the key doubles as its own default value and table, bundle, locale, and comment are optional."
+      },
+      {
+        "code": "let cta = LocalizedStringResource(\n    \"onboarding.cta\",\n    defaultValue: \"Get started\"\n)\nText(cta)",
+        "name": "LocalizedStringResource(_:defaultValue:table:locale:bundle:comment:)",
+        "summary": "Separates a stable identifier key from the English fallback text, which keeps catalogs tidy when keys are not human-readable."
+      },
+      {
+        "code": "let offline = LocalizedStringResource(\n    \"error.offline\",\n    bundle: .forClass(NetworkKitMarker.self)\n)",
+        "name": "BundleDescription",
+        "summary": "Names where the strings table lives: the main bundle, a bundle at a URL, or whichever bundle contains a given class."
+      },
+      {
+        "code": "var greeting = LocalizedStringResource(\"greeting.morning\")\ngreeting.locale = Locale(identifier: \"ja_JP\")\nlet japanese = String(localized: greeting)",
+        "name": "locale",
+        "summary": "A settable locale that re-targets resolution, letting one resource render in a language other than the device's."
+      }
+    ],
     "code": "let title = LocalizedStringResource(\"inbox.title\", table: \"Mail\")\nText(title)\nLabel(String(localized: title), systemImage: \"tray\")",
     "discussion": "Unlike LocalizedStringKey, this Foundation type can travel across concurrency domains and process boundaries — it is the currency of App Intents and widget configuration — and it remembers its table, bundle, and locale. Text accepts it directly, so shared model code can describe user-facing strings without importing SwiftUI.",
     "framework": "Foundation",
@@ -744,6 +984,23 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": "ArticleCard(article: .sample)\n    .redacted(reason: isLoading ? .placeholder : [])",
+        "name": ".placeholder",
+        "summary": "Swaps text and images for neutral shapes of matching size, producing skeleton loading states from the real layout."
+      },
+      {
+        "code": "@Environment(\\.redactionReasons) private var reasons\n\nvar body: some View {\n    Text(reasons.contains(.privacy) ? \"••••\" : account.last4)\n}",
+        "name": ".privacy",
+        "summary": "Supplied by the system in sensitive contexts such as a locked-device widget; only views marked privacySensitive respond to it."
+      },
+      {
+        "code": "@Environment(\\.redactionReasons) private var reasons\n\nvar body: some View {\n    Text(\"\\(completed) done\")\n        .invalidatableContent()\n        .opacity(reasons.contains(.invalidated) ? 0.5 : 1)\n}",
+        "name": ".invalidated",
+        "summary": "Present on widget content that is awaiting a refresh after an interaction, so invalidatable views can dim to signal staleness."
+      }
+    ],
     "code": "@Environment(\\.redactionReasons) private var reasons\n\nvar body: some View {\n    Text(reasons.contains(.placeholder) ? \"–––\" : account.number)\n}",
     "discussion": "Applying .redacted(reason: .placeholder) turns descendant text and images into neutral shapes, a cheap way to build skeleton loading states from the real layout. The .privacy reason cooperates with .privacySensitive() so only marked views hide, and views read the active reasons from the environment to customize their redacted appearance.",
     "kind": "Type",
@@ -782,6 +1039,28 @@
     "wwdcYear": 2021
   },
   {
+    "children": [
+      {
+        "code": "Text(quizEnds, style: .timer)\n    .monospacedDigit()",
+        "name": ".timer",
+        "summary": "Runs a live clock toward or away from the date, refreshing on its own with no state or timeline on your side."
+      },
+      {
+        "code": "Text(message.sentAt, style: .relative)   // \"2 minutes\"\n    .font(.caption)\n    .foregroundStyle(.secondary)",
+        "name": ".relative",
+        "summary": "Shows the distance to the date in words such as hours and minutes, ticking as time passes."
+      },
+      {
+        "code": "Text(train.departure, style: .offset)   // \"+12 minutes\"\n    .monospacedDigit()",
+        "name": ".offset",
+        "summary": "Like relative but with an explicit sign, so future dates read as +N and past dates as -N."
+      },
+      {
+        "code": "HStack {\n    Text(event.start, style: .date)\n    Text(event.start, style: .time)\n}",
+        "name": ".date",
+        "summary": "Formats only the calendar date, once, in the current locale; the sibling .time style covers the clock portion."
+      }
+    ],
     "code": "let launch = Date(timeIntervalSinceNow: 3600)\nText(launch, style: .timer)     // 59:59 counting down\nText(launch, style: .relative)  // in 1 hour\nText(launch, style: .date)",
     "discussion": "When you initialize Text with a Date and one of these styles, the system owns the refresh: .timer and .relative tick without any state or TimelineView on your side, which also works in widgets where your code is not running. The .date and .time styles format once using the current locale.",
     "kind": "Type",
@@ -794,6 +1073,28 @@
     "wwdcYear": 2020
   },
   {
+    "children": [
+      {
+        "code": "func draw(layout: Text.Layout, in ctx: inout GraphicsContext) {\n    for (index, line) in layout.enumerated() {\n        var lineCtx = ctx\n        lineCtx.opacity = index < revealedLines ? 1 : 0\n        for run in line { lineCtx.draw(run) }\n    }\n}",
+        "name": "Text.Layout.Line",
+        "summary": "One typeset line, iterable as runs and carrying its own typographic bounds for line-by-line effects."
+      },
+      {
+        "code": "for line in layout {\n    for run in line {\n        let box = run.typographicBounds.rect\n        ctx.fill(Path(box), with: .color(.yellow.opacity(0.3)))\n        ctx.draw(run)\n    }\n}",
+        "name": "Text.Layout.Run",
+        "summary": "A stretch of glyphs sharing one attribute set, drawable as a unit or sliced further into glyph ranges."
+      },
+      {
+        "code": "for run in line {\n    for (i, slice) in run.enumerated() {\n        var g = ctx\n        g.translateBy(x: 0, y: sin(phase + Double(i) * 0.4) * 6)\n        g.draw(slice)\n    }\n}",
+        "name": "Text.Layout.RunSlice",
+        "summary": "A sub-range of a run's glyphs obtained by iterating or subscripting the run, and the unit for per-character animation."
+      },
+      {
+        "code": "for run in line {\n    guard run[Sparkle.self] != nil else { ctx.draw(run); continue }\n    var glow = ctx\n    glow.addFilter(.shadow(color: .yellow, radius: 6))\n    glow.draw(run)\n}",
+        "name": "Text.Layout.Run.subscript(_:)",
+        "summary": "Looks up a custom TextAttribute on a run, returning nil for runs the attribute was never applied to."
+      }
+    ],
     "code": "struct PlainRenderer: TextRenderer {\n    func draw(layout: Text.Layout, in ctx: inout GraphicsContext) {\n        for line in layout {\n            for run in line {\n                ctx.draw(run)\n            }\n        }\n    }\n}",
     "discussion": "Text.Layout is a collection of lines, each a collection of runs sharing one set of attributes, and runs can be sliced for per-glyph effects. A TextRenderer walks this structure and draws each piece into a GraphicsContext, which is how per-word or per-character animations are built without abandoning real text layout.",
     "kind": "Type",
@@ -807,6 +1108,23 @@
     "wwdcYear": 2024
   },
   {
+    "children": [
+      {
+        "code": "var text = AttributedString(\"obsolete\")\ntext.strikethroughStyle = Text.LineStyle(pattern: .dash, color: .red)\nText(text)",
+        "name": "Text.LineStyle(pattern:color:)",
+        "summary": "Builds a decoration value for the underlineStyle or strikethroughStyle attributes on an AttributedString."
+      },
+      {
+        "code": "Text(\"Tentative\")\n    .underline(pattern: .dashDotDot)",
+        "name": "Text.LineStyle.Pattern",
+        "summary": "The dash vocabulary shared by underline and strikethrough: solid, dot, dash, dashDot, and dashDotDot."
+      },
+      {
+        "code": "var link = AttributedString(\"Read the docs\")\nlink.underlineStyle = .single\nlink.link = URL(string: \"https://developer.apple.com\")",
+        "name": "Text.LineStyle.single",
+        "summary": "The stock solid single line, a convenient value for an attributed underline when nothing needs customizing."
+      }
+    ],
     "code": "Text(\"Deprecated API\")\n    .strikethrough(pattern: .dash, color: .red)\nText(\"Read the details\")\n    .underline(pattern: .dot)",
     "discussion": "The same type serves the underline and strikethrough modifiers and the underlineStyle attribute on AttributedString, so decorations round-trip between styled strings and modifier-based styling. Patterns include solid, dot, dash, dashDot, and dashDotDot; passing nil for color inherits the text's foreground.",
     "kind": "Type",
@@ -862,6 +1180,28 @@
     "wwdcYear": 2021
   },
   {
+    "children": [
+      {
+        "code": "if let found = text.range(of: query) {\n    selection = TextSelection(range: found)\n}",
+        "name": "TextSelection(range:)",
+        "summary": "Selects one contiguous range, the usual way to programmatically highlight a word or a search match."
+      },
+      {
+        "code": "text.append(\" #tag\")\nselection = TextSelection(insertionPoint: text.endIndex)",
+        "name": "TextSelection(insertionPoint:)",
+        "summary": "Collapses the selection to a caret at a given index, for parking the cursor after inserting text."
+      },
+      {
+        "code": "switch selection?.indices {\ncase .selection(let range):\n    copied = String(text[range])\ncase .multiSelection(let set):\n    copied = set.ranges.map { String(text[$0]) }.joined(separator: \"\\n\")\ncase nil:\n    break\n}",
+        "name": "indices",
+        "summary": "Reports the selection as either a single range or a set of ranges, which you switch over to pull out the selected text."
+      },
+      {
+        "code": "Button(\"Bold\") { applyBold() }\n    .disabled(selection?.isInsertion ?? true)",
+        "name": "isInsertion",
+        "summary": "True when nothing is highlighted and the selection is only a caret, handy for enabling or disabling formatting buttons."
+      }
+    ],
     "code": "@State private var text = \"Hello, world\"\n@State private var selection: TextSelection?\n\nvar body: some View {\n    TextEditor(text: $text, selection: $selection)\n}",
     "discussion": "Binding a TextSelection? into a TextField or TextEditor lets you read what the user has selected and move the caret programmatically, enabling features like format buttons that act on the selection. The value distinguishes a plain insertion point from ranges, and the binding becomes nil when the field gives up focus.",
     "kind": "Type",

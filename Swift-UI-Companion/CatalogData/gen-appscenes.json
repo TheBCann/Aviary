@@ -47,6 +47,18 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": "WindowGroup {\n    LibraryView()\n}\n.defaultSize(width: 1000, height: 650)",
+        "name": ".defaultSize(width:height:)",
+        "summary": "Seeds a window's first-launch dimensions from separate width and height values in points."
+      },
+      {
+        "code": "Window(\"Inspector\", id: \"inspector\") {\n    InspectorView()\n}\n.defaultSize(CGSize(width: 320, height: 480))",
+        "name": ".defaultSize(_:)",
+        "summary": "Accepts a CGSize, which is handy when the starting geometry is already computed or stored as one value."
+      }
+    ],
     "code": "WindowGroup {\n    LibraryView()\n}\n.defaultSize(width: 1000, height: 650)",
     "discussion": "The value only seeds the initial layout: once the user resizes the window, the system persists their choice and ignores the default on subsequent launches. Because it attaches to the Scene, each WindowGroup or Window can declare its own starting geometry independently.",
     "kind": "Modifier",
@@ -218,6 +230,18 @@
     "wwdcYear": 2020
   },
   {
+    "children": [
+      {
+        "code": "final class AppDelegate: NSObject, WKApplicationDelegate {\n    func applicationDidFinishLaunching() {\n        WKApplication.shared().registerForRemoteNotifications()\n    }\n}\n@WKApplicationDelegateAdaptor(AppDelegate.self) var delegate",
+        "name": "WKApplicationDelegateAdaptor(_:)",
+        "summary": "Installs a plain NSObject-based WKApplicationDelegate type so its lifecycle callbacks run in a SwiftUI-lifecycle watch app."
+      },
+      {
+        "code": "final class AppDelegate: NSObject, WKApplicationDelegate, ObservableObject {\n    @Published var lastBackgroundRefresh: Date?\n}\n@WKApplicationDelegateAdaptor(AppDelegate.self) private var delegate\n\nvar body: some Scene {\n    WindowGroup { StatusView(refreshed: $delegate.lastBackgroundRefresh) }\n}",
+        "name": "WKApplicationDelegateAdaptor.projectedValue",
+        "summary": "When the delegate is an ObservableObject, the $ projection hands out bindings to its published properties and SwiftUI also injects the delegate into the environment."
+      }
+    ],
     "code": "@main\nstruct WorkoutApp: App {\n    @WKApplicationDelegateAdaptor(AppDelegate.self) var delegate\n    var body: some Scene {\n        WindowGroup { ContentView() }\n    }\n}",
     "discussion": "It is the watch counterpart of @UIApplicationDelegateAdaptor, giving access to lifecycle callbacks SwiftUI does not surface, such as background refresh delivery and remote notification registration. Declare it once on the App type and the system instantiates and retains the delegate.",
     "kind": "Property Wrapper",
@@ -348,6 +372,23 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": "@SceneBuilder\nprivate var auxiliaryScenes: some Scene {\n    Window(\"Activity\", id: \"activity\") { ActivityView() }\n    Settings { SettingsView() }\n}",
+        "name": "SceneBuilder.buildBlock(_:)",
+        "summary": "Folds the scenes listed back to back in a builder closure or property into one composite scene value."
+      },
+      {
+        "code": "var body: some Scene {\n    WindowGroup { ContentView() }\n    if ProcessInfo.processInfo.environment[\"DEBUG_TOOLS\"] != nil {\n        Window(\"Debug Console\", id: \"console\") { ConsoleView() }\n    }\n}",
+        "name": "SceneBuilder.buildOptional(_:)",
+        "summary": "Allows an if without an else inside a scene body, so a scene can be declared only when some condition holds."
+      },
+      {
+        "code": "var body: some Scene {\n    if usesDocumentModel {\n        DocumentGroup(newDocument: NoteDocument()) { NoteEditor(file: $0) }\n    } else {\n        WindowGroup { NotesBrowser() }\n    }\n}",
+        "name": "SceneBuilder.buildEither(first:)",
+        "summary": "Paired with buildEither(second:), lets an if/else choose between two different scene types in a body."
+      }
+    ],
     "code": "@SceneBuilder\nvar body: some Scene {\n    WindowGroup { ContentView() }\n    Settings { SettingsView() }\n}",
     "discussion": "It is what allows an App to list a WindowGroup, a Settings scene, and a MenuBarExtra one after another and have them compose into a single some Scene. You mostly meet it when factoring scene composition into helper properties, which need the explicit @SceneBuilder attribute.",
     "kind": "Type",
@@ -427,6 +468,23 @@
     "wwdcYear": 2024
   },
   {
+    "children": [
+      {
+        "code": "Window(\"Palette\", id: \"palette\") {\n    PaletteView()\n}\n.windowStyle(.plain)\n.windowBackgroundDragBehavior(.automatic)",
+        "name": "WindowInteractionBehavior.automatic",
+        "summary": "Defers to whatever the current window style would normally permit, which is the behavior you get without any modifier."
+      },
+      {
+        "code": "Window(\"Scratchpad\", id: \"scratch\") {\n    ScratchpadView()\n}\n.windowStyle(.hiddenTitleBar)\n.windowBackgroundDragBehavior(.enabled)",
+        "name": "WindowInteractionBehavior.enabled",
+        "summary": "Forces the interaction on regardless of style, for instance letting background drags move a window with no title bar."
+      },
+      {
+        "code": "UtilityWindow(\"Inspector\", id: \"inspector\") {\n    InspectorPane()\n}\n.windowMinimizeBehavior(.disabled)\n.windowFullScreenBehavior(.disabled)",
+        "name": "WindowInteractionBehavior.disabled",
+        "summary": "Switches the interaction off, removing the minimize or full-screen affordance or ignoring background drags."
+      }
+    ],
     "code": "Window(\"Palette\", id: \"palette\") {\n    PaletteView()\n}\n.windowBackgroundDragBehavior(.enabled)\n.windowMinimizeBehavior(.disabled)",
     "discussion": "One type serves several macOS 15 scene modifiers — background dragging, minimize, and full screen — so behaviors compose uniformly. .automatic defers to what the window style would normally allow, which lets custom styles pick sensible defaults.",
     "kind": "Type",
@@ -443,6 +501,23 @@
     "wwdcYear": 2024
   },
   {
+    "children": [
+      {
+        "code": "WindowGroup {\n    DocumentView()\n}\n.windowLevel(.automatic)",
+        "name": "WindowLevel.automatic",
+        "summary": "Lets the system derive the layering tier from the window's style and role, which is the default."
+      },
+      {
+        "code": "Window(\"Library\", id: \"library\") {\n    LibraryView()\n}\n.windowLevel(.normal)",
+        "name": "WindowLevel.normal",
+        "summary": "Places the window in the ordinary document tier, explicitly declining any elevation a style might imply."
+      },
+      {
+        "code": "Window(\"Timer\", id: \"timer\") {\n    TimerHUD()\n}\n.windowStyle(.plain)\n.windowLevel(.floating)",
+        "name": "WindowLevel.floating",
+        "summary": "Keeps the window above standard windows even when it is not key, suiting HUDs, palettes, and pickers."
+      }
+    ],
     "code": "Window(\"Now Playing\", id: \"nowPlaying\") {\n    NowPlayingHUD()\n}\n.windowLevel(.floating)",
     "discussion": "It backs the .windowLevel() scene modifier; .floating keeps a panel above standard document windows, which suits timers, HUDs, and picture-in-picture-style companions. Elevated windows still participate normally in the app's activation and key-window logic.",
     "kind": "Type",
