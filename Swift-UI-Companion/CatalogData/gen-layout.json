@@ -1,5 +1,17 @@
 [
   {
+    "children": [
+      {
+        "code": "VStack(alignment: .leading) {\n    Text(\"Heading\")\n    Text(\"Indented body\")\n        .alignmentGuide(.leading) { d in d[.leading] - 24 }\n}",
+        "name": ".alignmentGuide(_ g: HorizontalAlignment, computeValue:)",
+        "summary": "Overrides a horizontal guide such as .leading or .center, changing how a VStack or the horizontal half of an Alignment positions this view."
+      },
+      {
+        "code": "HStack(alignment: .firstTextBaseline) {\n    Image(systemName: \"quote.opening\")\n        .alignmentGuide(.firstTextBaseline) { d in d[.bottom] }\n    Text(quote)\n}",
+        "name": ".alignmentGuide(_ g: VerticalAlignment, computeValue:)",
+        "summary": "Overrides a vertical guide such as .top or .firstTextBaseline, changing how an HStack lines this view up with its neighbors."
+      }
+    ],
     "code": "VStack(alignment: .leading) {\n    Text(\"Title\")\n    Text(\"Hanging detail\")\n        .alignmentGuide(.leading) { d in d[.leading] - 16 }\n}",
     "discussion": "The closure receives the view's ViewDimensions and returns the guide's new position in the view's own coordinates, so returning d[.leading] - 16 effectively outdents the view relative to its stack. Combined with custom AlignmentID guides it can align views that live in completely different branches of a container.",
     "kind": "Modifier",
@@ -28,6 +40,18 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "cardStack.backgroundPreferenceValue(HeightKey.self) { height in\n    Rectangle()\n        .fill(.quaternary)\n        .frame(height: height)\n}",
+        "name": ".backgroundPreferenceValue(_:_:)",
+        "summary": "Builds the background from the merged preference value and centers it behind the view."
+      },
+      {
+        "code": "canvas.backgroundPreferenceValue(WidthKey.self, alignment: .topLeading) { width in\n    Rectangle()\n        .fill(.yellow.opacity(0.3))\n        .frame(width: width, height: 4)\n}",
+        "name": ".backgroundPreferenceValue(_:alignment:_:)",
+        "summary": "The 2022 overload adds an alignment so the generated background can be pinned to an edge or corner instead of centered."
+      }
+    ],
     "code": "tabBar.backgroundPreferenceValue(SelectionKey.self) { anchor in\n    GeometryReader { proxy in\n        if let anchor {\n            Capsule()\n                .fill(.tint.opacity(0.25))\n                .frame(width: proxy[anchor].width)\n                .offset(x: proxy[anchor].minX)\n        }\n    }\n}",
     "discussion": "The builder runs with the preference collected from this view's descendants, which lets a container draw behind itself based on where its children reported being — a moving selection pill behind tab labels, for instance. Pair it with a GeometryReader inside to resolve any anchors in the value.",
     "kind": "Modifier",
@@ -82,6 +106,23 @@
     "wwdcYear": 2024
   },
   {
+    "children": [
+      {
+        "code": "ScrollView {\n    LazyVStack { rows }\n}\n.contentMargins(20)",
+        "name": ".contentMargins(_ length: CGFloat, for:)",
+        "summary": "Applies one uniform margin to every edge of the scrollable content, with an optional placement targeting the content or the indicators."
+      },
+      {
+        "code": "ScrollView(.horizontal) {\n    LazyHStack(spacing: 16) { cards }\n}\n.contentMargins(.horizontal, 24, for: .scrollContent)",
+        "name": ".contentMargins(_ edges: Edge.Set, _ length: CGFloat?, for:)",
+        "summary": "Insets only the named edges by a single amount, which is how you widen horizontal margins while leaving the top and bottom alone."
+      },
+      {
+        "code": "List(items) { ItemRow(item: $0) }\n    .contentMargins(\n        .all,\n        EdgeInsets(top: 60, leading: 0, bottom: 20, trailing: 0),\n        for: .scrollContent)",
+        "name": ".contentMargins(_ edges: Edge.Set, _ insets: EdgeInsets, for:)",
+        "summary": "Takes a full EdgeInsets when each side needs a different amount, such as a taller top margin under a floating header."
+      }
+    ],
     "code": "ScrollView {\n    settingsForm\n}\n.contentMargins(.horizontal, 40, for: .scrollContent)",
     "discussion": "Because the margin lives inside the scroll view, content still scrolls edge-to-edge under it rather than being clipped at the inset. The ContentMarginPlacement parameter is what distinguishes this from padding: you can widen readable content on large displays while leaving scroll indicators pinned to the true edge.",
     "kind": "Modifier",
@@ -96,6 +137,18 @@
     "wwdcYear": 2023
   },
   {
+    "children": [
+      {
+        "code": "HStack {\n    Text(title)\n    Spacer()\n}\n.contentShape(Rectangle())\n.onTapGesture { select(item) }",
+        "name": ".contentShape(_:eoFill:)",
+        "summary": "Changes only the hit-testing region, the everyday form that makes the whitespace inside a row respond to taps."
+      },
+      {
+        "code": "AvatarView(user: user)\n    .contentShape(.contextMenuPreview, Circle())\n    .contextMenu {\n        Button(\"Message\") { message(user) }\n    }",
+        "name": ".contentShape(_:_:eoFill:)",
+        "summary": "Names a ContentShapeKinds set first so the shape governs a drag lift preview, context menu platter, or hover effect rather than hit testing."
+      }
+    ],
     "code": "HStack {\n    Image(systemName: \"star\")\n    Spacer()\n    Text(\"Favorite\")\n}\n.contentShape(Rectangle())\n.onTapGesture { toggleFavorite() }",
     "discussion": "Its most common job is making an entire row tappable when the row contains a Spacer, since transparent regions do not receive touches by default. The shape does not affect drawing at all, which separates it cleanly from clipShape.",
     "kind": "Modifier",
@@ -110,6 +163,18 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "ZStack { pieces }\n    .coordinateSpace(.named(\"board\"))\n    .gesture(\n        DragGesture(coordinateSpace: .named(\"board\"))\n            .onChanged { location = $0.location }\n    )",
+        "name": ".coordinateSpace(_:)",
+        "summary": "The 2023 form takes a NamedCoordinateSpace, so the same typed value can be handed to GeometryProxy.frame(in:) and DragGesture."
+      },
+      {
+        "code": "// Pre-iOS 17 style\nVStack { rows }\n    .coordinateSpace(name: \"list\")\nGeometryReader { proxy in\n    Color.clear.preference(key: OffsetKey.self,\n                           value: proxy.frame(in: .named(\"list\")).minY)\n}",
+        "name": ".coordinateSpace(name:)",
+        "summary": "The original 2019 spelling accepting any Hashable name; it still compiles but is deprecated in favor of the typed overload."
+      }
+    ],
     "code": "ZStack {\n    boardContent\n}\n.coordinateSpace(.named(\"board\"))\n.gesture(\n    DragGesture(coordinateSpace: .named(\"board\"))\n        .onChanged { dragPoint = $0.location }\n)",
     "discussion": "Descendant GeometryReaders can then call frame(in: .named(...)) and drag gestures can produce locations relative to that ancestor, which is far more robust than converting from global coordinates by hand. Since 2023 the modifier takes a typed CoordinateSpaceProtocol value rather than a bare name string.",
     "kind": "Modifier",
@@ -206,6 +271,18 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": "ScrollView { content }\n    .onGeometryChange(for: CGFloat.self) { proxy in\n        proxy.size.width\n    } action: { width in\n        columns = max(1, Int(width / 180))\n    }",
+        "name": ".onGeometryChange(for:of:action: (T) -> Void)",
+        "summary": "Receives only the new derived value and back-deploys to iOS 16 and macOS 13, so it is the version most apps can adopt today."
+      },
+      {
+        "code": "Text(body)\n    .onGeometryChange(for: CGFloat.self) { proxy in\n        proxy.frame(in: .scrollView).minY\n    } action: { oldY, newY in\n        isScrollingUp = newY > oldY\n    }",
+        "name": ".onGeometryChange(for:of:action: (T, T) -> Void)",
+        "summary": "Available from iOS 18 and macOS 15, this variant hands over both the previous and current values so you can react to the direction of a change."
+      }
+    ],
     "code": "Text(article.body)\n    .onGeometryChange(for: CGSize.self) { proxy in\n        proxy.size\n    } action: { newSize in\n        columnWidth = newSize.width\n    }",
     "discussion": "You transform the GeometryProxy into a small Equatable value in the of closure, and the action only fires when that value actually changes, which avoids the update storms naive geometry observation causes. This is the modern replacement for the GeometryReader-inside-background trick for measuring views.",
     "kind": "Modifier",
@@ -232,6 +309,18 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "form.overlayPreferenceValue(ErrorCountKey.self) { count in\n    if count > 0 {\n        Text(\"\\(count) issues\").font(.caption).padding(6)\n            .background(.red, in: Capsule())\n    }\n}",
+        "name": ".overlayPreferenceValue(_:_:)",
+        "summary": "Draws the built overlay centered over the view using whatever the preference key currently holds."
+      },
+      {
+        "code": "board.overlayPreferenceValue(FocusKey.self, alignment: .topTrailing) { name in\n    if let name {\n        Text(name).font(.caption2).padding(4)\n            .background(.thinMaterial)\n    }\n}",
+        "name": ".overlayPreferenceValue(_:alignment:_:)",
+        "summary": "A 2022 addition with an alignment argument so the overlay can be anchored to a corner or edge."
+      }
+    ],
     "code": "chartArea.overlayPreferenceValue(MarkerKey.self) { anchor in\n    GeometryReader { proxy in\n        if let anchor {\n            let rect = proxy[anchor]\n            Circle()\n                .frame(width: 8, height: 8)\n                .position(x: rect.midX, y: rect.minY)\n        }\n    }\n}",
     "discussion": "It is the front-side twin of backgroundPreferenceValue: descendants publish geometry or metadata, and the overlay draws on top using it — callout arrows, badges, or debug frames. Anchors in the value resolve through a GeometryProxy into the overlay's coordinates.",
     "kind": "Modifier",
@@ -274,6 +363,18 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "ScrollView { messages }\n    .safeAreaBar(edge: .bottom) {\n        ComposerField(text: $draft)\n            .padding(.horizontal)\n    }",
+        "name": ".safeAreaBar(edge: VerticalEdge, alignment:spacing:content:)",
+        "summary": "Docks accessory content above or below the view, aligning it horizontally within the bar's width."
+      },
+      {
+        "code": "CanvasView()\n    .safeAreaBar(edge: .trailing, alignment: .top, spacing: 8) {\n        ToolPalette()\n            .padding(8)\n    }",
+        "name": ".safeAreaBar(edge: HorizontalEdge, alignment:spacing:content:)",
+        "summary": "Docks a bar at the leading or trailing side, aligning it vertically, which suits tool strips beside a canvas."
+      }
+    ],
     "code": "MapCanvas()\n    .safeAreaBar(edge: .bottom) {\n        SearchPill()\n            .padding(.horizontal)\n    }",
     "discussion": "It behaves like safeAreaInset but participates in the 2025 design language: scrollable content underneath shows through the scroll edge effect rather than being hard-clipped at the bar. Use it for floating search fields or playback bars that should feel like system chrome.",
     "kind": "Modifier",
@@ -288,6 +389,23 @@
     "wwdcYear": 2025
   },
   {
+    "children": [
+      {
+        "code": "ScrollView {\n    feed\n}\n.safeAreaPadding(16)",
+        "name": ".safeAreaPadding(_ length: CGFloat)",
+        "summary": "Extends the safe area uniformly on all four sides by one amount."
+      },
+      {
+        "code": "ScrollView(.horizontal) {\n    LazyHStack(spacing: 12) { cards }\n}\n.safeAreaPadding(.horizontal, 20)",
+        "name": ".safeAreaPadding(_ edges: Edge.Set, _ length: CGFloat?)",
+        "summary": "Restricts the inset to chosen edges, falling back to the platform amount when you omit the length."
+      },
+      {
+        "code": "MapView()\n    .safeAreaPadding(\n        EdgeInsets(top: 0, leading: 12, bottom: 80, trailing: 12))",
+        "name": ".safeAreaPadding(_ insets: EdgeInsets)",
+        "summary": "Applies a distinct inset per edge from an EdgeInsets value."
+      }
+    ],
     "code": "ScrollView(.horizontal) {\n    LazyHStack(spacing: 12) { cards }\n}\n.safeAreaPadding(.horizontal, 20)",
     "discussion": "Unlike plain padding, the padded region remains part of the view — a child that calls ignoresSafeArea can extend back into it, which regular padding never allows. It is particularly useful on horizontal scroll views, where it insets the resting content without clipping items mid-scroll.",
     "kind": "Modifier",
@@ -330,6 +448,18 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "VStack(alignment: .leading) {\n    header\n    content\n}\n.scenePadding(.horizontal)",
+        "name": ".scenePadding(_ edges:)",
+        "summary": "Applies the platform's default scene margin to the given edges, all of them when unspecified."
+      },
+      {
+        "code": "List(items) { row($0) }\n    .scenePadding(.navigationBar, edges: .horizontal)",
+        "name": ".scenePadding(_:edges:)",
+        "summary": "The 2023 overload takes a ScenePadding style, letting you request the navigation-bar-aligned inset instead of the minimum margin."
+      }
+    ],
     "code": "VStack(alignment: .leading) {\n    Text(\"Now Playing\").font(.headline)\n    trackList\n}\n.scenePadding(.horizontal)",
     "discussion": "The amount matches where the system would place content relative to the window or screen edge, so the same code lands correctly on macOS windows, iOS screens, and watchOS scenes. Use it at the outer edges of a scene's content where a literal 16 would be a guess.",
     "kind": "Modifier",
@@ -384,6 +514,28 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "let badgeCorner = Alignment(horizontal: .trailing, vertical: .top)\nZStack(alignment: badgeCorner) {\n    Avatar()\n    BadgeDot()\n}",
+        "name": "Alignment(horizontal:vertical:)",
+        "summary": "Composes any horizontal and vertical guide pair, including custom AlignmentID guides, into one two-dimensional value."
+      },
+      {
+        "code": "Text(\"Loading…\")\n    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)",
+        "name": "Alignment.center",
+        "summary": "The default for most containers, centering children on both axes."
+      },
+      {
+        "code": "Color.clear\n    .overlay(alignment: .topLeading) {\n        Text(\"DRAFT\").font(.caption.bold()).padding(4)\n    }",
+        "name": "Alignment.topLeading",
+        "summary": "Pins content to the top-leading corner, which swaps sides automatically for right-to-left layouts."
+      },
+      {
+        "code": "Text(\"42\")\n    .font(.system(size: 64))\n    .overlay(alignment: .centerFirstTextBaseline) {\n        Text(\"pts\").font(.caption)\n    }",
+        "name": "Alignment.centerFirstTextBaseline",
+        "summary": "One of the 2022 text-aware combinations, centering horizontally while lining up on the first text baseline."
+      }
+    ],
     "code": "ZStack(alignment: Alignment(horizontal: .trailing, vertical: .bottom)) {\n    Color.gray.opacity(0.2)\n    Text(\"Badge\")\n        .padding(6)\n}\n.frame(width: 200, height: 120)",
     "discussion": "Static values such as .center, .topLeading, and .bottomTrailing cover the common cases, and you can build one from any HorizontalAlignment and VerticalAlignment pair, including custom guides. Containers use it to line up matching guides across their children rather than positioning by raw coordinates.",
     "kind": "Type",
@@ -417,6 +569,21 @@
         "code": ".anchorPreference(key: BoundsKey.self, value: .bounds) { $0 }",
         "name": "Anchor.Source",
         "summary": "Describes which geometry to capture — .bounds, a .point, or a .rect — when creating an anchor preference."
+      },
+      {
+        "code": "Text(tab.title)\n    .anchorPreference(key: TabBoundsKey.self, value: .bounds) {\n        [tab.id: $0]\n    }",
+        "name": "Anchor.Source.bounds",
+        "summary": "Captures the view's entire frame as an Anchor<CGRect>, the usual source for selection indicators."
+      },
+      {
+        "code": "Circle()\n    .frame(width: 12, height: 12)\n    .anchorPreference(key: PinKey.self,\n                      value: .point(CGPoint(x: 6, y: 12))) { $0 }",
+        "name": "Anchor.Source.point(_:)",
+        "summary": "Captures one CGPoint expressed in the view's local coordinates as an Anchor<CGPoint>."
+      },
+      {
+        "code": "NodeView(node: node)\n    .anchorPreference(key: PortsKey.self, value: .unitPoint(.trailing)) {\n        [node.id: $0]\n    }",
+        "name": "Anchor.Source.unitPoint(_:)",
+        "summary": "Captures a point given as a UnitPoint fraction, so .center or .trailing resolve correctly at any size."
       }
     ],
     "code": "struct BoundsKey: PreferenceKey {\n    static var defaultValue: Anchor<CGRect>? = nil\n    static func reduce(value: inout Anchor<CGRect>?,\n                       nextValue: () -> Anchor<CGRect>?) {\n        value = value ?? nextValue()\n    }\n}",
@@ -433,6 +600,28 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "let tilt = Angle(degrees: 12)\nImage(\"polaroid\")\n    .rotationEffect(tilt)",
+        "name": "Angle(degrees:)",
+        "summary": "Creates an angle from a degree measurement; the radians property converts on read."
+      },
+      {
+        "code": "Image(systemName: \"arrow.up\")\n    .rotationEffect(.degrees(heading))",
+        "name": "Angle.degrees(_:)",
+        "summary": "Static factory that reads naturally inline wherever an Angle argument is expected."
+      },
+      {
+        "code": "let sweep = atan2(dy, dx)\nPath { p in\n    p.addArc(center: center, radius: 40,\n             startAngle: .radians(0), endAngle: .radians(sweep),\n             clockwise: false)\n}",
+        "name": "Angle.radians(_:)",
+        "summary": "Static factory for values already in radians, typical when the number came out of trigonometry."
+      },
+      {
+        "code": "@State private var spin: Angle = .zero\n\nImage(systemName: \"arrow.clockwise\")\n    .rotationEffect(spin)\n    .onTapGesture { withAnimation { spin = .degrees(360) } }",
+        "name": "Angle.zero",
+        "summary": "The no-rotation constant, handy as the resting state of an animated rotation."
+      }
+    ],
     "code": "Image(systemName: \"location.north.fill\")\n    .rotationEffect(Angle.degrees(bearing))\nPath { p in\n    p.addArc(center: CGPoint(x: 60, y: 60), radius: 48,\n             startAngle: .radians(0), endAngle: .degrees(270),\n             clockwise: false)\n}",
     "discussion": "Construct it with .degrees() or .radians() and read either representation; rotation modifiers, arcs in Path, and angular gradients all accept it. It conforms to Animatable, so interpolating between two angles during an animation works without extra plumbing.",
     "kind": "Type",
@@ -462,6 +651,11 @@
         "code": "AnyLayout(ZStackLayout(alignment: .bottomTrailing))",
         "name": "ZStackLayout",
         "summary": "The depth stack packaged as a Layout value for use with AnyLayout."
+      },
+      {
+        "code": "let layout = AnyLayout(GridLayout(alignment: .leading,\n                                  horizontalSpacing: 12,\n                                  verticalSpacing: 8))\nlayout {\n    GridRow { Text(\"Name\"); Text(person.name) }\n    GridRow { Text(\"Email\"); Text(person.email) }\n}",
+        "name": "GridLayout",
+        "summary": "The Grid container's algorithm as a Layout value, so a layout swap can move to a row-and-column arrangement without rebuilding children."
       }
     ],
     "code": "let layout = isWide\n    ? AnyLayout(HStackLayout(spacing: 12))\n    : AnyLayout(VStackLayout(alignment: .leading))\nlayout {\n    ChartPane()\n    DetailPane()\n}",
@@ -492,6 +686,28 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "ForEach(subviews: content) { subview in\n    subview\n        .font(subview.containerValues.isSectionHeader ? .headline : .body)\n}",
+        "name": "isSectionHeader",
+        "summary": "True on a subview that came from a Section's header builder, letting a custom container style headers distinctly."
+      },
+      {
+        "code": "ForEach(subviews: content) { subview in\n    if subview.containerValues.isSectionFooter {\n        subview.foregroundStyle(.secondary)\n    } else {\n        subview\n    }\n}",
+        "name": "isSectionFooter",
+        "summary": "True on a subview produced by a Section's footer builder."
+      },
+      {
+        "code": "ForEach(subviews: content) { subview in\n    let page = subview.containerValues.tag(for: Page.self)\n    subview\n        .opacity(page == selectedPage ? 1 : 0.4)\n}",
+        "name": "tag(for:)",
+        "summary": "Reads back a value the child attached with .tag(_:), typed by the type you request, or nil when none matches."
+      },
+      {
+        "code": "Group(subviews: content) { subviews in\n    let selected = subviews.first {\n        $0.containerValues.hasTag(selection)\n    }\n    selected?.frame(maxWidth: .infinity)\n}",
+        "name": "hasTag(_:)",
+        "summary": "Checks whether the child's tag equals a specific value, a convenient way to locate the selected item among subviews."
+      }
+    ],
     "code": "extension ContainerValues {\n    @Entry var isFeatured: Bool = false\n}\n\nForEach(subviews: content) { subview in\n    subview\n        .padding(subview.containerValues.isFeatured ? 16 : 4)\n}",
     "discussion": "Unlike preferences, these values do not bubble up the whole tree; they exist for a custom container to read from each Subview it lays out, which makes them ideal for per-card flags or placement hints. You extend the type with the @Entry macro and set values via the .containerValue() modifier or a custom convenience.",
     "kind": "Type",
@@ -506,6 +722,23 @@
     "wwdcYear": 2024
   },
   {
+    "children": [
+      {
+        "code": "ScrollView { rows }\n    .contentMargins(.vertical, 12, for: .automatic)",
+        "name": "ContentMarginPlacement.automatic",
+        "summary": "Applies the margin to both the scrolled content and the indicators, the default when no placement is given."
+      },
+      {
+        "code": "ScrollView { articleBody }\n    .contentMargins(.horizontal, 40, for: .scrollContent)",
+        "name": "ContentMarginPlacement.scrollContent",
+        "summary": "Insets only what scrolls, so indicators keep hugging the container edge."
+      },
+      {
+        "code": "ScrollView { rows }\n    .contentMargins(.trailing, 8, for: .scrollIndicators)",
+        "name": "ContentMarginPlacement.scrollIndicators",
+        "summary": "Moves only the scroll indicators inward, useful when a floating control overlaps the trailing edge."
+      }
+    ],
     "code": "ScrollView {\n    articleBody\n}\n.contentMargins(.horizontal, 24, for: ContentMarginPlacement.scrollContent)",
     "discussion": "With .scrollContent the margin insets what scrolls without moving the scroll indicators, which keeps indicators hugging the container edge on wide layouts. The .automatic placement applies to everything, and .scrollIndicators targets only the bars.",
     "kind": "Type",
@@ -532,6 +765,28 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "HStack { Text(title); Spacer() }\n    .contentShape(.interaction, Rectangle())\n    .onTapGesture { open() }",
+        "name": "ContentShapeKinds.interaction",
+        "summary": "The hit-testing kind, equivalent to calling the plain contentShape modifier."
+      },
+      {
+        "code": "PhotoCell(photo: photo)\n    .contentShape(.dragPreview, RoundedRectangle(cornerRadius: 12))\n    .draggable(photo)",
+        "name": "ContentShapeKinds.dragPreview",
+        "summary": "Shapes the lifted preview shown while the view is being dragged."
+      },
+      {
+        "code": "AvatarView(user: user)\n    .contentShape(.contextMenuPreview, Circle())\n    .contextMenu { Button(\"Block\") { block(user) } }",
+        "name": "ContentShapeKinds.contextMenuPreview",
+        "summary": "Shapes the platter that appears behind the view when a context menu opens."
+      },
+      {
+        "code": "Image(systemName: \"gear\")\n    .padding(8)\n    .contentShape(.hoverEffect, Circle())\n    .hoverEffect(.highlight)",
+        "name": "ContentShapeKinds.hoverEffect",
+        "summary": "Shapes the pointer hover highlight on iPadOS and visionOS."
+      }
+    ],
     "code": "ThumbnailView(item: item)\n    .contentShape(ContentShapeKinds.dragPreview,\n                  RoundedRectangle(cornerRadius: 12))\n    .draggable(item)",
     "discussion": "The plain .contentShape() modifier only affects hit testing; passing a kind lets the same idea reshape the lift preview of a drag, the plate behind a context menu, or a pointer hover effect. Kinds are an OptionSet, so one call can cover several behaviors.",
     "kind": "Type",
@@ -546,6 +801,23 @@
     "wwdcYear": 2021
   },
   {
+    "children": [
+      {
+        "code": "GeometryReader { proxy in\n    let top = proxy.frame(in: .global).minY\n    Color.clear.preference(key: TopKey.self, value: top)\n}",
+        "name": "CoordinateSpace.global",
+        "summary": "Positions relative to the whole window or screen."
+      },
+      {
+        "code": "GeometryReader { proxy in\n    let center = CGPoint(x: proxy.frame(in: .local).midX,\n                         y: proxy.frame(in: .local).midY)\n    Circle().frame(width: 10).position(center)\n}",
+        "name": "CoordinateSpace.local",
+        "summary": "Positions relative to the view's own bounds, so the origin is always zero."
+      },
+      {
+        "code": "DragGesture(coordinateSpace: .named(\"canvas\"))\n    .onChanged { value in\n        cursor = value.location\n    }",
+        "name": "CoordinateSpace.named(_:)",
+        "summary": "Positions relative to an ancestor that established a matching name via coordinateSpace."
+      }
+    ],
     "code": "GeometryReader { proxy in\n    let onScreen = proxy.frame(in: CoordinateSpace.global)\n    let inBoard = proxy.frame(in: .named(\"board\"))\n    Text(\"y: \\(Int(onScreen.minY)), boardY: \\(Int(inBoard.minY))\")\n}",
     "discussion": "GeometryProxy.frame(in:) and DragGesture locations are interpreted relative to whichever space you pass. The .named case pairs with the .coordinateSpace() modifier on an ancestor, giving you positions relative to a container of your choosing rather than the screen or the immediate view.",
     "kind": "Type",
@@ -564,6 +836,21 @@
         "code": "boardView\n    .coordinateSpace(.named(\"board\"))",
         "name": "NamedCoordinateSpace",
         "summary": "A coordinate space identified by a hashable name, established with the .coordinateSpace() modifier."
+      },
+      {
+        "code": "GeometryReader { proxy in\n    let onScreen = proxy.frame(in: .global)\n    Text(\"\\(Int(onScreen.minY))\")\n}",
+        "name": "GlobalCoordinateSpace",
+        "summary": "The typed stand-in for the screen-level frame, reached through the .global static."
+      },
+      {
+        "code": "GeometryReader { proxy in\n    let bounds = proxy.frame(in: .local)\n    Rectangle().path(in: bounds.insetBy(dx: 4, dy: 4))\n}",
+        "name": "LocalCoordinateSpace",
+        "summary": "The typed stand-in for the view's own bounds, reached through the .local static."
+      },
+      {
+        "code": "GeometryReader { proxy in\n    let x = proxy.frame(in: .scrollView(axis: .horizontal)).minX\n    Color.clear.onChange(of: x) { _, new in parallax = new / 4 }\n}",
+        "name": ".scrollView(axis:)",
+        "summary": "Resolves to the nearest enclosing scroll view along one axis, so nested horizontal and vertical scrollers can be measured separately."
       }
     ],
     "code": "ScrollView {\n    GeometryReader { proxy in\n        let visible = proxy.frame(in: .scrollView)\n        Color.clear\n            .onChange(of: visible) { _, rect in fade = rect.minY < 0 }\n    }\n}",
@@ -585,6 +872,16 @@
         "code": ".padding(Edge.Set.horizontal, 16)",
         "name": "Edge.Set",
         "summary": "An OptionSet of edges with conveniences like .all, .horizontal, and .vertical."
+      },
+      {
+        "code": "Text(caption)\n    .padding(.horizontal, 20)",
+        "name": "Edge.Set.horizontal",
+        "summary": "The leading and trailing edges together, the most common partial set for padding."
+      },
+      {
+        "code": "func inset(from edge: Edge) -> some View {\n    content.padding(Edge.Set(edge), 12)\n}",
+        "name": "Edge.Set(_:)",
+        "summary": "Converts a single Edge into a one-member set, useful when bridging from an Edge value you already hold."
       }
     ],
     "code": "DetailCard()\n    .padding([.leading, .trailing], 24)\n    .transition(.move(edge: Edge.bottom))",
@@ -601,6 +898,23 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "let rowInsets = EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 12)\nList(items) { item in\n    ItemRow(item: item)\n        .listRowInsets(rowInsets)\n}",
+        "name": "EdgeInsets(top:leading:bottom:trailing:)",
+        "summary": "The memberwise initializer, using leading and trailing so the value mirrors for right-to-left text."
+      },
+      {
+        "code": "var insets = EdgeInsets()\nif showsSidebar { insets.leading = 240 }\ncontent.padding(insets)",
+        "name": "EdgeInsets()",
+        "summary": "Creates all-zero insets, the usual starting point when insets are built up conditionally."
+      },
+      {
+        "code": "let appKitInsets = NSEdgeInsets(top: 8, left: 12, bottom: 8, right: 12)\nText(note)\n    .padding(EdgeInsets(appKitInsets))",
+        "name": "EdgeInsets(_ nsEdgeInsets:)",
+        "summary": "Bridges an AppKit NSEdgeInsets on macOS, mapping left and right onto leading and trailing."
+      }
+    ],
     "code": "Text(\"Pull quote\")\n    .padding(EdgeInsets(top: 8, leading: 20, bottom: 8, trailing: 12))",
     "discussion": "Using leading and trailing instead of left and right means the same value flips correctly under right-to-left layout. It is the currency for .padding(), .contentMargins(), list row insets, and the contentInsets reported by scroll geometry.",
     "kind": "Type",
@@ -615,6 +929,28 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "GeometryReader { proxy in\n    let visible = proxy.frame(in: .scrollView)\n    Color.clear\n        .onChange(of: visible.minY) { _, y in offset = y }\n}",
+        "name": "frame(in:)",
+        "summary": "Returns the reader's frame converted into the requested coordinate space: global, local, a named ancestor, or the enclosing scroll view."
+      },
+      {
+        "code": "GeometryReader { proxy in\n    HeroImage()\n        .padding(.top, -proxy.safeAreaInsets.top)\n}",
+        "name": "safeAreaInsets",
+        "summary": "The safe area insets that apply to the reader's content, useful for pushing a full-bleed background under system bars."
+      },
+      {
+        "code": "GeometryReader { proxy in\n    if let anchor = selectedAnchor {\n        let rect = proxy[anchor]\n        Capsule().frame(width: rect.width, height: 3)\n            .offset(x: rect.minX, y: rect.maxY)\n    }\n}",
+        "name": "subscript(_ anchor:)",
+        "summary": "Resolves an Anchor collected through preferences into a CGRect or CGPoint in the reader's local space."
+      },
+      {
+        "code": "GeometryReader { proxy in\n    if let board = proxy.bounds(of: .named(\"board\")) {\n        Text(\"Board is \\(Int(board.width)) wide\")\n    }\n}",
+        "name": "bounds(of:)",
+        "summary": "Looks up the rectangle of a named coordinate space relative to the reader, returning nil when no such ancestor exists."
+      }
+    ],
     "code": "GeometryReader { proxy in\n    let side = min(proxy.size.width, proxy.size.height)\n    Circle()\n        .frame(width: side, height: side)\n        .position(x: proxy.frame(in: .local).midX,\n                  y: proxy.frame(in: .local).midY)\n}",
     "discussion": "Its frame(in:) method converts the proxy's bounds into any coordinate space, and the anchor subscript resolves Anchor values collected through preferences into local coordinates. Since 2023 it also offers bounds(of:) for looking up the rect of a named coordinate space directly.",
     "kind": "Type",
@@ -644,6 +980,11 @@
         "code": "GridItem(.adaptive(minimum: 80, maximum: 120))",
         "name": "GridItem.Size.adaptive()",
         "summary": "Packs as many same-sized cells as fit into the space of a single grid item."
+      },
+      {
+        "code": "let columns = [\n    GridItem(.flexible(), spacing: 4, alignment: .leading),\n    GridItem(.fixed(80), alignment: .trailing)\n]\nLazyVGrid(columns: columns) { cells }",
+        "name": "GridItem(_:spacing:alignment:)",
+        "summary": "Builds one track, optionally overriding the grid-wide spacing after it and the alignment of cells within it."
       }
     ],
     "code": "let columns = [\n    GridItem(.fixed(44)),\n    GridItem(.flexible(minimum: 60)),\n    GridItem(.adaptive(minimum: 80), spacing: 8)\n]\nLazyVGrid(columns: columns) {\n    ForEach(0..<12, id: \\.self) { Text(\"Cell \\($0)\") }\n}",
@@ -673,6 +1014,28 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": "extension HorizontalAlignment {\n    static let controlStart = HorizontalAlignment(ControlStart.self)\n}",
+        "name": "HorizontalAlignment(_:)",
+        "summary": "Wraps an AlignmentID type to mint a custom horizontal guide."
+      },
+      {
+        "code": "VStack(alignment: .leading, spacing: 4) {\n    Text(\"Title\").font(.headline)\n    Text(\"Subtitle\").font(.subheadline)\n}",
+        "name": "HorizontalAlignment.leading",
+        "summary": "The guide at the start edge, resolving to left or right according to the layout direction."
+      },
+      {
+        "code": "Label(item.title, systemImage: \"folder\")\n    .alignmentGuide(.listRowSeparatorLeading) { d in\n        d[.leading] + 32\n    }",
+        "name": "HorizontalAlignment.listRowSeparatorLeading",
+        "summary": "A 2022 guide that lets a row move where its separator begins, typically to align it with the text after an icon."
+      },
+      {
+        "code": "ZStack(alignment: HorizontalAlignment.trailing.combined(with: .bottom)) {\n    Poster()\n    RatingBadge()\n}",
+        "name": "combined(with:)",
+        "summary": "Pairs this horizontal guide with a vertical one to form an Alignment inline."
+      }
+    ],
     "code": "extension HorizontalAlignment {\n    private enum IconCenter: AlignmentID {\n        static func defaultValue(in context: ViewDimensions) -> CGFloat {\n            context[HorizontalAlignment.center]\n        }\n    }\n    static let iconCenter = HorizontalAlignment(IconCenter.self)\n}",
     "discussion": "Beyond .leading, .center, and .trailing, you can define your own guide by conforming an identifier type to AlignmentID, which lets unrelated views line up on a shared feature such as an icon's midpoint. Views customize their reported value for any guide with .alignmentGuide().",
     "kind": "Type",
@@ -713,6 +1076,23 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "struct Crosshair: Shape {\n    var layoutDirectionBehavior: LayoutDirectionBehavior { .fixed }\n    func path(in rect: CGRect) -> Path { crosshairPath(rect) }\n}",
+        "name": "LayoutDirectionBehavior.fixed",
+        "summary": "Draws the shape identically in both directions, right for symmetric artwork or glyph-like paths."
+      },
+      {
+        "code": "struct BackChevron: Shape {\n    var layoutDirectionBehavior: LayoutDirectionBehavior { .mirrors }\n    func path(in rect: CGRect) -> Path { chevronPath(rect) }\n}",
+        "name": "LayoutDirectionBehavior.mirrors",
+        "summary": "Flips the shape horizontally under right-to-left layout, assuming it was drawn for left-to-right."
+      },
+      {
+        "code": "struct RTLAuthoredArrow: Shape {\n    var layoutDirectionBehavior: LayoutDirectionBehavior {\n        .mirrors(in: .leftToRight)\n    }\n    func path(in rect: CGRect) -> Path { arrowPath(rect) }\n}",
+        "name": "LayoutDirectionBehavior.mirrors(in:)",
+        "summary": "Mirrors only when the environment's direction matches the given one; .mirrors is shorthand for .mirrors(in: .rightToLeft), so pass .leftToRight for artwork authored right-to-left."
+      }
+    ],
     "code": "struct ArrowShape: Shape {\n    var layoutDirectionBehavior: LayoutDirectionBehavior { .mirrors }\n    func path(in rect: CGRect) -> Path {\n        var p = Path()\n        p.move(to: CGPoint(x: rect.minX, y: rect.midY))\n        p.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))\n        return p\n    }\n}",
     "discussion": "Shapes draw in a fixed coordinate space by default, so a directional path like an arrow needs to opt in via the layoutDirectionBehavior property; .mirrors flips it for right-to-left locales while .fixed keeps it as drawn. The .mirrors(in:) case lets you name the direction the original artwork was authored for.",
     "kind": "Type",
@@ -739,6 +1119,28 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": "let widths = subviews.map {\n    $0.sizeThatFits(.unspecified).width\n}\nlet total = widths.reduce(0, +) + spacing * CGFloat(subviews.count - 1)",
+        "name": "sizeThatFits(_:)",
+        "summary": "Asks the child how large it wants to be for a proposal, the measurement call used from a layout's sizeThatFits."
+      },
+      {
+        "code": "let dims = subview.dimensions(in: ProposedViewSize(width: 200, height: nil))\nlet baselineOffset = dims[.firstTextBaseline]",
+        "name": "dimensions(in:)",
+        "summary": "Like sizeThatFits but returns ViewDimensions, so you can also read the child's alignment guides at the proposed size."
+      },
+      {
+        "code": "subview.place(\n    at: CGPoint(x: bounds.midX, y: bounds.minY),\n    anchor: .top,\n    proposal: ProposedViewSize(width: bounds.width, height: nil))",
+        "name": "place(at:anchor:proposal:)",
+        "summary": "Assigns the child's final position, with the anchor choosing which point of the child lands on the coordinate."
+      },
+      {
+        "code": "let flex = subview[Flex.self]\nlet width = available * flex / totalFlex",
+        "name": "subscript(_ key:)",
+        "summary": "Reads a custom LayoutValueKey value the child attached with layoutValue(key:value:), or the key's default."
+      }
+    ],
     "code": "for (subview, origin) in zip(subviews, origins) {\n    let size = subview.sizeThatFits(\n        ProposedViewSize(width: 120, height: nil))\n    subview.place(at: origin, anchor: .topLeading,\n                  proposal: ProposedViewSize(size))\n}",
     "discussion": "sizeThatFits(_:) and dimensions(in:) measure the child against a proposal, while place(at:anchor:proposal:) fixes its final position; a child left unplaced lands at the container's center. The proxy also surfaces the child's layout priority, its preferred ViewSpacing, and any custom values attached through a LayoutValueKey.",
     "kind": "Type",
@@ -779,6 +1181,18 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": "LazyVStack(pinnedViews: .sectionHeaders) {\n    Section(\"Today\") { todayRows }\n    Section(\"Earlier\") { earlierRows }\n}",
+        "name": "PinnedScrollableViews.sectionHeaders",
+        "summary": "Keeps each Section's header attached to the leading scroll edge until the next header arrives."
+      },
+      {
+        "code": "LazyVGrid(columns: columns, pinnedViews: [.sectionFooters]) {\n    Section {\n        photoCells\n    } footer: {\n        Text(\"\\(photos.count) photos\").padding()\n    }\n}",
+        "name": "PinnedScrollableViews.sectionFooters",
+        "summary": "Pins Section footers to the trailing scroll edge while their section is on screen."
+      }
+    ],
     "code": "LazyVStack(pinnedViews: PinnedScrollableViews.sectionHeaders) {\n    Section {\n        ForEach(items) { ItemRow(item: $0) }\n    } header: {\n        Text(\"Today\").font(.headline)\n    }\n}",
     "discussion": "Passing .sectionHeaders to a lazy container's pinnedViews parameter keeps each Section header stuck to the scroll edge until the next one pushes it off, and .sectionFooters does the same at the far edge. Only content inside Section header and footer builders participates.",
     "kind": "Type",
@@ -806,6 +1220,28 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "let shear = CGAffineTransform(a: 1, b: 0, c: 0.25, d: 1, tx: 0, ty: 0)\nText(\"Italic-ish\")\n    .projectionEffect(ProjectionTransform(shear))",
+        "name": "ProjectionTransform(_ m: CGAffineTransform)",
+        "summary": "Lifts a 2D affine transform into the 3x3 projection form."
+      },
+      {
+        "code": "var t = CATransform3DIdentity\nt.m34 = -1 / 500\nt = CATransform3DRotate(t, .pi / 6, 0, 1, 0)\nCardFace()\n    .projectionEffect(ProjectionTransform(t))",
+        "name": "ProjectionTransform(_ m: CATransform3D)",
+        "summary": "Flattens a Core Animation 3D transform, including its perspective terms, into a projection SwiftUI can apply."
+      },
+      {
+        "code": "let tilt = ProjectionTransform(CGAffineTransform(rotationAngle: 0.1))\nlet shift = ProjectionTransform(CGAffineTransform(translationX: 8, y: 0))\nview.projectionEffect(tilt.concatenating(shift))",
+        "name": "concatenating(_:)",
+        "summary": "Multiplies two projections so their effects apply in sequence."
+      },
+      {
+        "code": "let forward = ProjectionTransform(CGAffineTransform(scaleX: 2, y: 2))\nlet backward = forward.inverted()\noverlay.projectionEffect(backward)",
+        "name": "inverted()",
+        "summary": "Returns the matrix that undoes this one, handy for cancelling a parent's transform on one child."
+      }
+    ],
     "code": "let skew = CGAffineTransform(a: 1, b: 0, c: 0.3, d: 1, tx: 0, ty: 0)\nText(\"Slanted\")\n    .projectionEffect(ProjectionTransform(skew))",
     "discussion": "You typically build one from a CGAffineTransform or a CATransform3D, which is how full 3D-style perspective effects get funneled into a 2D view modifier. GeometryEffect implementations return one from their effectValue(size:) requirement.",
     "kind": "Type",
@@ -819,6 +1255,28 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "let columnProposal = ProposedViewSize(width: columnWidth, height: nil)\nlet height = subview.sizeThatFits(columnProposal).height",
+        "name": "ProposedViewSize(width:height:)",
+        "summary": "Builds a proposal where either dimension may be nil to mean the child should use its ideal size there."
+      },
+      {
+        "code": "let ideal = subviews.map { $0.sizeThatFits(.unspecified) }\nlet tallest = ideal.map(\\.height).max() ?? 0",
+        "name": "ProposedViewSize.unspecified",
+        "summary": "Both dimensions nil, asking a child for its ideal size."
+      },
+      {
+        "code": "let maxSize = subview.sizeThatFits(.infinity)\nlet isGreedy = maxSize.width > bounds.width",
+        "name": "ProposedViewSize.infinity",
+        "summary": "Both dimensions infinite, probing how large a child is willing to grow."
+      },
+      {
+        "code": "func sizeThatFits(proposal: ProposedViewSize,\n                  subviews: Subviews, cache: inout ()) -> CGSize {\n    proposal.replacingUnspecifiedDimensions(by: CGSize(width: 320, height: 200))\n}",
+        "name": "replacingUnspecifiedDimensions(by:)",
+        "summary": "Fills any nil dimensions from a fallback CGSize (10 by 10 unless you say otherwise) to get a concrete size."
+      }
+    ],
     "code": "func sizeThatFits(proposal: ProposedViewSize,\n                  subviews: Subviews, cache: inout ()) -> CGSize {\n    let target = proposal.replacingUnspecifiedDimensions(\n        by: CGSize(width: 300, height: 100))\n    return CGSize(width: target.width, height: 44)\n}",
     "discussion": "A nil dimension asks the child for its ideal size along that axis, while .zero and .infinity probe the minimum and maximum; replacingUnspecifiedDimensions(by:) turns a partial proposal into a concrete CGSize. Custom layouts receive one in sizeThatFits and pass derived proposals down when placing subviews.",
     "kind": "Type",
@@ -832,6 +1290,23 @@
     "wwdcYear": 2022
   },
   {
+    "children": [
+      {
+        "code": "BackdropImage()\n    .ignoresSafeArea(.container, edges: .top)",
+        "name": "SafeAreaRegions.container",
+        "summary": "The insets contributed by hardware and system chrome such as the sensor housing, status bar, and toolbars."
+      },
+      {
+        "code": "ChatList()\n    .ignoresSafeArea(.keyboard, edges: .bottom)",
+        "name": "SafeAreaRegions.keyboard",
+        "summary": "The inset the software keyboard adds while it is on screen."
+      },
+      {
+        "code": "VideoPlayerView()\n    .ignoresSafeArea(.all)",
+        "name": "SafeAreaRegions.all",
+        "summary": "Both the container and keyboard regions, which is what ignoresSafeArea uses by default."
+      }
+    ],
     "code": "ChatThread()\n    .ignoresSafeArea(SafeAreaRegions.keyboard)\nBackdropArt()\n    .ignoresSafeArea(.container, edges: .top)",
     "discussion": "ignoresSafeArea takes one so you can let a background extend under the sensor housing while still letting the keyboard push your text field up, or vice versa. The .all value combines .container and .keyboard.",
     "kind": "Type",
@@ -846,6 +1321,28 @@
     "wwdcYear": 2020
   },
   {
+    "children": [
+      {
+        "code": ".onScrollGeometryChange(for: CGFloat.self) { $0.contentOffset.y } action: { _, y in\n    headerOpacity = max(0, 1 - y / 120)\n}",
+        "name": "contentOffset",
+        "summary": "Where the visible region's origin sits within the content, in points."
+      },
+      {
+        "code": ".onScrollGeometryChange(for: Bool.self) { g in\n    g.contentSize.height > g.containerSize.height\n} action: { _, overflows in\n    showsScrollHint = overflows\n}",
+        "name": "contentSize",
+        "summary": "The full extent of the scrollable content, whether or not it fits on screen."
+      },
+      {
+        "code": ".onScrollGeometryChange(for: CGFloat.self) { g in\n    g.contentOffset.y + g.containerSize.height\n} action: { _, bottomEdge in\n    nearEnd = bottomEdge > lastLoadedY - 300\n}",
+        "name": "containerSize",
+        "summary": "The size of the scroll view's own viewport, ignoring content beyond its edges."
+      },
+      {
+        "code": ".onScrollGeometryChange(for: CGRect.self) { $0.visibleRect } action: { _, rect in\n    visibleRows = rows.indices.filter { rowFrames[$0].intersects(rect) }\n}",
+        "name": "visibleRect",
+        "summary": "The rectangle of content currently inside the viewport, derived from the offset and container size."
+      }
+    ],
     "code": "ScrollView {\n    feed\n}\n.onScrollGeometryChange(for: Bool.self) { geometry in\n    geometry.contentOffset.y > geometry.contentInsets.top\n} action: { _, isScrolled in\n    withAnimation { showsTopBar = !isScrolled }\n}",
     "discussion": "Reading contentOffset against contentInsets tells you whether the user has scrolled away from the resting position, and visibleRect gives the portion of content currently on screen. It is designed to be transformed into a small value inside onScrollGeometryChange so your view only re-renders when the derived answer changes.",
     "kind": "Type",
@@ -887,6 +1384,28 @@
     "wwdcYear": 2024
   },
   {
+    "children": [
+      {
+        "code": "LinearGradient(colors: [.black, .clear],\n               startPoint: UnitPoint(x: 0.5, y: 0.6),\n               endPoint: UnitPoint(x: 0.5, y: 1))",
+        "name": "UnitPoint(x:y:)",
+        "summary": "Creates an arbitrary fractional point; values outside 0...1 are allowed for effects that reach past the bounds."
+      },
+      {
+        "code": "Image(systemName: \"gear\")\n    .rotationEffect(.degrees(angle), anchor: .center)",
+        "name": "UnitPoint.center",
+        "summary": "The midpoint, and the default anchor for scale and rotation effects."
+      },
+      {
+        "code": "Card()\n    .scaleEffect(isPressed ? 0.95 : 1, anchor: .topLeading)",
+        "name": "UnitPoint.topLeading",
+        "summary": "The origin corner, matching the coordinate system's top-left in left-to-right layouts."
+      },
+      {
+        "code": "RadialGradient(colors: [.orange, .clear],\n               center: .bottomTrailing, startRadius: 0, endRadius: 200)",
+        "name": "UnitPoint.bottomTrailing",
+        "summary": "The far corner, a natural center for badges and gradients that fade toward the bottom-right."
+      }
+    ],
     "code": "LinearGradient(colors: [.indigo, .cyan],\n               startPoint: UnitPoint(x: 0.1, y: 0),\n               endPoint: .bottomTrailing)\nCircle()\n    .scaleEffect(1.2, anchor: .top)",
     "discussion": "Gradients use it for start and end points, and geometry modifiers like scaleEffect and rotationEffect use it as their anchor, so the same value adapts to any view size. Statics such as .center, .topLeading, and .bottomTrailing cover the standard positions, with the origin at the top-leading corner.",
     "kind": "Type",
@@ -915,6 +1434,28 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "extension VerticalAlignment {\n    static let sliderTrack = VerticalAlignment(SliderTrack.self)\n}",
+        "name": "VerticalAlignment(_:)",
+        "summary": "Wraps an AlignmentID type to define a custom vertical guide."
+      },
+      {
+        "code": "HStack(alignment: .firstTextBaseline) {\n    Text(\"$\")\n    Text(\"1,280\").font(.largeTitle)\n}",
+        "name": "VerticalAlignment.firstTextBaseline",
+        "summary": "Aligns on the baseline of the first line of text, the right choice for a label beside a larger value."
+      },
+      {
+        "code": "HStack(alignment: .lastTextBaseline) {\n    Text(longDescription)\n    Button(\"More\") { expand() }\n}",
+        "name": "VerticalAlignment.lastTextBaseline",
+        "summary": "Aligns on the final line's baseline, keeping multi-line captions level with a trailing control."
+      },
+      {
+        "code": "Color.clear\n    .overlay(alignment: VerticalAlignment.top.combined(with: .trailing)) {\n        CloseButton()\n    }",
+        "name": "combined(with:)",
+        "summary": "Pairs this vertical guide with a horizontal one to produce an Alignment."
+      }
+    ],
     "code": "HStack(alignment: .firstTextBaseline) {\n    Text(\"Total\").font(.largeTitle)\n    Text(\"$42.00\").font(.body)\n}",
     "discussion": "The text-aware guides .firstTextBaseline and .lastTextBaseline are the standouts here: they align rows of mixed-size text on the actual baseline instead of the bounding box, which reads far better than .center for labels. Custom guides are created the same way as horizontal ones, via AlignmentID.",
     "kind": "Type",
@@ -956,6 +1497,28 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "Text(\"Offset by a third\")\n    .alignmentGuide(.leading) { d in d.width / 3 }",
+        "name": "width",
+        "summary": "The laid-out width, handy for guides expressed as a fraction of the view's size."
+      },
+      {
+        "code": "Text(\"Hangs past the edge\")\n    .alignmentGuide(.leading) { d in d[.trailing] - 20 }",
+        "name": "subscript(_ guide: HorizontalAlignment)",
+        "summary": "Reads where a horizontal guide currently falls, whether an explicit override or the default."
+      },
+      {
+        "code": "Image(systemName: \"info.circle\")\n    .alignmentGuide(.top) { d in d[.firstTextBaseline] - 4 }",
+        "name": "subscript(_ guide: VerticalAlignment)",
+        "summary": "Reads the position of a vertical guide, including text-aware ones such as .firstTextBaseline."
+      },
+      {
+        "code": "static func defaultValue(in d: ViewDimensions) -> CGFloat {\n    d[explicit: .firstTextBaseline] ?? d[.bottom]\n}",
+        "name": "subscript(explicit:)",
+        "summary": "Returns the guide's overridden value or nil, letting a default-value implementation defer to any explicit setting."
+      }
+    ],
     "code": "Text(\"Caption\")\n    .alignmentGuide(.leading) { (d: ViewDimensions) in\n        d[.leading] + (d.width / 4)\n    }",
     "discussion": "You receive one inside .alignmentGuide() and AlignmentID.defaultValue(in:), and use its width, height, and guide subscripts to compute a new guide position relative to existing ones. The explicit-guide subscript returns an optional, so you can detect whether a guide was overridden or is falling back to its default.",
     "kind": "Type",
@@ -969,6 +1532,28 @@
     "wwdcYear": 2019
   },
   {
+    "children": [
+      {
+        "code": "func spacing(subviews: Subviews, cache: inout ()) -> ViewSpacing {\n    .zero\n}",
+        "name": "ViewSpacing.zero",
+        "summary": "A spacing preference of nothing on every edge, for layouts that pack children flush."
+      },
+      {
+        "code": "var x = bounds.minX\nfor (a, b) in zip(subviews, subviews.dropFirst()) {\n    x += a.sizeThatFits(.unspecified).width\n    x += a.spacing.distance(to: b.spacing, along: .horizontal)\n}",
+        "name": "distance(to:along:)",
+        "summary": "Computes the gap the system wants between this view and the next one along an axis."
+      },
+      {
+        "code": "var merged = ViewSpacing()\nfor subview in subviews {\n    merged.formUnion(subview.spacing, edges: .vertical)\n}",
+        "name": "formUnion(_:edges:)",
+        "summary": "Merges another view's spacing into this one in place, keeping the larger value on each chosen edge."
+      },
+      {
+        "code": "let outer = subviews.reduce(ViewSpacing.zero) {\n    $0.union($1.spacing)\n}",
+        "name": "union(_:edges:)",
+        "summary": "The non-mutating counterpart of formUnion, returning the merged spacing."
+      }
+    ],
     "code": "func spacing(subviews: Subviews, cache: inout ()) -> ViewSpacing {\n    var spacing = ViewSpacing()\n    for subview in subviews {\n        spacing.formUnion(subview.spacing)\n    }\n    return spacing\n}",
     "discussion": "distance(to:along:) returns the gap the system would put between two adjacent views, letting a custom layout reproduce the platform-tuned default spacing of the built-in stacks. Layouts can also merge subview preferences with formUnion and report the result from the protocol's spacing method so siblings outside the layout keep sensible gaps.",
     "kind": "Type",
