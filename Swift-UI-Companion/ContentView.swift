@@ -73,7 +73,7 @@ struct WorkspaceView: View {
                     }
                 } else {
                     ContentUnavailableView {
-                        Label("SwiftUI Companion", systemImage: "swift")
+                        Label("SwiftUI Field Guide", systemImage: "swift")
                     } description: {
                         Text("Select a topic, or search from the menu bar icon.")
                     }

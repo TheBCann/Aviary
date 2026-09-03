@@ -59,7 +59,7 @@ struct Swift_UI_CompanionApp: App {
             }
         }
 
-        MenuBarExtra("SwiftUI Companion", systemImage: "swift") {
+        MenuBarExtra("SwiftUI Field Guide", systemImage: "swift") {
             MenuBarSearchView()
                 .environment(model)
                 .preferredColorScheme(preferredScheme)
