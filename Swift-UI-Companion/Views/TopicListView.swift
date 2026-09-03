@@ -81,9 +81,7 @@ struct TopicRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
             HStack(spacing: 6) {
-                Image(systemName: topic.kind.symbolName)
-                    .foregroundStyle(topic.kind.tint)
-                    .frame(width: 16)
+                KindBadge(kind: topic.kind, size: 17)
                 Text(topic.name)
                     .font(.system(.body, design: .monospaced))
                     .lineLimit(1)

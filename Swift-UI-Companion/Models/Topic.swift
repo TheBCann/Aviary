@@ -98,6 +98,21 @@ enum TopicKind: String, CaseIterable, Identifiable, Hashable, Codable {
         case .supportingType: .brown
         }
     }
+
+    /// One- or two-letter code for the documentation-style badge.
+    var badgeCode: String {
+        switch self {
+        case .view: "V"
+        case .modifier: "M"
+        case .shape: "Sh"
+        case .protocolItem: "Pr"
+        case .scene: "Sc"
+        case .style: "St"
+        case .propertyWrapper: "@"
+        case .environmentValue: "P"
+        case .supportingType: "T"
+        }
+    }
 }
 
 /// A sub-entry of a Topic: one initializer, method overload, or nested type
