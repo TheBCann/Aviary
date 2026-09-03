@@ -9,3 +9,8 @@ DerivedData/
 
 # macOS
 .DS_Store
+
+# Editor / tool caches
+.idea/
+.nvim/
+buildServer.json

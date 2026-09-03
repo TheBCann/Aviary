@@ -85,3 +85,31 @@ struct CatalogIntegrityTests {
         )
     }
 }
+
+struct VisualizationCoverageTests {
+    let topics = Catalog.all
+
+    /// Every entry should render something: an interactive demo or a
+    /// compiled usage example. Enabled once the example waves complete.
+    @Test(.disabled("enable after the rendered-example waves land"))
+    func everyTopicHasAVisualization() {
+        let covered = ExampleRegistry.coveredTopics
+        let missing = topics
+            .filter { $0.demoID == nil && !covered.contains($0.name) }
+            .map(\.name)
+            .sorted()
+        #expect(missing.isEmpty, "Topics without a visualization (\(missing.count)): \(missing.prefix(40))")
+    }
+
+    @Test func exampleTopicsResolveToCatalogEntries() {
+        let names = Set(topics.map(\.name))
+        let orphans = ExampleRegistry.coveredTopics.subtracting(names).sorted()
+        #expect(orphans.isEmpty, "Examples registered for unknown topics: \(orphans)")
+    }
+
+    @Test func exampleCodeIsNonEmpty() {
+        for entry in ExampleRegistry.all.values {
+            #expect(!entry.code.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, "\(entry.topic)")
+        }
+    }
+}

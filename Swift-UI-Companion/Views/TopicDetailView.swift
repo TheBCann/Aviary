@@ -30,6 +30,8 @@ struct TopicDetailView: View {
 
                 if let demo = DemoRegistry.view(for: topic.demoID) {
                     demo
+                } else if let example = ExampleRegistry.entry(for: topic.name) {
+                    ExampleSection(entry: example)
                 } else {
                     VStack(alignment: .leading, spacing: 8) {
                         Label("Example", systemImage: "curlybraces")

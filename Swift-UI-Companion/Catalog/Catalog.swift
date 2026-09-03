@@ -14,16 +14,29 @@ enum Catalog {
 
     private static func load() -> [Topic] {
         let urls = jsonURLs()
-        precondition(!urls.isEmpty, "Catalog JSON files are missing from the app bundle")
+        precondition(!urls.isEmpty, "No JSON resources found in the app bundle")
 
         let decoder = JSONDecoder()
-        return urls.flatMap { url in
+        var topics: [Topic] = []
+        for url in urls {
+            guard let data = try? Data(contentsOf: url) else { continue }
+
+            // A catalog file is a top-level JSON array. Other bundled JSON
+            // (editor caches, tool reports) is a dictionary — skip it rather
+            // than crashing, but a genuinely malformed catalog array still
+            // fails loudly.
+            let top = try? JSONSerialization.jsonObject(with: data)
+            guard top is [Any] else { continue }
+
             do {
-                return try decoder.decode([Topic].self, from: Data(contentsOf: url))
+                topics += try decoder.decode([Topic].self, from: data)
             } catch {
                 fatalError("Corrupt catalog file \(url.lastPathComponent): \(error)")
             }
         }
+
+        precondition(!topics.isEmpty, "Catalog JSON files are missing from the app bundle")
+        return topics
     }
 
     private static func jsonURLs() -> [URL] {
