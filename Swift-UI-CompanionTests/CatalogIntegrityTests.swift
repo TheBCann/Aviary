@@ -91,7 +91,7 @@ struct VisualizationCoverageTests {
 
     /// Every entry should render something: an interactive demo or a
     /// compiled usage example. Enabled once the example waves complete.
-    @Test(.disabled("enable after the rendered-example waves land"))
+    @Test
     func everyTopicHasAVisualization() {
         let covered = ExampleRegistry.coveredTopics
         let missing = topics
