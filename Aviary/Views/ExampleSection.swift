@@ -10,6 +10,8 @@ import SwiftUI
 
 struct ExampleSection: View {
     let entry: ExampleEntry
+    /// Hide the code panel when a variant supplies its own code below.
+    var showsCode: Bool = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -28,7 +30,9 @@ struct ExampleSection: View {
                         .strokeBorder(.quaternary, lineWidth: 1)
                 }
 
-            CodeBlockView(code: entry.code)
+            if showsCode {
+                CodeBlockView(code: entry.code)
+            }
         }
     }
 }

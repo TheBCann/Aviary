@@ -53,26 +53,37 @@ struct TopicDetailView: View {
         }
     }
 
-    /// The swappable region: the selected variant's example, or — when the
-    /// topic itself is selected — its interactive demo, rendered example, or
-    /// static code.
-    @ViewBuilder
+    /// The example region. The live rendering (interactive demo or compiled
+    /// example) always stays on screen; selecting a variant swaps only the
+    /// code panel to that variant's code.
     private var exampleRegion: some View {
-        if let child = focusedChild {
-            ChildExampleSection(child: child)
-                .transition(.opacity)
-        } else if let demo = DemoRegistry.view(for: topic.demoID) {
-            demo
-        } else if let example = ExampleRegistry.entry(for: topic.name) {
-            ExampleSection(entry: example)
-        } else {
-            VStack(alignment: .leading, spacing: 8) {
-                Label("Example", systemImage: "curlybraces")
-                    .font(.headline)
-                    .foregroundStyle(.secondary)
-                CodeBlockView(code: topic.code)
+        VStack(alignment: .leading, spacing: 18) {
+            if let demo = DemoRegistry.view(for: topic.demoID) {
+                // An interactive demo's code is bound to its controls, so it
+                // stays intact; the variant's code is added beneath it.
+                demo
+                if let child = focusedChild {
+                    ChildExampleSection(child: child)
+                }
+            } else if let example = ExampleRegistry.entry(for: topic.name) {
+                if let child = focusedChild {
+                    ExampleSection(entry: example, showsCode: false)
+                    ChildExampleSection(child: child)
+                } else {
+                    ExampleSection(entry: example)
+                }
+            } else if let child = focusedChild {
+                ChildExampleSection(child: child)
+            } else {
+                VStack(alignment: .leading, spacing: 8) {
+                    Label("Example", systemImage: "curlybraces")
+                        .font(.headline)
+                        .foregroundStyle(.secondary)
+                    CodeBlockView(code: topic.code)
+                }
             }
         }
+        .animation(.easeInOut(duration: 0.2), value: focusedChild?.id)
     }
 
     private var header: some View {
