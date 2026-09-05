@@ -1,4 +1,4 @@
-# SwiftUI Field Guide
+# Aviary
 
 An interactive documentation browser for SwiftUI, built as a native macOS app.
 Every entry in the catalog is a page you can read, filter, and — crucially —
@@ -45,15 +45,15 @@ across iOS, macOS, tvOS, and watchOS.
 ## Build & run
 
 ```bash
-git clone https://github.com/TheBCann/Swift-UI-Companion.git
-cd Swift-UI-Companion
-open Swift-UI-Companion.xcodeproj
+git clone https://github.com/TheBCann/Aviary.git
+cd Aviary
+open Aviary.xcodeproj
 ```
 
-Select the **Swift-UI-Companion** scheme and run (⌘R). To run the test suite:
+Select the **Aviary** scheme and run (⌘R). To run the test suite:
 
 ```bash
-xcodebuild test -scheme Swift-UI-Companion -destination 'platform=macOS'
+xcodebuild test -scheme Aviary -destination 'platform=macOS'
 ```
 
 ## How it's built
@@ -62,13 +62,13 @@ The app is a layered, dependency-free SwiftUI project with one deliberate design
 choice at its center: **the catalog is data, not code.**
 
 - **Catalog** — every documented API lives as JSON in
-  [`CatalogData/`](Swift-UI-Companion/Swift-UI-Companion/CatalogData), decoded
+  [`CatalogData/`](Aviary/CatalogData), decoded
   into a `Codable` `Topic` at launch. Adding or editing an entry is a JSON edit;
   the app never recompiles for content. A `Topic` carries its kind, summary,
   discussion, example code, per-platform availability (derived from its WWDC
   year), framework, and sub-entries.
 - **Rendered examples** — each domain contributes a file of compiled example
-  views in [`Examples/`](Swift-UI-Companion/Swift-UI-Companion/Examples).
+  views in [`Examples/`](Aviary/Examples).
   `ExampleRegistry` aggregates them, and a topic's page shows, in order of
   preference: its interactive demo, its rendered example, then static code.
 - **Interactive demos** — `DemoRegistry` maps a topic's `demoID` to a live,
