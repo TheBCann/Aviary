@@ -12,24 +12,24 @@
 			containerPortal = 174C73D530464EEC00F1AED2 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 174C73DC30464EEC00F1AED2;
-			remoteInfo = "Aviary";
+			remoteInfo = Aviary;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		174C73DD30464EEC00F1AED2 /* Aviary.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Aviary.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		27AB01AA0000000000000002 /* AviaryTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "AviaryTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		174C73DD30464EEC00F1AED2 /* Aviary.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Aviary.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		27AB01AA0000000000000002 /* AviaryTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AviaryTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		174C73DF30464EEC00F1AED2 /* Aviary */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Aviary";
+			path = Aviary;
 			sourceTree = "<group>";
 		};
 		27AB01AA0000000000000001 /* AviaryTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "AviaryTests";
+			path = AviaryTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -88,10 +88,10 @@
 			fileSystemSynchronizedGroups = (
 				174C73DF30464EEC00F1AED2 /* Aviary */,
 			);
-			name = "Aviary";
+			name = Aviary;
 			packageProductDependencies = (
 			);
-			productName = "Aviary";
+			productName = Aviary;
 			productReference = 174C73DD30464EEC00F1AED2 /* Aviary.app */;
 			productType = "com.apple.product-type.application";
 		};
@@ -110,10 +110,10 @@
 			fileSystemSynchronizedGroups = (
 				27AB01AA0000000000000001 /* AviaryTests */,
 			);
-			name = "AviaryTests";
+			name = AviaryTests;
 			packageProductDependencies = (
 			);
-			productName = "AviaryTests";
+			productName = AviaryTests;
 			productReference = 27AB01AA0000000000000002 /* AviaryTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
@@ -327,14 +327,14 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Aviary";
+				INFOPLIST_KEY_CFBundleDisplayName = Aviary;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "bcann.Aviary";
+				PRODUCT_BUNDLE_IDENTIFIER = bcann.Aviary;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -361,14 +361,14 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Aviary";
+				INFOPLIST_KEY_CFBundleDisplayName = Aviary;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "bcann.Aviary";
+				PRODUCT_BUNDLE_IDENTIFIER = bcann.Aviary;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -391,7 +391,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 26.3;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "bcann.AviaryTests";
+				PRODUCT_BUNDLE_IDENTIFIER = bcann.AviaryTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -412,7 +412,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 26.3;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "bcann.AviaryTests";
+				PRODUCT_BUNDLE_IDENTIFIER = bcann.AviaryTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
