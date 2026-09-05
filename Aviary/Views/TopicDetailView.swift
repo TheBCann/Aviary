@@ -2,52 +2,76 @@
 //  TopicDetailView.swift
 //  Aviary
 //
-//  The documentation page for one catalog entry.
-//
 
 import SwiftUI
 
 struct TopicDetailView: View {
     let topic: Topic
+    /// When a variant is selected, its example swaps into the page in place;
+    /// the parent's header, availability, and discussion stay put.
+    var focusedChild: TopicChild? = nil
     @Environment(AppModel.self) private var model
 
+    private let exampleAnchor = "example"
+
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 18) {
-                header
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(alignment: .leading, spacing: 18) {
+                    header
 
-                AvailabilityRow(topic: topic)
+                    AvailabilityRow(topic: topic)
 
-                Divider()
+                    Divider()
 
-                Text(topic.discussion)
-                    .font(.body)
-                    .lineSpacing(3)
+                    Text(topic.discussion)
+                        .font(.body)
+                        .lineSpacing(3)
 
-                if !topic.children.isEmpty {
-                    VariantsSection(topic: topic)
-                }
+                    if !topic.children.isEmpty {
+                        VariantsSection(topic: topic, focusedChildID: focusedChild?.id)
+                    }
 
-                if let demo = DemoRegistry.view(for: topic.demoID) {
-                    demo
-                } else if let example = ExampleRegistry.entry(for: topic.name) {
-                    ExampleSection(entry: example)
-                } else {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Label("Example", systemImage: "curlybraces")
-                            .font(.headline)
-                            .foregroundStyle(.secondary)
-                        CodeBlockView(code: topic.code)
+                    exampleRegion
+                        .id(exampleAnchor)
+
+                    if !topic.related.isEmpty {
+                        relatedSection
                     }
                 }
-
-                if !topic.related.isEmpty {
-                    relatedSection
+                .padding(24)
+                .frame(maxWidth: 760, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .center)
+            }
+            .onChange(of: focusedChild?.id) { _, newID in
+                if newID != nil {
+                    withAnimation(.easeInOut(duration: 0.25)) {
+                        proxy.scrollTo(exampleAnchor, anchor: .center)
+                    }
                 }
             }
-            .padding(24)
-            .frame(maxWidth: 760, alignment: .leading)
-            .frame(maxWidth: .infinity, alignment: .center)
+        }
+    }
+
+    /// The swappable region: the selected variant's example, or — when the
+    /// topic itself is selected — its interactive demo, rendered example, or
+    /// static code.
+    @ViewBuilder
+    private var exampleRegion: some View {
+        if let child = focusedChild {
+            ChildExampleSection(child: child)
+                .transition(.opacity)
+        } else if let demo = DemoRegistry.view(for: topic.demoID) {
+            demo
+        } else if let example = ExampleRegistry.entry(for: topic.name) {
+            ExampleSection(entry: example)
+        } else {
+            VStack(alignment: .leading, spacing: 8) {
+                Label("Example", systemImage: "curlybraces")
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
+                CodeBlockView(code: topic.code)
+            }
         }
     }
 
@@ -126,9 +150,12 @@ struct TopicDetailView: View {
     }
 }
 
-/// Buttons linking a topic's page to each of its child entries.
+/// The variant picker. Selecting a row swaps its example into the page in
+/// place (see TopicDetailView.focusedChild); the active row is highlighted,
+/// and an Overview row returns to the topic's own example.
 struct VariantsSection: View {
     let topic: Topic
+    var focusedChildID: String? = nil
     @Environment(AppModel.self) private var model
 
     var body: some View {
@@ -138,94 +165,102 @@ struct VariantsSection: View {
                 .foregroundStyle(.secondary)
 
             VStack(alignment: .leading, spacing: 4) {
+                overviewRow
+
                 ForEach(topic.children) { child in
-                    Button {
+                    row(
+                        title: child.name,
+                        isActive: focusedChildID == child.id,
+                        activeIcon: "checkmark"
+                    ) {
                         model.activeTab.selectedTopicID = child.id
-                    } label: {
-                        HStack {
-                            Text(child.name)
-                                .font(.system(.callout, design: .monospaced))
-                                .lineLimit(1)
-                                .truncationMode(.middle)
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.caption2)
-                                .foregroundStyle(.tertiary)
-                        }
-                        .contentShape(.rect)
                     }
-                    .buttonStyle(.plain)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 7)
-                    .background(.background.secondary, in: .rect(cornerRadius: 8))
                 }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var overviewRow: some View {
+        // Only useful once a variant is focused; then it swaps back to the
+        // topic's own demo/example.
+        if focusedChildID != nil {
+            row(title: "Overview", isActive: false, activeIcon: "checkmark") {
+                model.activeTab.selectedTopicID = topic.id
+            }
+            .foregroundStyle(.secondary)
+        }
+    }
+
+    private func row(
+        title: String,
+        isActive: Bool,
+        activeIcon: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            HStack {
+                Text(title)
+                    .font(.system(.callout, design: .monospaced))
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                Spacer()
+                Image(systemName: isActive ? activeIcon : "chevron.right")
+                    .font(.caption2)
+                    .foregroundStyle(isActive ? AnyShapeStyle(Color.accentColor) : AnyShapeStyle(.tertiary))
+            }
+            .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 7)
+        .background(
+            isActive ? AnyShapeStyle(Color.accentColor.opacity(0.18))
+                     : AnyShapeStyle(.background.secondary),
+            in: .rect(cornerRadius: 8)
+        )
+        .overlay {
+            if isActive {
+                RoundedRectangle(cornerRadius: 8)
+                    .strokeBorder(Color.accentColor.opacity(0.5), lineWidth: 1)
             }
         }
     }
 }
 
-/// The documentation page for one child entry, with a breadcrumb back to
-/// its parent topic.
-struct ChildDetailView: View {
-    let topic: Topic
+/// The in-place example for a selected variant: its identity, summary,
+/// optional discussion, and code.
+struct ChildExampleSection: View {
     let child: TopicChild
-    @Environment(AppModel.self) private var model
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 18) {
-                Button {
-                    model.activeTab.selectedTopicID = topic.id
-                } label: {
-                    Label(topic.name, systemImage: "chevron.backward")
-                        .font(.system(.callout, design: .monospaced))
-                }
-                .buttonStyle(.link)
+        VStack(alignment: .leading, spacing: 10) {
+            Label("Selected variant", systemImage: "curlybraces")
+                .font(.headline)
+                .foregroundStyle(.secondary)
 
-                Text(child.name)
-                    .font(.system(.title, design: .monospaced).weight(.bold))
-                    .textSelection(.enabled)
+            Text(child.name)
+                .font(.system(.title3, design: .monospaced).weight(.semibold))
+                .textSelection(.enabled)
 
-                Text(child.summary)
-                    .font(.title3)
-                    .foregroundStyle(.secondary)
+            Text(child.summary)
+                .font(.callout)
+                .foregroundStyle(.secondary)
 
-                AvailabilityRow(topic: topic)
-
-                Divider()
-
-                if !child.discussion.isEmpty {
-                    Text(child.discussion)
-                        .font(.body)
-                        .lineSpacing(3)
-                }
-
-                VStack(alignment: .leading, spacing: 8) {
-                    Label("Example", systemImage: "curlybraces")
-                        .font(.headline)
-                        .foregroundStyle(.secondary)
-                    CodeBlockView(code: child.code)
-                }
-
-                let siblings = topic.children.filter { $0.id != child.id }
-                if !siblings.isEmpty {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Label("Other variants", systemImage: "list.bullet.indent")
-                            .font(.headline)
-                            .foregroundStyle(.secondary)
-                        ForEach(siblings) { sibling in
-                            Button(sibling.name) {
-                                model.activeTab.selectedTopicID = sibling.id
-                            }
-                            .buttonStyle(.link)
-                            .font(.system(.callout, design: .monospaced))
-                        }
-                    }
-                }
+            if !child.discussion.isEmpty {
+                Text(child.discussion)
+                    .font(.body)
+                    .lineSpacing(3)
             }
-            .padding(24)
-            .frame(maxWidth: 760, alignment: .leading)
-            .frame(maxWidth: .infinity, alignment: .center)
+
+            CodeBlockView(code: child.code)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.background.secondary, in: .rect(cornerRadius: 12))
+        .overlay {
+            RoundedRectangle(cornerRadius: 12)
+                .strokeBorder(.quaternary, lineWidth: 1)
         }
     }
 }

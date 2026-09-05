@@ -68,13 +68,11 @@ struct WorkspaceView: View {
         } detail: {
             Group {
                 if let selection = model.resolve(tab.selectedTopicID) {
-                    if let child = selection.child {
-                        ChildDetailView(topic: selection.topic, child: child)
-                            .id(child.id)
-                    } else {
-                        TopicDetailView(topic: selection.topic)
-                            .id(selection.topic.id)
-                    }
+                    // Keyed on the topic (not the child) so selecting a
+                    // variant swaps its example in place, preserving the page
+                    // and scroll position, instead of rebuilding the view.
+                    TopicDetailView(topic: selection.topic, focusedChild: selection.child)
+                        .id(selection.topic.id)
                 } else {
                     ContentUnavailableView {
                         Label("Aviary", systemImage: "swift")
