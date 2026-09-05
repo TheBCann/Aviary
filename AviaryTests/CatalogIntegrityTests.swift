@@ -113,3 +113,30 @@ struct VisualizationCoverageTests {
         }
     }
 }
+
+struct VariantRenderingCoverageTests {
+    let topics = Catalog.all
+
+    private var allChildIDs: Set<String> {
+        Set(topics.flatMap(\.children).map(\.id))
+    }
+
+    /// Every compiled variant rendering must key to a real catalog variant.
+    @Test func variantRenderingsResolveToRealVariants() {
+        let orphans = ChildExampleRegistry.coveredChildIDs.subtracting(allChildIDs).sorted()
+        #expect(orphans.isEmpty, "Renderings registered for unknown variants: \(orphans.prefix(20))")
+    }
+
+    @Test func variantRenderingCodeIsNonEmpty() {
+        for entry in ChildExampleRegistry.all.values {
+            #expect(!entry.code.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, "\(entry.id)")
+        }
+    }
+
+    /// Enabled once the variant-rendering waves complete.
+    @Test(.disabled("enable after the variant-rendering waves land"))
+    func everyVariantHasARendering() {
+        let missing = allChildIDs.subtracting(ChildExampleRegistry.coveredChildIDs).sorted()
+        #expect(missing.isEmpty, "Variants without a rendering (\(missing.count)): \(missing.prefix(40))")
+    }
+}

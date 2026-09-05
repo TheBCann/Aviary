@@ -58,7 +58,12 @@ struct TopicDetailView: View {
     /// code panel to that variant's code.
     private var exampleRegion: some View {
         VStack(alignment: .leading, spacing: 18) {
-            if let demo = DemoRegistry.view(for: topic.demoID) {
+            if let child = focusedChild,
+               let rendering = ChildExampleRegistry.entry(for: child.id) {
+                // The variant has its own compiled rendering: show that live
+                // view and its code in place of the parent's.
+                ChildExampleSection(child: child, rendering: rendering)
+            } else if let demo = DemoRegistry.view(for: topic.demoID) {
                 // An interactive demo's code is bound to its controls, so it
                 // stays intact; the variant's code is added beneath it.
                 demo
@@ -240,13 +245,16 @@ struct VariantsSection: View {
 }
 
 /// The in-place example for a selected variant: its identity, summary,
-/// optional discussion, and code.
+/// optional discussion, and code — plus its own live rendering when one is
+/// compiled in (the code shown is then the rendering's, so they match).
 struct ChildExampleSection: View {
     let child: TopicChild
+    var rendering: ChildExampleEntry? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label("Selected variant", systemImage: "curlybraces")
+            Label(rendering == nil ? "Selected variant" : "Live example — variant",
+                  systemImage: rendering == nil ? "curlybraces" : "eye")
                 .font(.headline)
                 .foregroundStyle(.secondary)
 
@@ -264,7 +272,20 @@ struct ChildExampleSection: View {
                     .lineSpacing(3)
             }
 
-            CodeBlockView(code: child.code)
+            if let rendering {
+                rendering.make()
+                    .frame(maxWidth: .infinity, minHeight: 120)
+                    .padding(20)
+                    .background(.quaternary.opacity(0.4))
+                    .background(.background.secondary)
+                    .clipShape(.rect(cornerRadius: 10))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 10)
+                            .strokeBorder(.quaternary, lineWidth: 1)
+                    }
+            }
+
+            CodeBlockView(code: rendering?.code ?? child.code)
         }
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
