@@ -108,6 +108,97 @@ enum ChildExamplesPart05 {
         .accessibilityActivationPoint(.trailing, isEnabled: showsToggle)
         """) { AnyView(C05_ActivationEnabledExample()) },
 
+        // MARK: .accessibilityCustomContent()
+
+        ChildExampleEntry(parent: ".accessibilityCustomContent()", child: ".accessibilityCustomContent(_: LocalizedStringKey, _:importance:)", code: """
+        RecipeCard(name: "Shakshuka", minutes: minutes, difficulty: difficulty)
+            .accessibilityElement(children: .combine)
+            .accessibilityCustomContent("Prep time", "\\(minutes) minutes")
+            .accessibilityCustomContent("Difficulty", difficulty, importance: .high)
+        """) { AnyView(C05_CustomContentKeyStringExample()) },
+
+        ChildExampleEntry(parent: ".accessibilityCustomContent()", child: ".accessibilityCustomContent(_: Text, _: Text, importance:)", code: """
+        StatCell(name: name, value: value)                      // name is a runtime String
+            .accessibilityElement(children: .combine)
+            .accessibilityCustomContent(Text(name), Text(value, format: .number))
+            .accessibilityCustomContent(Text("Goal"), Text(goal, format: .number), importance: .high)
+        """) { AnyView(C05_CustomContentTextExample()) },
+
+        ChildExampleEntry(parent: ".accessibilityCustomContent()", child: ".accessibilityCustomContent(_: AccessibilityCustomContentKey, _:importance:)", code: """
+        extension AccessibilityCustomContentKey {
+            static let servings = AccessibilityCustomContentKey("Servings", id: "servings")
+        }
+
+        RecipeCard(name: "Paella")
+            .accessibilityCustomContent(.servings, "4", importance: .high)
+            .accessibilityCustomContent(.servings, "\\(servings)")   // same key → replaces "4"
+        """) { AnyView(C05_CustomContentKeyedExample()) },
+
+        // MARK: .accessibilityFocused()
+
+        ChildExampleEntry(parent: ".accessibilityFocused()", child: ".accessibilityFocused(_:equals:)", code: """
+        enum Field: Hashable { case email, password }
+        @AccessibilityFocusState private var focusedField: Field?
+
+        TextField("Email", text: $email)
+            .accessibilityFocused($focusedField, equals: .email)
+        SecureField("Password", text: $password)
+            .accessibilityFocused($focusedField, equals: .password)
+        Button("Focus password") { focusedField = .password }
+        """) { AnyView(C05_FocusedEqualsExample()) },
+
+        ChildExampleEntry(parent: ".accessibilityFocused()", child: ".accessibilityFocused(_:)", code: """
+        @AccessibilityFocusState private var isErrorFocused: Bool
+
+        if showsError {
+            ErrorBanner("Couldn't save. Try again.")
+                .accessibilityFocused($isErrorFocused)
+        }
+        Button("Save") { showsError = true; isErrorFocused = true }
+        """) { AnyView(C05_FocusedBoolExample()) },
+
+        // MARK: .accessibilityHint()
+
+        ChildExampleEntry(parent: ".accessibilityHint()", child: ".accessibilityHint(_:)", code: """
+        Button("Archive") { archived += 1 }
+            .accessibilityHint("Moves the conversation out of your inbox")
+        Button("Snooze") { }
+            .accessibilityHint(Text("Hides it until tomorrow"))
+        """) { AnyView(C05_HintExample()) },
+
+        ChildExampleEntry(parent: ".accessibilityHint()", child: ".accessibilityHint(_:isEnabled:)", code: """
+        Button("Send") { sent += 1 }
+            .accessibilityHint("Attaches \\(attachments) files", isEnabled: attachments > 0)
+        Stepper("Attachments: \\(attachments)", value: $attachments, in: 0...5)
+        """) { AnyView(C05_HintEnabledExample()) },
+
+        // MARK: .accessibilityLabel()
+
+        ChildExampleEntry(parent: ".accessibilityLabel()", child: ".accessibilityLabel(content:)", code: """
+        Text(comment)
+            .accessibilityLabel { label in
+                Text("Comment")
+                label                 // the inferred label, kept after the prefix
+            }
+        """) { AnyView(C05_LabelContentExample()) },
+
+        ChildExampleEntry(parent: ".accessibilityLabel()", child: ".accessibilityLabel(_:)", code: """
+        Button {
+            isFavorite.toggle()
+        } label: {
+            Image(systemName: isFavorite ? "star.fill" : "star")
+        }
+        .accessibilityLabel(isFavorite ? "Remove favorite" : "Add favorite")
+        """) { AnyView(C05_LabelStringExample()) },
+
+        ChildExampleEntry(parent: ".accessibilityLabel()", child: ".accessibilityLabel(_:isEnabled:)", code: """
+        Circle()
+            .fill(Color.teal.gradient)
+            .overlay(Text(initials))
+            .accessibilityLabel(displayName, isEnabled: !displayName.isEmpty)
+        TextField("Display name", text: $displayName)
+        """) { AnyView(C05_LabelEnabledExample()) },
+
         // C05_MORE_ENTRIES
     ]
 }
@@ -505,6 +596,252 @@ private struct C05_ActivationEnabledExample: View {
             .padding(.trailing, 8)
             Toggle("showsToggle", isOn: $showsToggle)
             C05_AXPanel([("Activation", showsToggle ? ".trailing (enabled)" : "default — centre of the element")])
+        }
+    }
+}
+
+// MARK: - .accessibilityCustomContent()
+
+private extension AccessibilityCustomContentKey {
+    static let servings = AccessibilityCustomContentKey("Servings", id: "servings")
+    static let prepTime = AccessibilityCustomContentKey("Prep time")
+}
+
+private struct C05_CustomContentKeyStringExample: View {
+    @State private var minutes = 25
+    private let difficulty = "Easy"
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack {
+                Image(systemName: "fork.knife").foregroundStyle(.orange)
+                VStack(alignment: .leading) {
+                    Text("Shakshuka").bold()
+                    Text("\(minutes) min · \(difficulty)").font(.caption).foregroundStyle(.secondary)
+                }
+                Spacer()
+            }
+            .padding(10)
+            .background(.quaternary.opacity(0.5), in: .rect(cornerRadius: 10))
+            .accessibilityElement(children: .combine)
+            .accessibilityCustomContent("Prep time", "\(minutes) minutes")
+            .accessibilityCustomContent("Difficulty", difficulty, importance: .high)
+            Stepper("Prep minutes: \(minutes)", value: $minutes, in: 5...90, step: 5)
+            C05_AXPanel([
+                ("Read up front", "Difficulty: \(difficulty)  (importance: .high)"),
+                ("More Content", "Prep time: \(minutes) minutes  (.default)")
+            ])
+        }
+    }
+}
+
+private struct C05_CustomContentTextExample: View {
+    @State private var name = "Steps"
+    @State private var value = 8_412
+    private let goal = 10_000
+
+    var body: some View {
+        VStack(spacing: 10) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(name).font(.caption).foregroundStyle(.secondary)
+                Text(value, format: .number).font(.title2.monospacedDigit()).bold()
+            }
+            .padding(10)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(.quaternary.opacity(0.5), in: .rect(cornerRadius: 10))
+            .accessibilityElement(children: .combine)
+            .accessibilityCustomContent(Text(name), Text(value, format: .number))
+            .accessibilityCustomContent(Text("Goal"), Text(goal, format: .number), importance: .high)
+            HStack {
+                Picker("Label", selection: $name) {
+                    Text("Steps").tag("Steps")
+                    Text("Calories").tag("Calories")
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                Button("+500") { value += 500 }
+            }
+            C05_AXPanel([("More Content", "\(name): \(value)"), ("Up front", "Goal: \(goal)")])
+            C05_Caption("Both halves are Text, so a runtime label like “\(name)” needs no LocalizedStringKey.")
+        }
+    }
+}
+
+private struct C05_CustomContentKeyedExample: View {
+    @State private var servings = 4
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack {
+                Image(systemName: "fork.knife").foregroundStyle(.orange)
+                Text("Paella").bold()
+                Spacer()
+                Text("\(servings) servings").font(.caption).foregroundStyle(.secondary)
+            }
+            .padding(10)
+            .background(.quaternary.opacity(0.5), in: .rect(cornerRadius: 10))
+            .accessibilityElement(children: .combine)
+            .accessibilityCustomContent(.servings, "4", importance: .high)
+            .accessibilityCustomContent(.servings, "\(servings)")
+            Stepper("Servings: \(servings)", value: $servings, in: 1...12)
+            C05_AXPanel([("Key", "servings  (label “Servings”)"), ("Value", "\(servings) — the later call replaced “4”")])
+        }
+    }
+}
+
+// MARK: - .accessibilityFocused()
+
+private struct C05_FocusedEqualsExample: View {
+    enum Field: Hashable { case email, password }
+    @AccessibilityFocusState private var focusedField: Field?
+    @State private var email = ""
+    @State private var password = ""
+
+    var body: some View {
+        VStack(spacing: 10) {
+            TextField("Email", text: $email)
+                .textFieldStyle(.roundedBorder)
+                .accessibilityFocused($focusedField, equals: .email)
+            SecureField("Password", text: $password)
+                .textFieldStyle(.roundedBorder)
+                .accessibilityFocused($focusedField, equals: .password)
+            HStack {
+                Button("Focus email") { focusedField = .email }
+                Button("Focus password") { focusedField = .password }
+            }
+            C05_AXPanel([("focusedField", focusedField.map { "\($0)" } ?? "nil")])
+            C05_Caption("Holds the focused case only while VoiceOver's cursor is on a field; setting it moves the cursor.")
+        }
+    }
+}
+
+private struct C05_FocusedBoolExample: View {
+    @AccessibilityFocusState private var isErrorFocused: Bool
+    @State private var showsError = false
+
+    var body: some View {
+        VStack(spacing: 10) {
+            if showsError {
+                Label("Couldn't save. Try again.", systemImage: "exclamationmark.triangle.fill")
+                    .foregroundStyle(.red)
+                    .padding(8)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(.red.opacity(0.12), in: .rect(cornerRadius: 8))
+                    .accessibilityFocused($isErrorFocused)
+            }
+            HStack {
+                Button("Save") {
+                    showsError = true
+                    isErrorFocused = true
+                }
+                Button("Dismiss") { showsError = false }
+            }
+            C05_AXPanel([("isErrorFocused", "\(isErrorFocused)")])
+            C05_Caption("Setting the Bool pulls the VoiceOver cursor to the banner; it reads true only while the cursor rests there.")
+        }
+    }
+}
+
+// MARK: - .accessibilityHint()
+
+private struct C05_HintExample: View {
+    @State private var archived = 0
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack {
+                Button("Archive") { archived += 1 }
+                    .accessibilityHint("Moves the conversation out of your inbox")
+                Button("Snooze") { }
+                    .accessibilityHint(Text("Hides it until tomorrow"))
+            }
+            C05_AXPanel([
+                ("Archive", "“Archive, button. Moves the conversation out of your inbox.”"),
+                ("Snooze", "“Snooze, button. Hides it until tomorrow.”"),
+                ("Archived", "\(archived)")
+            ])
+        }
+    }
+}
+
+private struct C05_HintEnabledExample: View {
+    @State private var attachments = 2
+    @State private var sent = 0
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack {
+                Button("Send") { sent += 1 }
+                    .accessibilityHint("Attaches \(attachments) files", isEnabled: attachments > 0)
+                Stepper("Attachments: \(attachments)", value: $attachments, in: 0...5)
+            }
+            C05_AXPanel([
+                ("Hint", attachments > 0 ? "“Attaches \(attachments) files”" : "none — isEnabled is false"),
+                ("Sent", "\(sent)")
+            ])
+        }
+    }
+}
+
+// MARK: - .accessibilityLabel()
+
+private struct C05_LabelContentExample: View {
+    @State private var comment = "Looks great, ship it!"
+
+    var body: some View {
+        VStack(spacing: 10) {
+            Text(comment)
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(.quaternary.opacity(0.5), in: .rect(cornerRadius: 10))
+                .accessibilityLabel { label in
+                    Text("Comment")
+                    label
+                }
+            TextField("Comment", text: $comment).textFieldStyle(.roundedBorder)
+            C05_AXPanel([("Label", "Comment, \(comment)")])
+            C05_Caption("The closure receives the inferred label so you can prefix it instead of retyping it.")
+        }
+    }
+}
+
+private struct C05_LabelStringExample: View {
+    @State private var isFavorite = false
+
+    var body: some View {
+        VStack(spacing: 10) {
+            Button {
+                isFavorite.toggle()
+            } label: {
+                Image(systemName: isFavorite ? "star.fill" : "star")
+                    .font(.title)
+                    .foregroundStyle(isFavorite ? Color.yellow : Color.secondary)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(isFavorite ? "Remove favorite" : "Add favorite")
+            C05_AXPanel([("Label", isFavorite ? "Remove favorite" : "Add favorite"), ("Without it", isFavorite ? "“star fill”" : "“star”")])
+        }
+    }
+}
+
+private struct C05_LabelEnabledExample: View {
+    @State private var displayName = "Ada Lovelace"
+
+    private var initials: String {
+        displayName.split(separator: " ").compactMap { $0.first }.map(String.init).joined()
+    }
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack(spacing: 12) {
+                Circle()
+                    .fill(Color.teal.gradient)
+                    .frame(width: 44, height: 44)
+                    .overlay(Text(initials.isEmpty ? "?" : initials).bold().foregroundStyle(.white))
+                    .accessibilityLabel(displayName, isEnabled: !displayName.isEmpty)
+                TextField("Display name", text: $displayName).textFieldStyle(.roundedBorder)
+            }
+            C05_AXPanel([("Label", displayName.isEmpty ? "inferred (none) — isEnabled is false" : displayName)])
         }
     }
 }

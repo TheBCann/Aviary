@@ -526,6 +526,71 @@ enum ChildExamplesPart07 {
         Text("Plain ") + Text("magic").customAttribute(Sparkle()) + Text(" plain")
         """) { AnyView(C07_TextLayoutRunSubscriptExample()) },
 
+        // MARK: Text.LineStyle
+
+        ChildExampleEntry(parent: "Text.LineStyle", child: "Text.LineStyle(pattern:color:)", code: """
+        var text = AttributedString("obsolete API")
+        text.strikethroughStyle = Text.LineStyle(pattern: .dash, color: .red)   // attributed decoration
+        var note = AttributedString("needs review")
+        note.underlineStyle = Text.LineStyle(pattern: .dot, color: .orange)
+        Text(text)
+        Text(note)
+        """) { AnyView(C07_LineStyleInitExample()) },
+
+        ChildExampleEntry(parent: "Text.LineStyle", child: "Text.LineStyle.Pattern", code: """
+        Text("Tentative").underline(pattern: .solid)
+        Text("Tentative").underline(pattern: .dot)
+        Text("Tentative").underline(pattern: .dash)
+        Text("Tentative").underline(pattern: .dashDot)
+        Text("Tentative").underline(pattern: .dashDotDot)   // same vocabulary for strikethrough
+        """) { AnyView(C07_LineStylePatternExample()) },
+
+        ChildExampleEntry(parent: "Text.LineStyle", child: "Text.LineStyle.single", code: """
+        var link = AttributedString("Read the docs")
+        link.underlineStyle = .single                       // stock solid line, inherits the run's color
+        link.link = URL(string: "https://developer.apple.com")
+        Text(link)
+        """) { AnyView(C07_LineStyleSingleExample()) },
+
+        // MARK: TextSelection
+
+        ChildExampleEntry(parent: "TextSelection", child: "TextSelection(range:)", code: """
+        TextEditor(text: $text, selection: $selection)
+        TextField("Find", text: $query)
+        Button("Select Match") {
+            if let found = text.range(of: query) {
+                selection = TextSelection(range: found)     // one contiguous range
+            }
+        }
+        """) { AnyView(C07_TextSelectionRangeExample()) },
+
+        ChildExampleEntry(parent: "TextSelection", child: "TextSelection(insertionPoint:)", code: """
+        TextEditor(text: $text, selection: $selection)
+        Button("Append #tag") {
+            text.append(" #tag")
+            selection = TextSelection(insertionPoint: text.endIndex)   // caret parked after the insert
+        }
+        """) { AnyView(C07_TextSelectionInsertionPointExample()) },
+
+        ChildExampleEntry(parent: "TextSelection", child: "indices", code: """
+        switch selection?.indices {
+        case .selection(let range):
+            copied = String(text[range])
+        case .multiSelection(let set):
+            copied = set.ranges.map { String(text[$0]) }.joined(separator: "\\n")
+        case nil:
+            copied = ""
+        @unknown default:
+            copied = ""
+        }
+        """) { AnyView(C07_TextSelectionIndicesExample()) },
+
+        ChildExampleEntry(parent: "TextSelection", child: "isInsertion", code: """
+        TextEditor(text: $text, selection: $selection)
+        Button("Uppercase") { uppercaseSelection() }
+            .disabled(selection?.isInsertion ?? true)      // caret only → disabled
+        """) { AnyView(C07_TextSelectionIsInsertionExample()) },
+
         // C07_END_ENTRIES
     ]
 }
@@ -1981,6 +2046,243 @@ private struct C07_TextLayoutRunSubscriptExample: View {
             Text("run[Sparkle.self] is nil for the plain runs, so only the tagged one glows.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+        }
+        .padding()
+    }
+}
+
+// MARK: - Text.LineStyle
+
+private struct C07_LineStyleInitExample: View {
+    private var obsolete: AttributedString {
+        var text = AttributedString("obsolete API")
+        text.strikethroughStyle = Text.LineStyle(pattern: .dash, color: .red)
+        return text
+    }
+
+    private var note: AttributedString {
+        var text = AttributedString("needs review")
+        text.underlineStyle = Text.LineStyle(pattern: .dot, color: .orange)
+        return text
+    }
+
+    private var inherited: AttributedString {
+        var text = AttributedString("color nil → inherits the foreground")
+        text.underlineStyle = Text.LineStyle(pattern: .dashDotDot)
+        return text
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(obsolete)
+            Text(note)
+            Text(inherited).foregroundStyle(.teal)
+            Text("A LineStyle value drives the strikethroughStyle / underlineStyle attributes.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding()
+    }
+}
+
+private struct C07_LineStylePatternExample: View {
+    private let patterns: [(String, Text.LineStyle.Pattern)] = [
+        (".solid", .solid), (".dot", .dot), (".dash", .dash), (".dashDot", .dashDot), (".dashDotDot", .dashDotDot),
+    ]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            ForEach(patterns, id: \.0) { item in
+                HStack(spacing: 16) {
+                    Text("Tentative")
+                        .underline(pattern: item.1)
+                        .frame(width: 80, alignment: .leading)
+                    Text("Was $80")
+                        .strikethrough(pattern: item.1, color: .red)
+                        .frame(width: 70, alignment: .leading)
+                    Text(item.0)
+                        .font(.caption.monospaced())
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .padding()
+    }
+}
+
+private struct C07_LineStyleSingleExample: View {
+    private var link: AttributedString {
+        var link = AttributedString("Read the docs")
+        link.underlineStyle = .single
+        link.link = URL(string: "https://developer.apple.com")
+        return link
+    }
+
+    private var struck: AttributedString {
+        var text = AttributedString("Regular price $80")
+        text.strikethroughStyle = .single
+        return text
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(link)
+            Text(struck).foregroundStyle(.secondary)
+            Text(".single is the stock solid line with no color, so it takes the run's foreground (link blue above).")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding()
+    }
+}
+
+// MARK: - TextSelection
+
+private struct C07_TextSelectionRangeExample: View {
+    @State private var text = "The quick brown fox jumps over the lazy dog."
+    @State private var selection: TextSelection?
+    @State private var query = "fox"
+
+    private var status: String {
+        guard let selection, case .selection(let range) = selection.indices, !range.isEmpty,
+              range.upperBound <= text.endIndex else { return "no range selected" }
+        let lower = text.distance(from: text.startIndex, to: range.lowerBound)
+        let upper = text.distance(from: text.startIndex, to: range.upperBound)
+        return "selected \(lower)..<\(upper): \"\(text[range])\""
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            TextEditor(text: $text, selection: $selection)
+                .frame(height: 50)
+            HStack {
+                TextField("Find", text: $query)
+                    .frame(width: 100)
+                Button("Select Match") {
+                    if let found = text.range(of: query) {
+                        selection = TextSelection(range: found)
+                    }
+                }
+                .disabled(query.isEmpty || text.range(of: query) == nil)
+            }
+            .controlSize(.small)
+            Text(status)
+                .font(.caption.monospaced())
+                .foregroundStyle(.secondary)
+        }
+        .padding()
+    }
+}
+
+private struct C07_TextSelectionInsertionPointExample: View {
+    @State private var text = "Ship the release notes"
+    @State private var selection: TextSelection?
+
+    private var caretOffset: String {
+        guard let selection, selection.isInsertion, case .selection(let range) = selection.indices,
+              range.lowerBound <= text.endIndex else { return "—" }
+        return "\(text.distance(from: text.startIndex, to: range.lowerBound))"
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            TextEditor(text: $text, selection: $selection)
+                .frame(height: 50)
+            HStack {
+                Button("Append #tag") {
+                    text.append(" #tag")
+                    selection = TextSelection(insertionPoint: text.endIndex)
+                }
+                Button("Caret to Start") {
+                    selection = TextSelection(insertionPoint: text.startIndex)
+                }
+            }
+            .controlSize(.small)
+            Text("caret at character \(caretOffset) of \(text.count)")
+                .font(.caption.monospaced())
+                .foregroundStyle(.secondary)
+        }
+        .padding()
+    }
+}
+
+private struct C07_TextSelectionIndicesExample: View {
+    @State private var text = "Select one word, or several, then copy."
+    @State private var selection: TextSelection?
+    @State private var copied = "—"
+
+    private var caseName: String {
+        switch selection?.indices {
+        case .selection(let range): return range.isEmpty ? ".selection (empty caret)" : ".selection"
+        case .multiSelection: return ".multiSelection"
+        case nil: return "nil"
+        @unknown default: return "unknown"
+        }
+    }
+
+    private func copy() {
+        switch selection?.indices {
+        case .selection(let range):
+            copied = range.upperBound <= text.endIndex ? String(text[range]) : ""
+        case .multiSelection(let set):
+            copied = set.ranges
+                .filter { $0.upperBound <= text.endIndex }
+                .map { String(text[$0]) }
+                .joined(separator: "\n")
+        case nil:
+            copied = ""
+        @unknown default:
+            copied = ""
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            TextEditor(text: $text, selection: $selection)
+                .frame(height: 50)
+            HStack {
+                Button("Copy Selection") { copy() }.controlSize(.small)
+                Text("indices: \(caseName)")
+                    .font(.caption.monospaced())
+                    .foregroundStyle(.secondary)
+            }
+            Text("copied: \(copied.isEmpty ? "(nothing)" : copied)")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding()
+    }
+}
+
+private struct C07_TextSelectionIsInsertionExample: View {
+    @State private var text = "Highlight a word, then press Uppercase."
+    @State private var selection: TextSelection?
+
+    private var isInsertion: Bool { selection?.isInsertion ?? true }
+
+    private func uppercaseSelection() {
+        guard let selection, case .selection(let range) = selection.indices,
+              range.upperBound <= text.endIndex else { return }
+        let lower = text.distance(from: text.startIndex, to: range.lowerBound)
+        let upper = text.distance(from: text.startIndex, to: range.upperBound)
+        text.replaceSubrange(range, with: text[range].uppercased())
+        let start = text.index(text.startIndex, offsetBy: lower, limitedBy: text.endIndex) ?? text.endIndex
+        let end = text.index(text.startIndex, offsetBy: upper, limitedBy: text.endIndex) ?? text.endIndex
+        self.selection = TextSelection(range: start..<end)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            TextEditor(text: $text, selection: $selection)
+                .frame(height: 50)
+            HStack {
+                Button("Uppercase") { uppercaseSelection() }
+                    .disabled(selection?.isInsertion ?? true)
+                    .controlSize(.small)
+                Text(isInsertion ? "isInsertion: true — caret only, button disabled" : "isInsertion: false — range selected")
+                    .font(.caption.monospaced())
+                    .foregroundStyle(.secondary)
+            }
         }
         .padding()
     }

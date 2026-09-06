@@ -360,6 +360,92 @@ enum ChildExamplesPart04 {
         Slider(value: $level, in: 0.05...1)
         """) { AnyView(C04_ScaleEffectXYExample()) },
 
+        // MARK: .scrollEdgeEffectStyle()
+
+        ChildExampleEntry(parent: ".scrollEdgeEffectStyle()", child: "ScrollEdgeEffectStyle.soft", code: """
+        ScrollView { gallery }
+            .safeAreaBar(edge: .top) { Text("Gallery").font(.headline) }
+            .scrollEdgeEffectStyle(.soft, for: .top)
+        """) { AnyView(C04_EdgeEffectSoftExample()) },
+
+        ChildExampleEntry(parent: ".scrollEdgeEffectStyle()", child: "ScrollEdgeEffectStyle.hard", code: """
+        ScrollView { gallery }
+            .safeAreaBar(edge: .top) { Text("Gallery").font(.headline) }
+            .scrollEdgeEffectStyle(.hard, for: .all)
+        """) { AnyView(C04_EdgeEffectHardExample()) },
+
+        ChildExampleEntry(parent: ".scrollEdgeEffectStyle()", child: "scrollEdgeEffectHidden(_:for:)", code: """
+        ScrollView { gallery }
+            .safeAreaBar(edge: .top) { Text("Gallery").font(.headline) }
+            .scrollEdgeEffectHidden(isHidden, for: .top)
+        Toggle("Hide edge effect", isOn: $isHidden)
+        """) { AnyView(C04_EdgeEffectHiddenExample()) },
+
+        // MARK: .scrollPosition()
+
+        ChildExampleEntry(parent: ".scrollPosition()", child: "scrollPosition(_:anchor:)", code: """
+        @State private var position = ScrollPosition(edge: .top)
+
+        ScrollView { LazyVStack { rows }.scrollTargetLayout() }
+            .scrollPosition($position)
+        Button("Top") { position.scrollTo(edge: .top) }
+        Button("Row 15") { position.scrollTo(id: 15, anchor: .center) }
+        Button("Bottom") { position.scrollTo(edge: .bottom) }
+        """) { AnyView(C04_ScrollPositionValueExample()) },
+
+        ChildExampleEntry(parent: ".scrollPosition()", child: "scrollPosition(id:anchor:)", code: """
+        ScrollView(.horizontal) {
+            LazyHStack(spacing: 0) { pages }      // each page has an Int id
+                .scrollTargetLayout()
+        }
+        .scrollTargetBehavior(.viewAligned)
+        .scrollPosition(id: $pageID, anchor: .center)
+        """) { AnyView(C04_ScrollPositionIDExample()) },
+
+        // MARK: .scrollTargetBehavior()
+
+        ChildExampleEntry(parent: ".scrollTargetBehavior()", child: "ScrollTargetBehavior.paging", code: """
+        ScrollView(.horizontal) {
+            LazyHStack(spacing: 0) {
+                ForEach(slides) { SlideView($0).containerRelativeFrame(.horizontal) }
+            }
+        }
+        .scrollTargetBehavior(.paging)
+        """) { AnyView(C04_PagingBehaviorExample()) },
+
+        ChildExampleEntry(parent: ".scrollTargetBehavior()", child: "ScrollTargetBehavior.viewAligned(limitBehavior:)", code: """
+        ScrollView(.horizontal) {
+            LazyHStack { cards }
+                .scrollTargetLayout()
+        }
+        .scrollTargetBehavior(.viewAligned(limitBehavior: .always))
+        """) { AnyView(C04_ViewAlignedBehaviorExample()) },
+
+        ChildExampleEntry(parent: ".scrollTargetBehavior()", child: "scrollTargetLayout(isEnabled:)", code: """
+        ScrollView(.horizontal) {
+            LazyHStack(spacing: 16) { cards }
+                .scrollTargetLayout(isEnabled: snapsToCards)
+        }
+        .scrollTargetBehavior(.viewAligned)
+        Toggle("Snap to cards", isOn: $snapsToCards)
+        """) { AnyView(C04_ScrollTargetLayoutExample()) },
+
+        // MARK: .searchable()
+
+        ChildExampleEntry(parent: ".searchable()", child: "searchable(text:prompt:)", code: """
+        List(filteredParks, id: \\.self) { Text($0) }
+            .searchable(text: $query, prompt: "Park name")
+        """) { AnyView(C04_SearchableTextPromptExample()) },
+
+        ChildExampleEntry(parent: ".searchable()", child: "searchable(text:placement:prompt:)", code: """
+        List(results, id: \\.self) { Text($0) }
+            .searchable(
+                text: $query,
+                placement: .sidebar,
+                prompt: "Filter notes"
+            )
+        """) { AnyView(C04_SearchablePlacementExample()) },
+
         // MARK: - end of entries
     ]
 }
@@ -1403,6 +1489,304 @@ private struct C04_ScaleEffectXYExample: View {
             Text("y scales from the bottom edge; x stays 1")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+        }
+    }
+}
+
+// MARK: - .scrollEdgeEffectStyle()
+
+private struct C04_Gallery: View {
+    var body: some View {
+        LazyVStack(spacing: 8) {
+            ForEach(0..<12, id: \.self) { i in
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color(hue: Double(i) / 12, saturation: 0.5, brightness: 0.9))
+                    .frame(height: 44)
+                    .overlay(Text("Photo \(i + 1)").font(.caption).foregroundStyle(.white))
+            }
+        }
+        .padding(.horizontal, 10)
+        .padding(.bottom, 10)
+    }
+}
+
+private struct C04_EdgeEffectSoftExample: View {
+    var body: some View {
+        VStack(spacing: 6) {
+            ScrollView { C04_Gallery() }
+                .safeAreaBar(edge: .top) {
+                    Text("Gallery").font(.headline).padding(.vertical, 6)
+                }
+                .scrollEdgeEffectStyle(.soft, for: .top)
+                .frame(width: 240, height: 150)
+                .clipShape(.rect(cornerRadius: 10))
+            Text("Scroll — .soft blurs content as it passes beneath the bar")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+    }
+}
+
+private struct C04_EdgeEffectHardExample: View {
+    var body: some View {
+        VStack(spacing: 6) {
+            ScrollView { C04_Gallery() }
+                .safeAreaBar(edge: .top) {
+                    Text("Gallery").font(.headline).padding(.vertical, 6)
+                }
+                .scrollEdgeEffectStyle(.hard, for: .all)
+                .frame(width: 240, height: 150)
+                .clipShape(.rect(cornerRadius: 10))
+            Text("Scroll — .hard draws a crisp opaque edge behind the bar")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+    }
+}
+
+private struct C04_EdgeEffectHiddenExample: View {
+    @State private var isHidden = false
+    var body: some View {
+        VStack(spacing: 6) {
+            ScrollView { C04_Gallery() }
+                .safeAreaBar(edge: .top) {
+                    Text("Gallery").font(.headline).padding(.vertical, 6)
+                }
+                .scrollEdgeEffectHidden(isHidden, for: .top)
+                .frame(width: 240, height: 150)
+                .clipShape(.rect(cornerRadius: 10))
+            Toggle("Hide edge effect", isOn: $isHidden)
+                .controlSize(.small)
+            Text("Scroll with the effect hidden — content runs straight under the bar")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+    }
+}
+
+// MARK: - .scrollPosition()
+
+private struct C04_ScrollPositionValueExample: View {
+    @State private var position = ScrollPosition(edge: .top)
+
+    var body: some View {
+        VStack(spacing: 8) {
+            ScrollView {
+                LazyVStack(spacing: 4) {
+                    ForEach(1...30, id: \.self) { i in
+                        Text("Row \(i)")
+                            .font(.caption)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(6)
+                            .background(i == 15 ? AnyShapeStyle(.blue.opacity(0.2)) : AnyShapeStyle(.quaternary),
+                                        in: .rect(cornerRadius: 6))
+                    }
+                }
+                .scrollTargetLayout()
+            }
+            .scrollPosition($position)
+            .frame(width: 220, height: 130)
+            HStack {
+                Button("Top") { withAnimation { position.scrollTo(edge: .top) } }
+                Button("Row 15") { withAnimation { position.scrollTo(id: 15, anchor: .center) } }
+                Button("Bottom") { withAnimation { position.scrollTo(edge: .bottom) } }
+            }
+            .controlSize(.small)
+        }
+    }
+}
+
+private struct C04_ScrollPositionIDExample: View {
+    @State private var pageID: Int? = 0
+    private let colors: [Color] = [.blue, .orange, .green, .purple, .pink]
+
+    var body: some View {
+        VStack(spacing: 8) {
+            ScrollView(.horizontal) {
+                LazyHStack(spacing: 0) {
+                    ForEach(colors.indices, id: \.self) { i in
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(colors[i].gradient)
+                            .overlay(Text("Page \(i + 1)").font(.headline).foregroundStyle(.white))
+                            .padding(6)
+                            .containerRelativeFrame(.horizontal)
+                            .id(i)
+                    }
+                }
+                .scrollTargetLayout()
+            }
+            .scrollTargetBehavior(.viewAligned)
+            .scrollPosition(id: $pageID, anchor: .center)
+            .frame(width: 240, height: 100)
+            HStack(spacing: 6) {
+                ForEach(colors.indices, id: \.self) { i in
+                    Circle()
+                        .fill(pageID == i ? Color.primary : Color.secondary.opacity(0.3))
+                        .frame(width: 6, height: 6)
+                        .onTapGesture { withAnimation { pageID = i } }
+                }
+            }
+            Text("pageID = \(pageID.map(String.init) ?? "nil") — scroll, or tap a dot")
+                .font(.caption.monospaced())
+                .foregroundStyle(.secondary)
+        }
+    }
+}
+
+// MARK: - .scrollTargetBehavior()
+
+private struct C04_PagingBehaviorExample: View {
+    private let slides = ["Welcome", "Browse", "Search", "Enjoy"]
+
+    var body: some View {
+        VStack(spacing: 6) {
+            ScrollView(.horizontal) {
+                LazyHStack(spacing: 0) {
+                    ForEach(slides.indices, id: \.self) { i in
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color.indigo.opacity(0.15 + Double(i) * 0.2))
+                            .overlay(Text(slides[i]).font(.headline))
+                            .padding(6)
+                            .containerRelativeFrame(.horizontal)
+                    }
+                }
+            }
+            .scrollTargetBehavior(.paging)
+            .frame(width: 240, height: 100)
+            Text("Swipe — each page is exactly one container width, so scrolling lands on a page")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+    }
+}
+
+private struct C04_ViewAlignedBehaviorExample: View {
+    var body: some View {
+        VStack(spacing: 6) {
+            ScrollView(.horizontal) {
+                LazyHStack(spacing: 12) {
+                    ForEach(1...8, id: \.self) { i in
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(.teal.opacity(0.3))
+                            .frame(width: 110, height: 80)
+                            .overlay(Text("Card \(i)").font(.caption))
+                    }
+                }
+                .scrollTargetLayout()
+                .padding(.horizontal, 12)
+            }
+            .scrollTargetBehavior(.viewAligned(limitBehavior: .always))
+            .frame(width: 240, height: 96)
+            Text("Swipe — .always limits each swipe to one card, however hard you flick")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+    }
+}
+
+private struct C04_ScrollTargetLayoutExample: View {
+    @State private var snapsToCards = true
+
+    var body: some View {
+        VStack(spacing: 6) {
+            ScrollView(.horizontal) {
+                LazyHStack(spacing: 16) {
+                    ForEach(1...8, id: \.self) { i in
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(.orange.opacity(0.3))
+                            .frame(width: 100, height: 80)
+                            .overlay(Text("Card \(i)").font(.caption))
+                    }
+                }
+                .scrollTargetLayout(isEnabled: snapsToCards)
+                .padding(.horizontal, 12)
+            }
+            .scrollTargetBehavior(.viewAligned)
+            .frame(width: 240, height: 96)
+            Toggle("Snap to cards", isOn: $snapsToCards)
+                .controlSize(.small)
+            Text(snapsToCards ? "Cards are scroll targets — swipes settle on one" : "Disabled — the view scrolls freely")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+}
+
+// MARK: - .searchable()
+
+private struct C04_SearchableTextPromptExample: View {
+    @State private var query = ""
+    private let parks = ["Acadia", "Arches", "Glacier", "Olympic", "Yosemite", "Zion"]
+    private var filteredParks: [String] {
+        query.isEmpty ? parks : parks.filter { $0.localizedCaseInsensitiveContains(query) }
+    }
+
+    var body: some View {
+        VStack(spacing: 6) {
+            HStack {
+                Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
+                TextField("Park name", text: $query).textFieldStyle(.plain)
+            }
+            .padding(6)
+            .background(.quaternary, in: .rect(cornerRadius: 8))
+            List(filteredParks, id: \.self) { Text($0) }
+                .frame(height: 100)
+            Text("Illustrative — the prompt is the field's placeholder; on macOS the real field lives in the window toolbar")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(width: 260)
+    }
+}
+
+private struct C04_SearchablePlacementExample: View {
+    @State private var query = ""
+    private let notes = ["Grocery list", "Meeting notes", "Reading list", "Trip ideas", "Recipes"]
+    private var results: [String] {
+        query.isEmpty ? notes : notes.filter { $0.localizedCaseInsensitiveContains(query) }
+    }
+
+    var body: some View {
+        VStack(spacing: 6) {
+            HStack(spacing: 0) {
+                // Sidebar column: the search field sits at its top.
+                VStack(spacing: 6) {
+                    HStack {
+                        Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
+                        TextField("Filter notes", text: $query).textFieldStyle(.plain)
+                    }
+                    .font(.caption)
+                    .padding(5)
+                    .background(.quaternary, in: .rect(cornerRadius: 6))
+                    ForEach(results, id: \.self) { note in
+                        Label(note, systemImage: "note.text")
+                            .font(.caption)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    Spacer(minLength: 0)
+                }
+                .padding(8)
+                .frame(width: 130)
+                .background(.background.secondary)
+                Divider()
+                Text("Detail")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+            .frame(width: 260, height: 130)
+            .clipShape(.rect(cornerRadius: 10))
+            .overlay(RoundedRectangle(cornerRadius: 10).stroke(.quaternary))
+            Text("Illustrative — .sidebar places the field at the top of the sidebar column instead of the toolbar")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
         }
     }
 }

@@ -403,6 +403,162 @@ enum ChildExamplesPart02 {
             }
         """) { AnyView(C02_MapCameraUpdateFrequencyExample()) },
 
+        // MARK: .photosPicker()
+
+        ChildExampleEntry(parent: ".photosPicker()", child: ".photosPicker(isPresented:selection:maxSelectionCount:matching:)", code: """
+        @State private var items: [PhotosPickerItem] = []
+
+        Button("Choose up to 4 Photos…") { picking = true }
+            .photosPicker(isPresented: $picking,
+                          selection: $items,
+                          maxSelectionCount: 4,
+                          matching: .any(of: [.images, .screenshots]))
+        """) { AnyView(C02_PhotosPickerMaxCountExample()) },
+
+        ChildExampleEntry(parent: ".photosPicker()", child: ".photosPicker(isPresented:selection:matching:preferredItemEncoding:)", code: """
+        @State private var selection: PhotosPickerItem?      // single, optional
+
+        Button("Choose a Photo…") { showingPicker = true }
+            .photosPicker(isPresented: $showingPicker,
+                          selection: $selection,
+                          matching: .images,
+                          preferredItemEncoding: .current)
+        """) { AnyView(C02_PhotosPickerSingleExample()) },
+
+        ChildExampleEntry(parent: ".photosPicker()", child: ".photosPicker(isPresented:selection:maxSelectionCount:selectionBehavior:matching:preferredItemEncoding:)", code: """
+        @State private var items: [PhotosPickerItem] = []
+
+        Button("Choose Photos…") { picking = true }
+            .photosPicker(isPresented: $picking,
+                          selection: $items,
+                          maxSelectionCount: 4,
+                          selectionBehavior: .ordered,          // numbered badges, array keeps pick order
+                          matching: .any(of: [.images, .screenshots]),
+                          preferredItemEncoding: .automatic)
+        """) { AnyView(C02_PhotosPickerOrderedExample()) },
+
+        ChildExampleEntry(parent: ".photosPicker()", child: "PHPickerFilter.any(of:)", code: """
+        let stills: PHPickerFilter = .any(of: [.images, .screenshots])
+        let noLive: PHPickerFilter = .all(of: [.images, .not(.livePhotos)])
+
+        Button("Choose Photos…") { picking = true }
+            .photosPicker(isPresented: $picking, selection: $items, matching: useStills ? stills : noLive)
+        """) { AnyView(C02_PHPickerFilterAnyExample()) },
+
+        // MARK: .productViewStyle()
+
+        ChildExampleEntry(parent: ".productViewStyle()", child: "ProductViewStyle.compact", code: """
+        StoreView(ids: ["com.example.tip.small", "com.example.tip.large"])
+            .productViewStyle(.compact)      // icon · name · price on one row
+        """) { AnyView(C02_ProductViewCompactExample()) },
+
+        ChildExampleEntry(parent: ".productViewStyle()", child: "ProductViewStyle.regular", code: """
+        ProductView(id: "com.example.pro")
+            .productViewStyle(.regular)      // the default: icon beside name, description, buy button
+        """) { AnyView(C02_ProductViewRegularExample()) },
+
+        ChildExampleEntry(parent: ".productViewStyle()", child: "ProductViewStyle.large", code: """
+        ProductView(id: "com.example.pro.lifetime") {
+            Image("lifetime-art").resizable().scaledToFit()   // your own hero artwork
+        }
+        .productViewStyle(.large)
+        """) { AnyView(C02_ProductViewLargeExample()) },
+
+        // MARK: .quickLookPreview()
+
+        ChildExampleEntry(parent: ".quickLookPreview()", child: ".quickLookPreview(_:in:)", code: """
+        @State private var selected: URL?
+        let attachments: [URL] = [invoice, contract, photo]
+
+        Button("Preview All") { selected = attachments.first }
+            .quickLookPreview($selected, in: attachments)   // ← / → step through the collection
+        """) { AnyView(C02_QuickLookCollectionExample()) },
+
+        ChildExampleEntry(parent: ".quickLookPreview()", child: ".quickLookPreview(_:)", code: """
+        @State private var previewURL: URL?
+
+        Button("Preview") { previewURL = attachment }
+            .quickLookPreview($previewURL)    // dismissing sets previewURL back to nil
+        """) { AnyView(C02_QuickLookSingleExample()) },
+
+        // MARK: .storeButton()
+
+        ChildExampleEntry(parent: ".storeButton()", child: "StoreButtonKind.restorePurchases", code: """
+        StoreView(ids: productIDs)
+            .storeButton(.visible, for: .restorePurchases)   // hidden unless you opt in
+        """) { AnyView(C02_StoreButtonRestoreExample()) },
+
+        ChildExampleEntry(parent: ".storeButton()", child: "StoreButtonKind.redeemCode", code: """
+        SubscriptionStoreView(groupID: groupID)
+            .storeButton(.visible, for: .redeemCode)         // offer-code redemption
+        """) { AnyView(C02_StoreButtonRedeemExample()) },
+
+        ChildExampleEntry(parent: ".storeButton()", child: "StoreButtonKind.policies", code: """
+        SubscriptionStoreView(groupID: groupID)
+            .storeButton(.visible, for: .policies)
+            .subscriptionStorePolicyDestination(url: privacyURL, for: .privacyPolicy)
+        """) { AnyView(C02_StoreButtonPoliciesExample()) },
+
+        ChildExampleEntry(parent: ".storeButton()", child: "StoreButtonKind.cancellation", code: """
+        NavigationLink("Upgrade") {
+            SubscriptionStoreView(groupID: groupID)
+                .storeButton(.hidden, for: .cancellation)    // no close button on a pushed screen
+        }
+        """) { AnyView(C02_StoreButtonCancellationExample()) },
+
+        // MARK: .subscriptionStoreControlStyle()
+
+        ChildExampleEntry(parent: ".subscriptionStoreControlStyle()", child: "SubscriptionStoreControlStyle.picker", code: """
+        SubscriptionStoreView(groupID: groupID)
+            .subscriptionStoreControlStyle(.picker)          // rows + one shared Subscribe button
+        """) { AnyView(C02_SubscriptionControlPickerExample()) },
+
+        ChildExampleEntry(parent: ".subscriptionStoreControlStyle()", child: "SubscriptionStoreControlStyle.prominentPicker", code: """
+        SubscriptionStoreView(groupID: groupID)
+            .subscriptionStoreControlStyle(.prominentPicker) // the selected plan is filled in
+        """) { AnyView(C02_SubscriptionControlProminentExample()) },
+
+        ChildExampleEntry(parent: ".subscriptionStoreControlStyle()", child: "SubscriptionStoreControlStyle.buttons", code: """
+        SubscriptionStoreView(groupID: groupID)
+            .subscriptionStoreControlStyle(.buttons)         // one purchase button per plan
+            .subscriptionStoreButtonLabel(.multiline)
+        """) { AnyView(C02_SubscriptionControlButtonsExample()) },
+
+        // MARK: Annotation
+
+        ChildExampleEntry(parent: "Annotation", child: "Annotation(_:coordinate:anchor:content:)", code: """
+        Map {
+            Annotation("Coffee", coordinate: cafe, anchor: anchor) {   // .bottom / .center / .top / .leading
+                Image(systemName: "cup.and.saucer.fill")
+                    .padding(6)
+                    .background(.orange, in: Circle())
+            }
+        }
+        """) { AnyView(C02_AnnotationAnchorExample()) },
+
+        ChildExampleEntry(parent: "Annotation", child: "Annotation(coordinate:anchor:content:label:)", code: """
+        Map {
+            Annotation(coordinate: hq, anchor: .center) {
+                Circle().fill(.blue).frame(width: 12, height: 12)
+            } label: {
+                Text("Aviary HQ")                      // a view, not a plain string
+                    .font(.caption.bold())
+                    .foregroundStyle(.blue)
+            }
+        }
+        """) { AnyView(C02_AnnotationLabelExample()) },
+
+        ChildExampleEntry(parent: "Annotation", child: ".annotationTitles(_:)", code: """
+        Map {
+            ForEach(stops) { stop in
+                Annotation(stop.name, coordinate: stop.coordinate) {
+                    Image(systemName: "tram.fill").padding(5).background(.green, in: Circle())
+                }
+                .annotationTitles(titles)             // .hidden keeps the glyphs, drops the captions
+            }
+        }
+        """) { AnyView(C02_AnnotationTitlesExample()) },
+
         // C02_END_ENTRIES
     ]
 }
@@ -1661,6 +1817,646 @@ private struct C02_MapCameraUpdateFrequencyExample: View {
                 .font(.caption)
                 .monospacedDigit()
             C02_Caption("Illustrative — drag the mock map and compare how often the handler runs")
+        }
+    }
+}
+
+// MARK: - .photosPicker() (the real picker; picked items resolve at runtime)
+
+/// Thumbnail slots that fill in as items are picked.
+private struct C02_PickedThumbnails: View {
+    var count: Int
+    var capacity: Int
+    var numbered = false
+    var body: some View {
+        HStack(spacing: 8) {
+            ForEach(0..<capacity, id: \.self) { i in
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(i < count ? AnyShapeStyle(Color.teal.gradient) : AnyShapeStyle(Color.clear))
+                    .frame(width: 44, height: 44)
+                    .overlay {
+                        if i < count {
+                            Image(systemName: "photo.fill").foregroundStyle(.white)
+                        } else {
+                            RoundedRectangle(cornerRadius: 8)
+                                .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
+                                .foregroundStyle(.tertiary)
+                        }
+                    }
+                    .overlay(alignment: .topTrailing) {
+                        if numbered && i < count {
+                            Text("\(i + 1)")
+                                .font(.system(size: 9, weight: .bold))
+                                .foregroundStyle(.white)
+                                .frame(width: 16, height: 16)
+                                .background(Color.blue, in: Circle())
+                                .offset(x: 4, y: -4)
+                        }
+                    }
+            }
+        }
+    }
+}
+
+private struct C02_PhotosPickerMaxCountExample: View {
+    @State private var picking = false
+    @State private var items: [PhotosPickerItem] = []
+    var body: some View {
+        VStack(spacing: 8) {
+            C02_PickedThumbnails(count: items.count, capacity: 4)
+            Button("Choose up to 4 Photos…") { picking = true }
+                .controlSize(.small)
+                .photosPicker(isPresented: $picking,
+                              selection: $items,
+                              maxSelectionCount: 4,
+                              matching: .any(of: [.images, .screenshots]))
+            C02_Caption("\(items.count) of 4 selected — the picker stops accepting picks at maxSelectionCount")
+        }
+    }
+}
+
+private struct C02_PhotosPickerSingleExample: View {
+    @State private var showingPicker = false
+    @State private var selection: PhotosPickerItem?
+    var body: some View {
+        VStack(spacing: 8) {
+            C02_PickedThumbnails(count: selection == nil ? 0 : 1, capacity: 1)
+            Button("Choose a Photo…") { showingPicker = true }
+                .controlSize(.small)
+                .photosPicker(isPresented: $showingPicker,
+                              selection: $selection,
+                              matching: .images,
+                              preferredItemEncoding: .current)
+            C02_Caption(selection == nil
+                ? "selection = nil — one optional item, delivered in its stored encoding (.current)"
+                : "selection = PhotosPickerItem — picking again replaces it")
+        }
+    }
+}
+
+private struct C02_PhotosPickerOrderedExample: View {
+    @State private var picking = false
+    @State private var items: [PhotosPickerItem] = []
+    var body: some View {
+        VStack(spacing: 8) {
+            C02_PickedThumbnails(count: items.count, capacity: 4, numbered: true)
+            Button("Choose Photos…") { picking = true }
+                .controlSize(.small)
+                .photosPicker(isPresented: $picking,
+                              selection: $items,
+                              maxSelectionCount: 4,
+                              selectionBehavior: .ordered,
+                              matching: .any(of: [.images, .screenshots]),
+                              preferredItemEncoding: .automatic)
+            C02_Caption("\(items.count) picked — .ordered numbers each pick and the array keeps that order")
+        }
+    }
+}
+
+private struct C02_PHPickerFilterAnyExample: View {
+    @State private var picking = false
+    @State private var items: [PhotosPickerItem] = []
+    @State private var useStills = true
+    let stills: PHPickerFilter = .any(of: [.images, .screenshots])
+    let noLive: PHPickerFilter = .all(of: [.images, .not(.livePhotos)])
+    var body: some View {
+        VStack(spacing: 8) {
+            Picker("matching", selection: $useStills) {
+                Text(".any(of: [.images, .screenshots])").tag(true)
+                Text(".all(of: [.images, .not(.livePhotos)])").tag(false)
+            }
+            .pickerStyle(.radioGroup)
+            .labelsHidden()
+            .font(.system(.caption, design: .monospaced))
+            Button("Choose Photos…") { picking = true }
+                .controlSize(.small)
+                .photosPicker(isPresented: $picking, selection: $items, matching: useStills ? stills : noLive)
+            C02_Caption("\(items.count) selected — the picker only offers assets matching the composed filter")
+        }
+    }
+}
+
+// MARK: - .productViewStyle() (mock — ProductView loads App Store data at runtime)
+
+private struct C02_MockProductCard: View {
+    enum Style { case compact, regular, large }
+    var style: Style
+    var name = "Aviary Pro"
+    var detail = "Unlock every example and offline docs."
+    var price = "$9.99"
+
+    private var icon: some View {
+        RoundedRectangle(cornerRadius: style == .large ? 14 : 8)
+            .fill(Color.indigo.gradient)
+            .overlay {
+                Image(systemName: "bird.fill")
+                    .font(style == .large ? .title : .body)
+                    .foregroundStyle(.white)
+            }
+    }
+    private func buyButton(wide: Bool) -> some View {
+        Text(wide ? "Buy for \(price)" : price)
+            .font(.caption.bold())
+            .padding(.horizontal, 12)
+            .padding(.vertical, 5)
+            .frame(maxWidth: wide ? .infinity : nil)
+            .background(Color.blue, in: Capsule())
+            .foregroundStyle(.white)
+    }
+
+    var body: some View {
+        Group {
+            switch style {
+            case .compact:
+                HStack(spacing: 10) {
+                    icon.frame(width: 26, height: 26)
+                    Text(name).font(.caption)
+                    Spacer()
+                    buyButton(wide: false)
+                }
+            case .regular:
+                HStack(alignment: .top, spacing: 10) {
+                    icon.frame(width: 44, height: 44)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(name).font(.caption.bold())
+                        Text(detail).font(.caption2).foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    buyButton(wide: false)
+                }
+            case .large:
+                VStack(spacing: 6) {
+                    icon.frame(width: 60, height: 60)
+                    Text(name).font(.headline)
+                    Text(detail).font(.caption2).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                    buyButton(wide: true).padding(.top, 2)
+                }
+            }
+        }
+        .padding(10)
+        .frame(width: 240)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+private struct C02_ProductViewCompactExample: View {
+    var body: some View {
+        VStack(spacing: 6) {
+            C02_MockProductCard(style: .compact, name: "Small Tip", price: "$0.99")
+            C02_MockProductCard(style: .compact, name: "Large Tip", price: "$4.99")
+            C02_Caption("Illustrative — StoreView rows load from App Store Connect at runtime; .compact keeps each to one line")
+        }
+    }
+}
+
+private struct C02_ProductViewRegularExample: View {
+    var body: some View {
+        VStack(spacing: 6) {
+            C02_MockProductCard(style: .regular)
+            C02_Caption("Illustrative — product metadata loads at runtime; .regular is the default layout")
+        }
+    }
+}
+
+private struct C02_ProductViewLargeExample: View {
+    var body: some View {
+        VStack(spacing: 6) {
+            C02_MockProductCard(style: .large, name: "Aviary Pro · Lifetime",
+                                detail: "One purchase, every future update.", price: "$29.99")
+            C02_Caption("Illustrative — .large gives the artwork and description a hero-sized card")
+        }
+    }
+}
+
+// MARK: - .quickLookPreview() (mock — Quick Look renders the real file at runtime)
+
+private struct C02_MockQuickLookPanel: View {
+    var title: String
+    var symbol: String
+    var index: Int? = nil
+    var count: Int? = nil
+    var onPrevious: () -> Void = {}
+    var onNext: () -> Void = {}
+    var onClose: () -> Void = {}
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 8) {
+                Button(action: onClose) {
+                    Circle().fill(.red).frame(width: 9, height: 9)
+                }
+                if let index, let count {
+                    Button(action: onPrevious) { Image(systemName: "chevron.left") }
+                        .disabled(index == 0)
+                    Button(action: onNext) { Image(systemName: "chevron.right") }
+                        .disabled(index == count - 1)
+                }
+                Spacer()
+                Text(title).font(.caption2)
+                Spacer()
+                Image(systemName: "square.and.arrow.up")
+            }
+            .font(.caption2)
+            .buttonStyle(.plain)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 5)
+            .background(.bar)
+            Rectangle()
+                .fill(Color.white.opacity(0.9))
+                .overlay {
+                    Image(systemName: symbol)
+                        .font(.system(size: 30))
+                        .foregroundStyle(.secondary)
+                }
+        }
+        .frame(width: 230, height: 104)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .shadow(radius: 6, y: 3)
+    }
+}
+
+private struct C02_QuickLookCollectionExample: View {
+    struct Attachment { let name: String; let symbol: String }
+    let attachments: [URL] = ["Invoice.pdf", "Contract.pages", "Site Photo.heic"]
+        .map { URL(fileURLWithPath: "/Users/me/Documents/\($0)") }
+    let symbols = ["doc.richtext", "doc.text", "photo"]
+    @State private var selected: URL?
+
+    var body: some View {
+        VStack(spacing: 8) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 10).fill(.quaternary).frame(width: 250, height: 118)
+                if let selected, let i = attachments.firstIndex(of: selected) {
+                    C02_MockQuickLookPanel(title: "\(selected.lastPathComponent)  (\(i + 1) of \(attachments.count))",
+                                           symbol: symbols[i], index: i, count: attachments.count,
+                                           onPrevious: { self.selected = attachments[i - 1] },
+                                           onNext: { self.selected = attachments[i + 1] },
+                                           onClose: { self.selected = nil })
+                    .transition(.scale.combined(with: .opacity))
+                } else {
+                    Button("Preview All") { selected = attachments.first }
+                        .controlSize(.small)
+                }
+            }
+            .animation(.easeInOut(duration: 0.2), value: selected)
+            C02_Caption(selected.map { "selected = \($0.lastPathComponent) — arrows move through `in: attachments`" }
+                ?? "Illustrative — selected = nil; Quick Look shows the real files at runtime")
+        }
+    }
+}
+
+private struct C02_QuickLookSingleExample: View {
+    let attachment = URL(fileURLWithPath: "/Users/me/Documents/Invoice.pdf")
+    @State private var previewURL: URL?
+    var body: some View {
+        VStack(spacing: 8) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 10).fill(.quaternary).frame(width: 250, height: 118)
+                if let previewURL {
+                    C02_MockQuickLookPanel(title: previewURL.lastPathComponent, symbol: "doc.richtext",
+                                           onClose: { self.previewURL = nil })
+                    .transition(.scale.combined(with: .opacity))
+                } else {
+                    Button("Preview") { previewURL = attachment }
+                        .controlSize(.small)
+                }
+            }
+            .animation(.easeInOut(duration: 0.2), value: previewURL)
+            C02_Caption(previewURL == nil
+                ? "Illustrative — previewURL = nil; Quick Look renders the real file at runtime"
+                : "previewURL = Invoice.pdf — closing the panel sets it back to nil")
+        }
+    }
+}
+
+// MARK: - .storeButton()
+
+/// A mock StoreKit merchandising sheet; the real views need App Store products.
+private struct C02_MockStoreSheet<Footer: View>: View {
+    var title = "Aviary Pro"
+    var showsClose = true
+    @ViewBuilder var footer: Footer
+
+    var body: some View {
+        VStack(spacing: 8) {
+            HStack {
+                Spacer()
+                if showsClose {
+                    Image(systemName: "xmark.circle.fill").foregroundStyle(.secondary)
+                }
+            }
+            .frame(height: 14)
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.indigo.gradient)
+                .frame(width: 40, height: 40)
+                .overlay(Image(systemName: "bird.fill").foregroundStyle(.white))
+            Text(title).font(.caption.bold())
+            Text("Every example, offline.").font(.caption2).foregroundStyle(.secondary)
+            Text("Subscribe · $4.99 / month")
+                .font(.caption.bold())
+                .foregroundStyle(.white)
+                .padding(.vertical, 5)
+                .frame(maxWidth: .infinity)
+                .background(.blue, in: Capsule())
+            footer
+        }
+        .padding(10)
+        .frame(width: 210)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+private struct C02_StoreButtonRestoreExample: View {
+    @State private var visible = true
+    var body: some View {
+        VStack(spacing: 8) {
+            C02_MockStoreSheet(title: "Aviary Pro", showsClose: false) {
+                if visible {
+                    Text("Restore Purchases")
+                        .font(.caption2)
+                        .foregroundStyle(.blue)
+                        .transition(.opacity)
+                }
+            }
+            .animation(.easeInOut(duration: 0.2), value: visible)
+            Toggle("Restore button visible", isOn: $visible)
+                .controlSize(.small)
+            C02_Caption("Illustrative — StoreView needs App Store products. The restore button is hidden unless you opt in.")
+        }
+    }
+}
+
+private struct C02_StoreButtonRedeemExample: View {
+    @State private var visible = true
+    var body: some View {
+        VStack(spacing: 8) {
+            C02_MockStoreSheet {
+                if visible {
+                    Text("Redeem Code")
+                        .font(.caption2)
+                        .foregroundStyle(.blue)
+                        .transition(.opacity)
+                }
+            }
+            .animation(.easeInOut(duration: 0.2), value: visible)
+            Toggle("Redeem button visible", isOn: $visible)
+                .controlSize(.small)
+            C02_Caption("Illustrative — tapping the real button opens the App Store's offer-code sheet.")
+        }
+    }
+}
+
+private struct C02_StoreButtonPoliciesExample: View {
+    @State private var visible = true
+    var body: some View {
+        VStack(spacing: 8) {
+            C02_MockStoreSheet {
+                if visible {
+                    HStack(spacing: 4) {
+                        Text("Privacy Policy").foregroundStyle(.blue)
+                        Text("·").foregroundStyle(.secondary)
+                        Text("Terms of Service").foregroundStyle(.blue)
+                    }
+                    .font(.caption2)
+                    .transition(.opacity)
+                }
+            }
+            .animation(.easeInOut(duration: 0.2), value: visible)
+            Toggle("Policy links visible", isOn: $visible)
+                .controlSize(.small)
+            C02_Caption("Illustrative — .subscriptionStorePolicyDestination decides where each link goes.")
+        }
+    }
+}
+
+private struct C02_StoreButtonCancellationExample: View {
+    @State private var pushed = true
+    var body: some View {
+        VStack(spacing: 8) {
+            VStack(spacing: 4) {
+                if pushed {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                        Spacer()
+                        Text("Upgrade").bold()
+                        Spacer()
+                    }
+                    .font(.caption2)
+                    .foregroundStyle(.blue)
+                    .frame(width: 210)
+                }
+                C02_MockStoreSheet(showsClose: !pushed) { EmptyView() }
+            }
+            .animation(.easeInOut(duration: 0.2), value: pushed)
+            Toggle("Presented by NavigationLink", isOn: $pushed)
+                .controlSize(.small)
+            C02_Caption(pushed
+                ? "Illustrative — the pushed screen already has Back, so the close (cancellation) button is hidden"
+                : "Illustrative — presented as a sheet, the close button is the only way out")
+        }
+    }
+}
+
+// MARK: - .subscriptionStoreControlStyle()
+
+private struct C02_MockPlanList: View {
+    enum Style { case picker, prominentPicker, buttons }
+    var style: Style
+    @Binding var selected: Int
+    private let plans = [("Monthly", "$4.99 / month"), ("Yearly", "$39.99 / year · save 33%")]
+
+    var body: some View {
+        VStack(spacing: 6) {
+            ForEach(plans.indices, id: \.self) { i in
+                let isSelected = i == selected
+                if style == .buttons {
+                    VStack(spacing: 1) {
+                        Text(plans[i].0).font(.caption.bold())
+                        Text(plans[i].1).font(.caption2)
+                    }
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 5)
+                    .background(.blue, in: RoundedRectangle(cornerRadius: 8))
+                } else {
+                    HStack {
+                        Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                            .foregroundStyle(isSelected
+                                ? (style == .prominentPicker ? Color.white : Color.blue)
+                                : Color.secondary)
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(plans[i].0).font(.caption.bold())
+                            Text(plans[i].1).font(.caption2)
+                        }
+                        Spacer()
+                    }
+                    .foregroundStyle(style == .prominentPicker && isSelected ? Color.white : Color.primary)
+                    .padding(6)
+                    .background(
+                        style == .prominentPicker && isSelected ? AnyShapeStyle(.blue) : AnyShapeStyle(.quaternary),
+                        in: RoundedRectangle(cornerRadius: 8)
+                    )
+                    .overlay {
+                        if style == .picker && isSelected {
+                            RoundedRectangle(cornerRadius: 8).stroke(.blue, lineWidth: 1.5)
+                        }
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture { selected = i }
+                }
+            }
+            if style != .buttons {
+                Text("Subscribe")
+                    .font(.caption.bold())
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 5)
+                    .background(.blue, in: Capsule())
+            }
+        }
+        .padding(10)
+        .frame(width: 220)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+        .animation(.easeInOut(duration: 0.15), value: selected)
+    }
+}
+
+private struct C02_SubscriptionControlPickerExample: View {
+    @State private var selected = 0
+    var body: some View {
+        VStack(spacing: 8) {
+            C02_MockPlanList(style: .picker, selected: $selected)
+            C02_Caption("Illustrative — .picker: selectable rows plus one shared Subscribe button.")
+        }
+    }
+}
+
+private struct C02_SubscriptionControlProminentExample: View {
+    @State private var selected = 1
+    var body: some View {
+        VStack(spacing: 8) {
+            C02_MockPlanList(style: .prominentPicker, selected: $selected)
+            C02_Caption("Illustrative — .prominentPicker fills the selected plan with the tint.")
+        }
+    }
+}
+
+private struct C02_SubscriptionControlButtonsExample: View {
+    @State private var selected = 0
+    var body: some View {
+        VStack(spacing: 8) {
+            C02_MockPlanList(style: .buttons, selected: $selected)
+            C02_Caption("Illustrative — .buttons: one purchase button per plan; .multiline puts the price on its own line.")
+        }
+    }
+}
+
+// MARK: - Annotation
+
+private struct C02_AnnotationAnchorExample: View {
+    @State private var anchor: UnitPoint = .bottom
+    private let coordinate = CGPoint(x: 120, y: 62)
+    private let glyphSize: CGFloat = 26
+
+    var body: some View {
+        VStack(spacing: 8) {
+            C02_MockMap()
+                .frame(width: 240, height: 120)
+                .overlay {
+                    Circle()
+                        .fill(.red)
+                        .frame(width: 6, height: 6)
+                        .position(coordinate)
+                    Image(systemName: "cup.and.saucer.fill")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.white)
+                        .frame(width: glyphSize, height: glyphSize)
+                        .background(.orange, in: Circle())
+                        .position(
+                            x: coordinate.x + (0.5 - anchor.x) * glyphSize,
+                            y: coordinate.y + (0.5 - anchor.y) * glyphSize
+                        )
+                        .animation(.easeInOut(duration: 0.2), value: anchor)
+                }
+            Picker("Anchor", selection: $anchor) {
+                Text("bottom").tag(UnitPoint.bottom)
+                Text("center").tag(UnitPoint.center)
+                Text("top").tag(UnitPoint.top)
+                Text("leading").tag(UnitPoint.leading)
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            .frame(width: 240)
+            C02_Caption("Illustrative — the red dot is the coordinate; the anchor picks which point of the glyph sits on it.")
+        }
+    }
+}
+
+private struct C02_AnnotationLabelExample: View {
+    var body: some View {
+        VStack(spacing: 8) {
+            C02_MockMap()
+                .frame(width: 240, height: 120)
+                .overlay {
+                    VStack(spacing: 2) {
+                        Circle()
+                            .fill(.blue)
+                            .frame(width: 12, height: 12)
+                            .overlay(Circle().stroke(.white, lineWidth: 2))
+                        Text("Aviary HQ")
+                            .font(.caption.bold())
+                            .foregroundStyle(.blue)
+                            .padding(.horizontal, 4)
+                            .background(.white.opacity(0.8), in: Capsule())
+                    }
+                    .position(x: 110, y: 58)
+                }
+            C02_Caption("Illustrative — the label is a view, so it can be styled like any other SwiftUI text.")
+        }
+    }
+}
+
+private struct C02_AnnotationTitlesExample: View {
+    @State private var titles: Visibility = .visible
+    private let stops: [(name: String, point: CGPoint)] = [
+        ("Market St", CGPoint(x: 50, y: 40)),
+        ("Elm Park", CGPoint(x: 150, y: 30)),
+        ("Riverside", CGPoint(x: 110, y: 90)),
+    ]
+
+    var body: some View {
+        VStack(spacing: 8) {
+            C02_MockMap(showsLabels: false)
+                .frame(width: 240, height: 120)
+                .overlay {
+                    ForEach(stops.indices, id: \.self) { i in
+                        VStack(spacing: 2) {
+                            Image(systemName: "tram.fill")
+                                .font(.system(size: 10))
+                                .foregroundStyle(.white)
+                                .padding(5)
+                                .background(.green, in: Circle())
+                            if titles != .hidden {
+                                Text(stops[i].name)
+                                    .font(.system(size: 9, weight: .medium))
+                                    .padding(.horizontal, 3)
+                                    .background(.white.opacity(0.8), in: Capsule())
+                                    .transition(.opacity)
+                            }
+                        }
+                        .position(stops[i].point)
+                    }
+                }
+                .animation(.easeInOut(duration: 0.2), value: titles)
+            Picker("Titles", selection: $titles) {
+                Text("automatic").tag(Visibility.automatic)
+                Text("visible").tag(Visibility.visible)
+                Text("hidden").tag(Visibility.hidden)
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            .frame(width: 240)
+            C02_Caption("Illustrative — .hidden keeps the glyphs and drops the captions; .automatic lets MapKit decide by zoom.")
         }
     }
 }
