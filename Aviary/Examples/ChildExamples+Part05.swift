@@ -492,7 +492,7 @@ enum ChildExamplesPart05 {
         }
         """) { AnyView(C05_RotorEntryPrepareExample()) },
 
-        ChildExampleEntry(parent: "AccessibilityRotorEntry", child: "init(_:_:in:textRange:prepare:)", code: """
+        ChildExampleEntry(parent: "AccessibilityRotorEntry", child: "init(_:id:in:textRange:prepare:)", code: """
         @Namespace private var headingSpace
 
         ForEach(sections) { section in
