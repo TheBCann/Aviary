@@ -1,9 +1,13 @@
-# Aviary
+# <img src="images/icon.png" width="40" align="top" /> Aviary
 
 An interactive documentation browser for SwiftUI.
 
-![Project Dashboard](images/image1.png)
-![Second Image Description](images/image2.png)
+<table>
+  <tr>
+    <td><img src="images/dash.png" width="400" /></td>
+    <td><img src="images/timingCurve.png" width="400" /></td>
+  </tr>
+</table>
 
 The catalog spans **907 topics and 1,455 sub-entries (2,362 pages)** covering
 SwiftUI views, modifiers, shapes, protocols, scenes, styles, property wrappers,
