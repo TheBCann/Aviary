@@ -14,3 +14,6 @@ DerivedData/
 .idea/
 .nvim/
 buildServer.json
+
+# Local planning docs
+docs/
