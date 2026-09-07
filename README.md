@@ -1,9 +1,9 @@
 # Aviary
 
-An interactive documentation browser for SwiftUI, built as a native macOS app.
-Every entry in the catalog is a page you can read, filter, and — crucially —
-*see running*: a live, compiled SwiftUI view of the API in use, above the code
-that produced it.
+An interactive documentation browser for SwiftUI.
+
+![Project Dashboard](images/image1.png)
+![Second Image Description](images/image2.png)
 
 The catalog spans **907 topics and 1,455 sub-entries (2,362 pages)** covering
 SwiftUI views, modifiers, shapes, protocols, scenes, styles, property wrappers,
