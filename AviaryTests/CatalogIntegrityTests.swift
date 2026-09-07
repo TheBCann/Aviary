@@ -133,9 +133,8 @@ struct VariantRenderingCoverageTests {
         }
     }
 
-    /// Enabled once the variant-rendering waves complete.
-    @Test(.disabled("enable after the variant-rendering waves land"))
-    func everyVariantHasARendering() {
+    /// Every one of the catalog's variants has its own compiled rendering.
+    @Test func everyVariantHasARendering() {
         let missing = allChildIDs.subtracting(ChildExampleRegistry.coveredChildIDs).sorted()
         #expect(missing.isEmpty, "Variants without a rendering (\(missing.count)): \(missing.prefix(40))")
     }

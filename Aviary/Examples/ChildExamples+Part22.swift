@@ -963,7 +963,7 @@ private struct C22_GradientColorSpaceExample: View {
         }
     }
 
-    private func row(title: String, mix: (Double) -> Color) -> some View {
+    private func row(title: String, mix: @escaping (Double) -> Color) -> some View {
         VStack(alignment: .leading, spacing: 3) {
             Text(title).font(.caption).monospaced()
             HStack(spacing: 2) {

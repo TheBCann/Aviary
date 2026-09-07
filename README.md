@@ -25,6 +25,11 @@ across iOS, macOS, tvOS, and watchOS.
   usage examples — nothing is a bare code listing. Where an API can't run in a
   window (App Store paywalls, live map tiles), the page shows a faithful,
   clearly-labeled illustration beside the real code.
+- **Every variant has its own live example.** Each of the 1,455 sub-entries —
+  a specific initializer, overload, nested type, or static member — has a
+  compiled rendering that exercises exactly that form, with the code the view
+  was built from. Selecting a variant swaps its example into the page in place,
+  so the topic's header, discussion, and scroll position stay put.
 - **Interactive, drag-first demos.** The flagships let you *feel* the API:
   drag the control points of a quadratic or cubic Bézier curve, the anchors of
   a gradient, the light source behind a shadow, or the sweep of an angular
@@ -75,13 +80,18 @@ choice at its center: **the catalog is data, not code.**
   views in [`Examples/`](Aviary/Examples).
   `ExampleRegistry` aggregates them, and a topic's page shows, in order of
   preference: its interactive demo, its rendered example, then static code.
+- **Variant renderings** — the `ChildExamples+PartNN.swift` files hold one
+  compiled view per sub-entry, keyed by `"<topic> › <variant>"` and aggregated
+  by `ChildExampleRegistry`. When a variant is selected, its rendering and code
+  replace the topic's example region; everything else on the page is unchanged.
 - **Interactive demos** — `DemoRegistry` maps a topic's `demoID` to a live,
   parameterized demo whose controls drive a real view *and* regenerate the
   displayed code, so the two never disagree.
-- **Tests** — 29 tests guard the data layer: catalog integrity (every entry
+- **Tests** — 32 tests guard the data layer: catalog integrity (every entry
   decodes, ids are unique, every `demoID` resolves, availability is derivable),
   filter logic, navigation history, the `Codable` round trip, and full
-  visualization coverage — the build fails if any topic lacks a demo or example.
+  visualization coverage — the build fails if any topic lacks a demo or example,
+  or if any variant lacks a rendering or names a variant that doesn't exist.
 
 ### Frameworks referenced
 
@@ -97,7 +107,9 @@ Because the catalog is JSON, contributions are mostly data:
 1. Add or edit an entry in the appropriate `CatalogData/*.json` file.
 2. If it warrants a rendered example, add one to the matching
    `Examples/Examples+*.swift` file (a compiled SwiftUI view plus the code it
-   corresponds to).
+   corresponds to). A new sub-entry needs a `ChildExampleEntry` in one of the
+   `Examples/ChildExamples+Part*.swift` files — the coverage test will name any
+   variant that lacks one.
 3. Run the tests — the integrity and coverage checks will tell you if anything
    is missing or inconsistent.
 
