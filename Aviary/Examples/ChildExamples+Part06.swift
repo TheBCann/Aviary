@@ -11,6 +11,7 @@
 import SwiftUI
 import AppKit
 import UniformTypeIdentifiers
+internal import Combine
 
 enum ChildExamplesPart06 {
     static let entries: [ChildExampleEntry] = [
@@ -387,6 +388,123 @@ enum ChildExamplesPart06 {
             .onTapGesture { openURL(citation.url) }
         """) { AnyView(C06_PointerLinkExample()) },
 
+        // MARK: .renameAction()
+
+        ChildExampleEntry(parent: ".renameAction()", child: ".renameAction(_ action:)", code: """
+        ForEach($albums) { $album in
+            AlbumRow(album: album, isRenaming: renamingID == album.id)
+                .contextMenu { RenameButton() }
+                .renameAction {                       // RenameButton invokes this closure
+                    draft = album.name
+                    renamingID = album.id
+                }
+        }
+        """) { AnyView(C06_RenameActionClosureExample()) },
+
+        ChildExampleEntry(parent: ".renameAction()", child: ".renameAction(_ isFocused:)", code: """
+        @FocusState private var isEditingTitle: Bool
+
+        HStack {
+            TextField("Title", text: $title)
+                .focused($isEditingTitle)
+            RenameButton()
+        }
+        .renameAction($isEditingTitle)            // RenameButton just sets the focus binding to true
+        """) { AnyView(C06_RenameActionFocusExample()) },
+
+        ChildExampleEntry(parent: ".renameAction()", child: "RenameAction", code: """
+        struct RenameControl: View {
+            @Environment(\\.rename) private var rename: RenameAction?
+            var body: some View {
+                Button("Rename…") { rename?() }
+                    .disabled(rename == nil)          // nothing supplied an action above → nil
+            }
+        }
+
+        RenameControl().renameAction { beginRename() }
+        RenameControl()                               // outside any .renameAction → disabled
+        """) { AnyView(C06_RenameActionTypeExample()) },
+
+        // MARK: @FocusedBinding
+
+        ChildExampleEntry(parent: "@FocusedBinding", child: "@FocusedBinding(_:)", code: """
+        extension FocusedValues {
+            @Entry var volume: Binding<Double>?
+        }
+
+        PlayerPanel(volume: $volume)                  // publishes while focused
+            .focusable()
+            .focusedValue(\\.volume, $volume)
+
+        // Reader — the Binding<Double>? entry is flattened to Double?
+        @FocusedBinding(\\.volume) private var volume: Double?
+        Button("Mute") { volume = 0 }.disabled(volume == nil)
+        """) { AnyView(C06_FocusedBindingExample()) },
+
+        ChildExampleEntry(parent: "@FocusedBinding", child: "projectedValue", code: """
+        @FocusedBinding(\\.isLooping) private var isLooping: Bool?
+
+        // $isLooping is Binding<Bool?>; unwrap it for a control that needs Binding<Bool>
+        Toggle("Loop", isOn: Binding($isLooping) ?? .constant(false))
+            .disabled(isLooping == nil)
+        """) { AnyView(C06_FocusedBindingProjectedExample()) },
+
+        // MARK: ButtonRole
+
+        ChildExampleEntry(parent: "ButtonRole", child: "ButtonRole.destructive", code: """
+        List(messages) { message in
+            Text(message.subject)
+                .swipeActions(edge: .trailing) {
+                    Button("Delete", role: .destructive) { delete(message) }
+                }
+                .contextMenu {
+                    Button("Delete", role: .destructive) { delete(message) }
+                }
+        }
+        """) { AnyView(C06_ButtonRoleDestructiveExample()) },
+
+        ChildExampleEntry(parent: "ButtonRole", child: "ButtonRole.cancel", code: """
+        Button("Discard…") { showsDiscard = true }
+            .confirmationDialog("Discard this draft?", isPresented: $showsDiscard) {
+                Button("Discard Draft", role: .destructive) { discard() }
+                Button("Keep Editing", role: .cancel) { }      // placed last, bound to Escape
+            }
+        """) { AnyView(C06_ButtonRoleCancelExample()) },
+
+        ChildExampleEntry(parent: "ButtonRole", child: "ButtonRole.confirm", code: """
+        Button("Publish…") { showsPublish = true }
+            .alert("Publish this post?", isPresented: $showsPublish) {
+                Button("Publish", role: .confirm) { publish() }   // the affirmative choice
+                Button("Not Yet", role: .cancel) { }
+            }
+        """) { AnyView(C06_ButtonRoleConfirmExample()) },
+
+        ChildExampleEntry(parent: "ButtonRole", child: "ButtonRole.close", code: """
+        Button("Settings…") { showsSettings = true }
+            .sheet(isPresented: $showsSettings) {
+                SettingsForm()
+                    .toolbar {
+                        Button("Close", role: .close) { showsSettings = false }   // close glyph in toolbars
+                    }
+            }
+        """) { AnyView(C06_ButtonRoleCloseExample()) },
+
+        // MARK: ButtonStyleConfiguration
+
+        ChildExampleEntry(parent: "ButtonStyleConfiguration", child: "label", code: """
+        struct PillStyle: ButtonStyle {
+            func makeBody(configuration: Configuration) -> some View {
+                configuration.label                   // whatever the button was created with
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 14).padding(.vertical, 8)
+                    .background(.tint, in: Capsule())
+            }
+        }
+
+        Button("Follow") { }.buttonStyle(PillStyle())
+        Button { } label: { Label("Share", systemImage: "square.and.arrow.up") }.buttonStyle(PillStyle())
+        """) { AnyView(C06_ButtonConfigLabelExample()) },
+
         // C06_ENTRIES_END
     ]
 }
@@ -409,15 +527,16 @@ private struct C06_MenuBarMock: View {
     let title: String
     let menus: [String]
     var highlighted: Set<String> = []
+    var appName = "Notes"
 
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
             Text(title).font(.caption2).foregroundStyle(.secondary)
             HStack(spacing: 12) {
                 Image(systemName: "apple.logo")
-                Text("Notes").bold()
-                ForEach(menus, id: \.self) { menu in
+                ForEach([appName] + menus, id: \.self) { menu in
                     Text(menu)
+                        .bold(menu == appName)
                         .padding(.horizontal, 6).padding(.vertical, 2)
                         .background(highlighted.contains(menu) ? Color.accentColor.opacity(0.25) : .clear,
                                     in: RoundedRectangle(cornerRadius: 4))
@@ -1663,6 +1782,322 @@ private struct C06_PointerLinkExample: View {
             C06_Caption(tapped
                         ? "Tapped — a real citation would call openURL(citation.url) here"
                         : "Hover the title — the pointer becomes a pointing hand")
+        }
+    }
+}
+
+// MARK: - .renameAction()
+
+private struct C06_RenameActionClosureExample: View {
+    private struct Album: Identifiable {
+        let id: Int
+        var name: String
+    }
+    @State private var albums = [Album(id: 0, name: "Summer"), Album(id: 1, name: "Road Trip"), Album(id: 2, name: "Family")]
+    @State private var renamingID: Int? = nil
+    @State private var draft = ""
+
+    var body: some View {
+        VStack(spacing: 8) {
+            VStack(spacing: 4) {
+                ForEach($albums) { $album in
+                    HStack(spacing: 8) {
+                        Image(systemName: "photo.on.rectangle")
+                        if renamingID == album.id {
+                            TextField("Album name", text: $draft)
+                                .textFieldStyle(.roundedBorder)
+                                .onSubmit {
+                                    album.name = draft
+                                    renamingID = nil
+                                }
+                        } else {
+                            Text(album.name)
+                            Spacer()
+                        }
+                    }
+                    .padding(.horizontal, 10).padding(.vertical, 4)
+                    .frame(width: 220)
+                    .background(.quaternary, in: RoundedRectangle(cornerRadius: 6))
+                    .contentShape(Rectangle())
+                    .contextMenu { RenameButton() }
+                    .renameAction {
+                        draft = album.name
+                        renamingID = album.id
+                    }
+                }
+            }
+            C06_Caption(renamingID == nil
+                        ? "Right-click a row and choose Rename — the closure decides how editing begins"
+                        : "Editing — press Return to commit the new name")
+        }
+    }
+}
+
+private struct C06_RenameActionFocusExample: View {
+    @State private var title = "Untitled Sketch"
+    @FocusState private var isEditingTitle: Bool
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack(spacing: 8) {
+                TextField("Title", text: $title)
+                    .textFieldStyle(.roundedBorder)
+                    .focused($isEditingTitle)
+                    .frame(width: 170)
+                RenameButton()
+            }
+            .renameAction($isEditingTitle)
+            Text(isEditingTitle ? "isEditingTitle = true — the field has focus" : "isEditingTitle = false")
+                .font(.callout.monospaced())
+                .foregroundStyle(.secondary)
+            C06_Caption("Click Rename: the FocusState binding flips to true and focus lands in the field.")
+        }
+    }
+}
+
+private struct C06_RenameActionTypeExample: View {
+    @State private var invocations = 0
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack(spacing: 24) {
+                VStack(spacing: 4) {
+                    C06_RenameControl()
+                        .renameAction { invocations += 1 }
+                    Text("inside .renameAction").font(.caption2).foregroundStyle(.secondary)
+                }
+                VStack(spacing: 4) {
+                    C06_RenameControl()
+                    Text("no action in scope").font(.caption2).foregroundStyle(.secondary)
+                }
+            }
+            Text("rename?() called \(invocations)×")
+                .font(.callout.monospacedDigit())
+            C06_Caption("RenameAction is the environment value RenameButton itself reads; it is nil until a .renameAction supplies one.")
+        }
+    }
+}
+
+private struct C06_RenameControl: View {
+    @Environment(\.rename) private var rename: RenameAction?
+
+    var body: some View {
+        Button("Rename…") { rename?() }
+            .disabled(rename == nil)
+    }
+}
+
+// MARK: - @FocusedBinding
+
+private struct C06_FocusedBindingExample: View {
+    @State private var volume = 0.6
+    @FocusState private var playerFocused: Bool
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack(spacing: 10) {
+                Image(systemName: volume == 0 ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                Slider(value: $volume, in: 0...1) { Text("Volume") }
+                    .frame(width: 130)
+            }
+            .padding(10)
+            .frame(width: 220)
+            .c06FocusRing(playerFocused)
+            .focusable()
+            .focused($playerFocused)
+            .focusedValue(\.volume, $volume)
+            .onTapGesture { playerFocused = true }
+            C06_VolumeReader()
+            C06_Caption("Click the player to focus it; the reader receives the flattened Double? and writes back through the binding.")
+        }
+    }
+}
+
+private struct C06_VolumeReader: View {
+    @FocusedBinding(\.volume) private var volume: Double?
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Button("Mute") { volume = 0 }
+                .disabled(volume == nil)
+            Text(volume.map { String(format: "@FocusedBinding → %.2f", $0) } ?? "@FocusedBinding → nil")
+                .font(.callout.monospaced())
+        }
+    }
+}
+
+private struct C06_FocusedBindingProjectedExample: View {
+    @State private var isLooping = true
+    @FocusState private var trackFocused: Bool
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack(spacing: 8) {
+                Image(systemName: "music.note.list")
+                Text("Nocturne No. 2")
+                Spacer()
+                Image(systemName: "repeat")
+                    .foregroundStyle(isLooping ? Color.accentColor : Color.secondary)
+            }
+            .padding(10)
+            .frame(width: 220)
+            .c06FocusRing(trackFocused)
+            .focusable()
+            .focused($trackFocused)
+            .focusedValue(\.isLooping, $isLooping)
+            .onTapGesture { trackFocused = true }
+            C06_LoopReader()
+            C06_Caption("Click the track to focus it; Binding($isLooping) unwraps the optional projection for the Toggle.")
+        }
+    }
+}
+
+private struct C06_LoopReader: View {
+    @FocusedBinding(\.isLooping) private var isLooping: Bool?
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Toggle("Loop", isOn: Binding($isLooping) ?? .constant(false))
+                .toggleStyle(.switch)
+                .disabled(isLooping == nil)
+            Text(verbatim: isLooping.map { "$isLooping → Binding<Bool?> (\($0))" } ?? "isLooping == nil")
+                .font(.caption.monospaced())
+        }
+    }
+}
+
+// MARK: - ButtonRole
+
+private struct C06_ButtonRoleDestructiveExample: View {
+    private struct Message: Identifiable {
+        let id: Int
+        let subject: String
+    }
+    private static let inbox = [
+        Message(id: 0, subject: "Welcome aboard"),
+        Message(id: 1, subject: "Invoice #204"),
+        Message(id: 2, subject: "Weekend plans"),
+    ]
+    @State private var messages = C06_ButtonRoleDestructiveExample.inbox
+
+    var body: some View {
+        VStack(spacing: 8) {
+            List(messages) { message in
+                Text(message.subject)
+                    .swipeActions(edge: .trailing) {
+                        Button("Delete", role: .destructive) { delete(message) }
+                    }
+                    .contextMenu {
+                        Button("Delete", role: .destructive) { delete(message) }
+                    }
+            }
+            .frame(width: 240, height: 96)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            HStack(spacing: 10) {
+                Button("Reset") { messages = Self.inbox }
+                    .controlSize(.small)
+                Text("\(messages.count) messages").font(.caption).foregroundStyle(.secondary)
+            }
+            C06_Caption("Swipe a row with two fingers or right-click it — the destructive role draws Delete in red.")
+        }
+    }
+
+    private func delete(_ message: Message) {
+        messages.removeAll { $0.id == message.id }
+    }
+}
+
+private struct C06_ButtonRoleCancelExample: View {
+    @State private var showsDiscard = false
+    @State private var outcome = "Draft: “Meeting notes…”"
+
+    var body: some View {
+        VStack(spacing: 10) {
+            Button("Discard…") { showsDiscard = true }
+                .confirmationDialog("Discard this draft?", isPresented: $showsDiscard) {
+                    Button("Discard Draft", role: .destructive) { outcome = "Draft discarded" }
+                    Button("Keep Editing", role: .cancel) { outcome = "Kept editing" }
+                }
+            Text(outcome).font(.callout).foregroundStyle(.secondary)
+            C06_Caption("The .cancel button is placed last and Escape triggers it.")
+        }
+    }
+}
+
+private struct C06_ButtonRoleConfirmExample: View {
+    @State private var showsPublish = false
+    @State private var status = "Draft"
+
+    var body: some View {
+        VStack(spacing: 10) {
+            Button("Publish…") { showsPublish = true }
+                .alert("Publish this post?", isPresented: $showsPublish) {
+                    Button("Publish", role: .confirm) { status = "Published" }
+                    Button("Not Yet", role: .cancel) { status = "Still a draft" }
+                }
+            Label(status, systemImage: status == "Published" ? "checkmark.seal.fill" : "doc")
+                .font(.callout)
+                .foregroundStyle(status == "Published" ? Color.green : Color.secondary)
+            C06_Caption("New in the 2025 releases: .confirm marks the affirmative choice so the system can place and style it.")
+        }
+    }
+}
+
+private struct C06_ButtonRoleCloseExample: View {
+    @State private var showsSettings = false
+    @State private var notifications = true
+
+    var body: some View {
+        VStack(spacing: 10) {
+            Button("Settings…") { showsSettings = true }
+                .sheet(isPresented: $showsSettings) {
+                    VStack(spacing: 12) {
+                        Text("Settings").font(.headline)
+                        Toggle("Notifications", isOn: $notifications)
+                            .toggleStyle(.switch)
+                        Button("Close", role: .close) { showsSettings = false }
+                            .keyboardShortcut(.cancelAction)
+                    }
+                    .padding(20)
+                    .frame(width: 240)
+                    .toolbar {
+                        Button("Close", role: .close) { showsSettings = false }
+                    }
+                }
+            Text(notifications ? "Notifications on" : "Notifications off")
+                .font(.callout).foregroundStyle(.secondary)
+            C06_Caption("Also new in 2025: .close marks the dismiss button; in a toolbar the system draws the standard close glyph.")
+        }
+    }
+}
+
+// MARK: - ButtonStyleConfiguration
+
+private struct C06_PillStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .foregroundStyle(.white)
+            .padding(.horizontal, 14).padding(.vertical, 8)
+            .background(.tint, in: Capsule())
+    }
+}
+
+private struct C06_ButtonConfigLabelExample: View {
+    @State private var last = "—"
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack(spacing: 12) {
+                Button("Follow") { last = "Follow" }
+                    .buttonStyle(C06_PillStyle())
+                Button { last = "Share" } label: { Label("Share", systemImage: "square.and.arrow.up") }
+                    .buttonStyle(C06_PillStyle())
+                Button { last = "Star" } label: { Image(systemName: "star.fill") }
+                    .buttonStyle(C06_PillStyle())
+                    .tint(.orange)
+            }
+            Text("Last tapped: \(last)").font(.callout).foregroundStyle(.secondary)
+            C06_Caption("configuration.label is the button's own content, type-erased — text, a Label, or an image.")
         }
     }
 }

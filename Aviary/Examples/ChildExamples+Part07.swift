@@ -603,8 +603,8 @@ private struct C07_TextBoldExample: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Due: ") + Text(dueDate, style: .date).bold()
-            Text("Total: ") + Text(total, format: .currency(code: "USD")).bold()
+            Text("Due: \(Text(dueDate, style: .date).bold())")
+            Text("Total: \(Text(total, format: .currency(code: "USD")).bold())")
             Text("Text.bold() returns Text, so it can sit inside a + concatenation.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -751,8 +751,8 @@ private struct C07_TextItalicExample: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Note: ").bold() + Text("draft saved locally").italic()
-            Text("Source: ") + Text(citation).italic()
+            Text("\(Text("Note: ").bold())\(Text("draft saved locally").italic())")
+            Text("Source: \(Text(citation).italic())")
             Text("Text.italic() slants only its own segment of the concatenation.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -996,7 +996,7 @@ private struct C07_UnderlineColorExample: View {
 private struct C07_UnderlinePatternExample: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Please ") + Text("recieve").underline(pattern: .dot, color: .red) + Text(" the parcel")
+            Text("Please \(Text("recieve").underline(pattern: .dot, color: .red)) the parcel")
             Text("pending review").underline(pattern: .dash, color: .orange)
             Text("solid default").underline()
         }
@@ -1978,7 +1978,7 @@ private struct C07_RunBoxesRenderer: TextRenderer {
 private struct C07_TextLayoutRunExample: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            (Text("Bold start, ").bold() + Text("plain middle, ") + Text("italic end").italic())
+            Text("\(Text("Bold start, ").bold())plain middle, \(Text("italic end").italic())")
                 .font(.title3)
                 .textRenderer(C07_RunBoxesRenderer())
             Text("Each box is one Run — a stretch sharing a single attribute set.")
@@ -2040,7 +2040,7 @@ private struct C07_SparkleRenderer: TextRenderer {
 private struct C07_TextLayoutRunSubscriptExample: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            (Text("Plain ") + Text("magic").customAttribute(C07_Sparkle()).foregroundStyle(.orange) + Text(" plain"))
+            Text("Plain \(Text("magic").customAttribute(C07_Sparkle()).foregroundStyle(.orange)) plain")
                 .font(.title2.bold())
                 .textRenderer(C07_SparkleRenderer())
             Text("run[Sparkle.self] is nil for the plain runs, so only the tagged one glows.")

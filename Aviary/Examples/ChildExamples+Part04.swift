@@ -446,6 +446,228 @@ enum ChildExamplesPart04 {
             )
         """) { AnyView(C04_SearchablePlacementExample()) },
 
+        ChildExampleEntry(parent: ".searchable()", child: "searchSuggestions(_:)", code: """
+        List(results, id: \\.self) { Text($0) }
+            .searchable(text: $query)
+            .searchSuggestions {
+                ForEach(recentQueries, id: \\.self) { term in
+                    Label(term, systemImage: "clock")
+                        .searchCompletion(term)
+                }
+            }
+        """) { AnyView(C04_SearchSuggestionsExample()) },
+
+        // MARK: .sensoryFeedback()
+
+        ChildExampleEntry(parent: ".sensoryFeedback()", child: "sensoryFeedback(_:trigger:)", code: """
+        Picker("Size", selection: $size) {
+            ForEach(sizes, id: \\.self) { Text($0) }
+        }
+        .pickerStyle(.segmented)
+        .sensoryFeedback(.selection, trigger: size)
+        """) { AnyView(C04_SensoryFeedbackTriggerExample()) },
+
+        ChildExampleEntry(parent: ".sensoryFeedback()", child: "sensoryFeedback(trigger:_:)", code: """
+        Stepper("Count: \\(count)", value: $count)
+            .sensoryFeedback(trigger: count) { old, new in
+                new > old ? .increase : .decrease
+            }
+        """) { AnyView(C04_SensoryFeedbackClosureExample()) },
+
+        ChildExampleEntry(parent: ".sensoryFeedback()", child: "SensoryFeedback.impact(weight:intensity:)", code: """
+        dropZone                             // clicking it bumps `drops`
+            .sensoryFeedback(.impact(weight: weight, intensity: intensity), trigger: drops)
+        Picker("Weight", selection: $weightIndex) { … }   // .light / .medium / .heavy
+        Slider(value: $intensity, in: 0...1)
+        """) { AnyView(C04_ImpactFeedbackExample()) },
+
+        // MARK: .shadow()
+
+        ChildExampleEntry(parent: ".shadow()", child: "shadow(color:radius:x:y:)", code: """
+        card
+            .shadow(color: .black.opacity(0.15), radius: radius, x: 0, y: yOffset)
+        Slider(value: $radius, in: 0...20)
+        Slider(value: $yOffset, in: -10...10)
+        """) { AnyView(C04_ShadowModifierExample()) },
+
+        ChildExampleEntry(parent: ".shadow()", child: "ShapeStyle.shadow(_:)", code: """
+        Circle()
+            .fill(.blue.shadow(.inner(radius: 4, y: 2)))     // inset, pressed look
+            .frame(width: 60, height: 60)
+            .overlay(Text("9").foregroundStyle(.white))      // stays crisp
+
+        Circle()
+            .fill(.blue.shadow(.drop(radius: 4, y: 2)))      // shadows the fill only
+        """) { AnyView(C04_ShapeStyleShadowExample()) },
+
+        // MARK: .sheet()
+
+        ChildExampleEntry(parent: ".sheet()", child: "sheet(isPresented:onDismiss:content:)", code: """
+        Button("Settings") { showSettings = true }
+            .sheet(isPresented: $showSettings, onDismiss: { dismissCount += 1 }) {
+                SettingsView()
+            }
+        """) { AnyView(C04_SheetIsPresentedExample()) },
+
+        ChildExampleEntry(parent: ".sheet()", child: "sheet(item:onDismiss:content:)", code: """
+        recipeButtons                        // each sets selectedRecipe = recipe
+            .sheet(item: $selectedRecipe, onDismiss: { refreshCount += 1 }) { recipe in
+                RecipeDetail(recipe)
+            }
+        """) { AnyView(C04_SheetItemExample()) },
+
+        // MARK: .swipeActions()
+
+        ChildExampleEntry(parent: ".swipeActions()", child: "swipeActions(edge:allowsFullSwipe:content:)", code: """
+        List(items) { item in
+            ItemRow(item)
+                .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                    Button("Read") { markRead(item) }.tint(.blue)
+                }
+        }
+        """) { AnyView(C04_SwipeActionsExample()) },
+
+        ChildExampleEntry(parent: ".swipeActions()", child: "HorizontalEdge", code: """
+        MessageRow(message)
+            .swipeActions(edge: .leading) {              // HorizontalEdge.leading
+                Button("Flag") { flag(message) }.tint(.orange)
+            }
+            .swipeActions(edge: .trailing) {             // HorizontalEdge.trailing
+                Button("Delete", role: .destructive) { delete(message) }
+            }
+        """) { AnyView(C04_HorizontalEdgeExample()) },
+
+        // MARK: .symbolEffect()
+
+        ChildExampleEntry(parent: ".symbolEffect()", child: "symbolEffect(_:options:isActive:)", code: """
+        Image(systemName: "dot.radiowaves.left.and.right")
+            .symbolEffect(.pulse, options: .speed(1.5), isActive: isBroadcasting)
+        Toggle("Broadcasting", isOn: $isBroadcasting)
+        """) { AnyView(C04_SymbolEffectIsActiveExample()) },
+
+        ChildExampleEntry(parent: ".symbolEffect()", child: "symbolEffect(_:options:value:)", code: """
+        Image(systemName: "envelope.fill")
+            .symbolEffect(.bounce, options: .repeat(.periodic(2)), value: unreadCount)
+        Button("New message") { unreadCount += 1 }
+        """) { AnyView(C04_SymbolEffectValueExample()) },
+
+        // MARK: .task()
+
+        ChildExampleEntry(parent: ".task()", child: "task(priority:_:)", code: """
+        if showGrid {
+            thumbnailGrid
+                .task(priority: .background) {          // prefetchThumbnails()
+                    loaded = 0
+                    for i in 1...6 {
+                        guard (try? await Task.sleep(for: .milliseconds(350))) != nil else { return }
+                        loaded = i
+                    }
+                }
+        }
+        """) { AnyView(C04_TaskPriorityExample()) },
+
+        ChildExampleEntry(parent: ".task()", child: "task(id:priority:_:)", code: """
+        TextField("Search parks", text: $query)
+        resultsList
+            .task(id: query) {                           // restarts on every change of `query`
+                runs += 1
+                guard (try? await Task.sleep(for: .milliseconds(400))) != nil else { return }
+                results = await search(query)
+            }
+        """) { AnyView(C04_TaskIDExample()) },
+
+        // MARK: .toolbar()
+
+        ChildExampleEntry(parent: ".toolbar()", child: "toolbar(content:)", code: """
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Cancel") { dismiss() }
+            }
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Save") { save() }
+            }
+        }
+        """) { AnyView(C04_ToolbarContentExample()) },
+
+        ChildExampleEntry(parent: ".toolbar()", child: "toolbar(id:content:)", code: """
+        .toolbar(id: "editor") {
+            ToolbarItem(id: "bold", placement: .secondaryAction) {
+                Button("Bold", systemImage: "bold") { toggleBold() }
+            }
+            ToolbarItem(id: "share", placement: .secondaryAction) {
+                ShareLink(item: documentURL)
+            }
+        }
+        """) { AnyView(C04_ToolbarIDExample()) },
+
+        ChildExampleEntry(parent: ".toolbar()", child: "toolbar(_:for:)", code: """
+        PhotoViewer(photo)
+            .toolbar(isImmersed ? .hidden : .visible, for: .navigationBar)
+        Toggle("Immersed", isOn: $isImmersed)
+        """) { AnyView(C04_ToolbarVisibilityExample()) },
+
+        // MARK: .toolbarBackground()
+
+        ChildExampleEntry(parent: ".toolbarBackground()", child: "toolbarBackground(_:for:)", code: """
+        content
+            .toolbarBackground(.ultraThinMaterial, for: .navigationBar, .tabBar)
+        """) { AnyView(C04_ToolbarBackgroundExample()) },
+
+        ChildExampleEntry(parent: ".toolbarBackground()", child: "toolbarBackgroundVisibility(_:for:)", code: """
+        content
+            .toolbarBackground(.indigo, for: .navigationBar)
+            .toolbarBackgroundVisibility(.visible, for: .navigationBar)
+        """) { AnyView(C04_ToolbarBackgroundVisibilityExample()) },
+
+        ChildExampleEntry(parent: ".toolbarBackground()", child: "toolbarColorScheme(_:for:)", code: """
+        content
+            .toolbarBackground(.indigo, for: .navigationBar)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+        """) { AnyView(C04_ToolbarColorSchemeExample()) },
+
+        // MARK: .transition()
+
+        ChildExampleEntry(parent: ".transition()", child: ".asymmetric(insertion:removal:)", code: """
+        if showToast {
+            ToastView()
+                .transition(.asymmetric(
+                    insertion: .move(edge: .bottom),   // slides up
+                    removal: .opacity                  // fades away
+                ))
+        }
+        Button("Toast") { withAnimation(.snappy) { showToast.toggle() } }
+        """) { AnyView(C04_AsymmetricTransitionExample()) },
+
+        ChildExampleEntry(parent: ".transition()", child: ".move(edge:)", code: """
+        HStack(spacing: 0) {
+            if showSidebar {
+                Sidebar()
+                    .transition(.move(edge: .leading))
+            }
+            Detail()
+        }
+        Toggle("Sidebar", isOn: $showSidebar.animation(.snappy))
+        """) { AnyView(C04_MoveTransitionExample()) },
+
+        ChildExampleEntry(parent: ".transition()", child: "combined(with:)", code: """
+        if showBanner {
+            BannerView()
+                .transition(.scale(scale: 0.9).combined(with: .opacity))
+        }
+        Button("Banner") { withAnimation(.bouncy) { showBanner.toggle() } }
+        """) { AnyView(C04_CombinedTransitionExample()) },
+
+        ChildExampleEntry(parent: ".transition()", child: ".blurReplace", code: """
+        if isDone {
+            Image(systemName: "checkmark.circle.fill")
+                .transition(.blurReplace)
+        } else {
+            Image(systemName: "circle.dotted")
+                .transition(.blurReplace)
+        }
+        Button("Toggle") { withAnimation(.smooth) { isDone.toggle() } }
+        """) { AnyView(C04_BlurReplaceTransitionExample()) },
+
         // MARK: - end of entries
     ]
 }
@@ -1787,6 +2009,813 @@ private struct C04_SearchablePlacementExample: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
+        }
+    }
+}
+
+private struct C04_SearchSuggestionsExample: View {
+    @State private var query = ""
+    @FocusState private var isSearching: Bool
+    private let recentQueries = ["swift concurrency", "swiftui layout", "sf symbols", "spring animation"]
+    private let items = ["Swift Concurrency Guide", "SwiftUI Layout Cookbook", "SF Symbols 6", "Spring Animations", "Grid Layouts"]
+
+    private var suggestions: [String] {
+        recentQueries.filter { query.isEmpty || $0.localizedCaseInsensitiveContains(query) }
+    }
+
+    private var results: [String] {
+        query.isEmpty ? items : items.filter { $0.localizedCaseInsensitiveContains(query) }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
+                TextField("Search", text: $query)
+                    .textFieldStyle(.plain)
+                    .focused($isSearching)
+            }
+            .padding(6)
+            .background(.quaternary, in: .rect(cornerRadius: 8))
+            if isSearching, !suggestions.isEmpty {
+                VStack(alignment: .leading, spacing: 2) {
+                    ForEach(suggestions, id: \.self) { term in
+                        Label(term, systemImage: "clock")
+                            .font(.caption)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(4)
+                            .contentShape(.rect)
+                            .onTapGesture { query = term; isSearching = false }   // what .searchCompletion(term) does
+                    }
+                }
+                .padding(4)
+                .background(.background.secondary, in: .rect(cornerRadius: 8))
+            } else {
+                ForEach(results, id: \.self) { Text($0).font(.caption) }
+            }
+            Text("Illustrative — suggestions appear under the search field while it is active; a click fills the field via searchCompletion")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+        }
+        .frame(width: 260)
+    }
+}
+
+// MARK: - .sensoryFeedback()
+
+private struct C04_SensoryFeedbackTriggerExample: View {
+    @State private var size = "M"
+    @State private var fired = 0
+    private let sizes = ["S", "M", "L", "XL"]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Picker("Size", selection: $size) {
+                ForEach(sizes, id: \.self) { Text($0) }
+            }
+            .pickerStyle(.segmented)
+            .sensoryFeedback(.selection, trigger: size)
+            .onChange(of: size) { fired += 1 }
+            Text(".selection played \(fired)× — once per change of `size`")
+                .font(.caption.monospaced())
+                .foregroundStyle(.secondary)
+            Text("Felt on a Force Touch trackpad; iPhone plays a haptic")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+        }
+        .frame(width: 260)
+    }
+}
+
+private struct C04_SensoryFeedbackClosureExample: View {
+    @State private var count = 0
+    @State private var last = "—"
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Stepper("Count: \(count)", value: $count)
+                .sensoryFeedback(trigger: count) { old, new in
+                    new > old ? .increase : .decrease
+                }
+                .onChange(of: count) { old, new in
+                    last = new > old ? ".increase" : ".decrease"
+                }
+            Text("closure returned \(last)")
+                .font(.caption.monospaced())
+                .foregroundStyle(.secondary)
+            Text("Return nil from the closure to stay silent for a change")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+        }
+        .frame(width: 240)
+    }
+}
+
+private struct C04_ImpactFeedbackExample: View {
+    private let weights: [(String, SensoryFeedback.Weight)] = [(".light", .light), (".medium", .medium), (".heavy", .heavy)]
+    @State private var weightIndex = 2
+    @State private var intensity = 0.8
+    @State private var drops = 0
+
+    private var weight: SensoryFeedback.Weight { weights[weightIndex].1 }
+
+    var body: some View {
+        VStack(spacing: 8) {
+            RoundedRectangle(cornerRadius: 10)
+                .fill(.blue.opacity(0.12))
+                .frame(width: 240, height: 54)
+                .overlay {
+                    Label("Drop here (\(drops))", systemImage: "arrow.down.to.line")
+                        .font(.caption)
+                }
+                .overlay(RoundedRectangle(cornerRadius: 10).stroke(.blue, style: StrokeStyle(lineWidth: 1, dash: [4])))
+                .contentShape(.rect)
+                .onTapGesture { drops += 1 }
+                .sensoryFeedback(.impact(weight: weight, intensity: intensity), trigger: drops)
+            Picker("Weight", selection: $weightIndex) {
+                ForEach(weights.indices, id: \.self) { Text(weights[$0].0).tag($0) }
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            HStack {
+                Text("intensity").font(.caption)
+                Slider(value: $intensity, in: 0...1)
+                Text(String(format: "%.2f", intensity)).font(.caption.monospaced())
+            }
+        }
+        .frame(width: 240)
+    }
+}
+
+// MARK: - .shadow()
+
+private struct C04_ShadowModifierExample: View {
+    @State private var radius: CGFloat = 6
+    @State private var yOffset: CGFloat = 3
+
+    var body: some View {
+        VStack(spacing: 12) {
+            RoundedRectangle(cornerRadius: 12)
+                .fill(.background)
+                .frame(width: 160, height: 60)
+                .overlay(Label("Card", systemImage: "creditcard").font(.caption))
+                .shadow(color: .black.opacity(0.15), radius: radius, x: 0, y: yOffset)
+            Grid(alignment: .leading, verticalSpacing: 4) {
+                GridRow {
+                    Text("radius").font(.caption)
+                    Slider(value: $radius, in: 0...20)
+                    Text(String(format: "%.0f", radius)).font(.caption.monospaced())
+                }
+                GridRow {
+                    Text("y").font(.caption)
+                    Slider(value: $yOffset, in: -10...10)
+                    Text(String(format: "%.0f", yOffset)).font(.caption.monospaced())
+                }
+            }
+        }
+        .padding(.top, 8)
+        .frame(width: 240)
+    }
+}
+
+private struct C04_ShapeStyleShadowExample: View {
+    var body: some View {
+        HStack(alignment: .top, spacing: 24) {
+            VStack(spacing: 8) {
+                badge(AnyShapeStyle(Color.blue.shadow(.inner(radius: 4, y: 2))))
+                caption(".fill(.blue.shadow(.inner(…)))")
+            }
+            VStack(spacing: 8) {
+                badge(AnyShapeStyle(Color.blue.shadow(.drop(radius: 4, y: 2))))
+                caption(".fill(.blue.shadow(.drop(…)))")
+            }
+            VStack(spacing: 8) {
+                badge(AnyShapeStyle(Color.blue))
+                    .shadow(radius: 4, y: 2)
+                caption("view .shadow — blurs the 9 too")
+            }
+        }
+    }
+
+    private func badge(_ style: AnyShapeStyle) -> some View {
+        Circle()
+            .fill(style)
+            .frame(width: 60, height: 60)
+            .overlay(Text("9").font(.title3.bold()).foregroundStyle(.white))
+    }
+
+    private func caption(_ text: String) -> some View {
+        Text(text)
+            .font(.caption2)
+            .foregroundStyle(.tertiary)
+            .multilineTextAlignment(.center)
+            .frame(width: 90)
+    }
+}
+
+// MARK: - .sheet()
+
+private struct C04_SheetIsPresentedExample: View {
+    @State private var showSettings = false
+    @State private var dismissCount = 0
+    @State private var notifications = true
+
+    var body: some View {
+        VStack(spacing: 8) {
+            Button("Settings") { showSettings = true }
+                .sheet(isPresented: $showSettings, onDismiss: { dismissCount += 1 }) {
+                    VStack(spacing: 12) {
+                        Text("Settings").font(.headline)
+                        Toggle("Notifications", isOn: $notifications)
+                        Button("Done") { showSettings = false }
+                            .keyboardShortcut(.defaultAction)
+                    }
+                    .padding(20)
+                    .frame(width: 220)
+                }
+            Text("isPresented: \(showSettings ? "true" : "false")   onDismiss ran \(dismissCount)×")
+                .font(.caption.monospaced())
+                .foregroundStyle(.secondary)
+        }
+    }
+}
+
+private struct C04_SheetItemExample: View {
+    private struct Recipe: Identifiable {
+        let id: Int
+        let name: String
+        let minutes: Int
+    }
+
+    private let recipes = [
+        Recipe(id: 1, name: "Pesto", minutes: 10),
+        Recipe(id: 2, name: "Ramen", minutes: 35),
+        Recipe(id: 3, name: "Focaccia", minutes: 90),
+    ]
+    @State private var selectedRecipe: Recipe?
+    @State private var refreshCount = 0
+
+    var body: some View {
+        VStack(spacing: 8) {
+            HStack {
+                ForEach(recipes) { recipe in
+                    Button(recipe.name) { selectedRecipe = recipe }
+                }
+            }
+            .sheet(item: $selectedRecipe, onDismiss: { refreshCount += 1 }) { recipe in
+                VStack(spacing: 10) {
+                    Text(recipe.name).font(.title2.bold())
+                    Label("\(recipe.minutes) min", systemImage: "clock")
+                    Button("Close") { selectedRecipe = nil }
+                        .keyboardShortcut(.cancelAction)
+                }
+                .padding(20)
+                .frame(width: 200)
+            }
+            Text("refreshList() ran \(refreshCount)× — the sheet receives the tapped recipe, unwrapped")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(width: 280)
+    }
+}
+
+// MARK: - .swipeActions()
+
+private struct C04_SwipeActionsExample: View {
+    private struct Item: Identifiable {
+        let id: Int
+        let title: String
+    }
+
+    private let items = [
+        Item(id: 1, title: "Release notes"),
+        Item(id: 2, title: "Design review"),
+        Item(id: 3, title: "Weekly digest"),
+    ]
+    @State private var read: Set<Int> = []
+
+    var body: some View {
+        VStack(spacing: 6) {
+            List(items) { item in
+                Label(item.title, systemImage: read.contains(item.id) ? "envelope.open" : "envelope.badge")
+                    .foregroundStyle(read.contains(item.id) ? Color.secondary : Color.primary)
+                    .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                        Button("Read") { read.insert(item.id) }.tint(.blue)
+                    }
+            }
+            .frame(width: 260, height: 110)
+            Text("Swipe a row right with two fingers — a full swipe never auto-fires because allowsFullSwipe: false")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .frame(width: 260)
+        }
+    }
+}
+
+private struct C04_HorizontalEdgeExample: View {
+    private struct Message: Identifiable {
+        let id: Int
+        let text: String
+    }
+
+    @State private var messages = [
+        Message(id: 1, text: "Lunch tomorrow?"),
+        Message(id: 2, text: "Build is green"),
+        Message(id: 3, text: "Photos from the trip"),
+    ]
+    @State private var flagged: Set<Int> = []
+
+    var body: some View {
+        VStack(spacing: 6) {
+            List(messages) { message in
+                HStack {
+                    Text(message.text)
+                    Spacer()
+                    if flagged.contains(message.id) {
+                        Image(systemName: "flag.fill").foregroundStyle(.orange)
+                    }
+                }
+                .swipeActions(edge: .leading) {
+                    Button("Flag") { flagged.insert(message.id) }.tint(.orange)
+                }
+                .swipeActions(edge: .trailing) {
+                    Button("Delete", role: .destructive) { messages.removeAll { $0.id == message.id } }
+                }
+            }
+            .frame(width: 260, height: 110)
+            Text(".leading reveals Flag (swipe right) · .trailing reveals Delete (swipe left)")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .frame(width: 260)
+        }
+    }
+}
+
+// MARK: - .symbolEffect()
+
+private struct C04_SymbolEffectIsActiveExample: View {
+    @State private var isBroadcasting = true
+
+    var body: some View {
+        VStack(spacing: 10) {
+            Image(systemName: "dot.radiowaves.left.and.right")
+                .font(.system(size: 40))
+                .foregroundStyle(isBroadcasting ? Color.blue : Color.secondary)
+                .symbolEffect(.pulse, options: .speed(1.5), isActive: isBroadcasting)
+            Toggle("Broadcasting", isOn: $isBroadcasting)
+                .toggleStyle(.switch)
+            Text(isBroadcasting ? "isActive: true — pulses until the flag drops" : "isActive: false — the effect winds down")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+}
+
+private struct C04_SymbolEffectValueExample: View {
+    @State private var unreadCount = 0
+
+    var body: some View {
+        VStack(spacing: 10) {
+            Image(systemName: "envelope.fill")
+                .font(.system(size: 40))
+                .foregroundStyle(.blue)
+                .symbolEffect(.bounce, options: .repeat(.periodic(2)), value: unreadCount)
+                .overlay(alignment: .topTrailing) {
+                    if unreadCount > 0 {
+                        Text("\(unreadCount)")
+                            .font(.caption2.bold())
+                            .foregroundStyle(.white)
+                            .padding(4)
+                            .background(.red, in: .circle)
+                            .offset(x: 8, y: -8)
+                    }
+                }
+            Button("New message") { unreadCount += 1 }
+            Text("bounces twice per change of `unreadCount`")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+}
+
+// MARK: - .task()
+
+private struct C04_TaskPriorityExample: View {
+    @State private var showGrid = true
+    @State private var loaded = 0
+
+    var body: some View {
+        VStack(spacing: 8) {
+            Toggle("Show grid", isOn: $showGrid).toggleStyle(.switch)
+            if showGrid {
+                HStack(spacing: 8) {
+                    ForEach(1...6, id: \.self) { i in
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(i <= loaded ? Color.teal : Color.gray.opacity(0.25))
+                            .frame(width: 34, height: 34)
+                            .overlay {
+                                Image(systemName: i <= loaded ? "photo" : "ellipsis")
+                                    .font(.caption)
+                                    .foregroundStyle(.white)
+                            }
+                    }
+                }
+                .task(priority: .background) {
+                    loaded = 0
+                    for i in 1...6 {
+                        guard (try? await Task.sleep(for: .milliseconds(350))) != nil else { return }
+                        loaded = i
+                    }
+                }
+            }
+            Text("prefetched \(loaded)/6 at .background priority — hide the grid to cancel, show it to restart")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(width: 270)
+    }
+}
+
+private struct C04_TaskIDExample: View {
+    private let catalog = ["Acadia", "Arches", "Badlands", "Big Bend", "Glacier", "Olympic", "Yosemite", "Zion"]
+    @State private var query = ""
+    @State private var results: [String] = []
+    @State private var runs = 0
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            TextField("Search parks", text: $query)
+                .textFieldStyle(.roundedBorder)
+            VStack(alignment: .leading, spacing: 2) {
+                ForEach(results, id: \.self) { Text($0).font(.caption) }
+            }
+            .frame(maxWidth: .infinity, minHeight: 70, maxHeight: 70, alignment: .topLeading)
+            .task(id: query) {
+                runs += 1
+                guard (try? await Task.sleep(for: .milliseconds(400))) != nil else { return }
+                results = await search(query)
+            }
+            Text("task started \(runs)× — each keystroke cancels the previous run")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .frame(width: 260)
+    }
+
+    private func search(_ term: String) async -> [String] {
+        term.isEmpty ? catalog : catalog.filter { $0.localizedCaseInsensitiveContains(term) }
+    }
+}
+
+// MARK: - .toolbar()
+
+/// A miniature macOS window: traffic lights, a toolbar row, and a content area — toolbars need a real window.
+private struct C04_WindowMock<Bar: View>: View {
+    var content: String
+    @ViewBuilder var bar: Bar
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 10) {
+                HStack(spacing: 5) {
+                    Circle().fill(.red).frame(width: 9, height: 9)
+                    Circle().fill(.yellow).frame(width: 9, height: 9)
+                    Circle().fill(.green).frame(width: 9, height: 9)
+                }
+                bar
+            }
+            .padding(.horizontal, 10)
+            .frame(height: 34)
+            .background(.bar)
+            Divider()
+            Text(content)
+                .font(.caption)
+                .foregroundStyle(.tertiary)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(.background)
+        }
+        .frame(width: 270, height: 110)
+        .clipShape(.rect(cornerRadius: 10))
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(.quaternary))
+    }
+}
+
+private struct C04_ToolbarContentExample: View {
+    @State private var last = "—"
+
+    var body: some View {
+        VStack(spacing: 6) {
+            C04_WindowMock(content: "Edit Contact") {
+                Button("Cancel") { last = "dismiss()" }          // .cancellationAction
+                Spacer()
+                Button("Save") { last = "save()" }               // .confirmationAction
+                    .buttonStyle(.borderedProminent)
+            }
+            .controlSize(.small)
+            Text("last action: \(last)")
+                .font(.caption.monospaced())
+                .foregroundStyle(.secondary)
+            Text("Illustrative — semantic placements land where each platform expects them")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+        }
+    }
+}
+
+private struct C04_ToolbarIDExample: View {
+    @State private var showsShare = true
+    @State private var isBold = false
+
+    var body: some View {
+        VStack(spacing: 6) {
+            C04_WindowMock(content: isBold ? "Bold body text" : "Body text") {
+                Spacer()
+                Button("Bold", systemImage: "bold") { isBold.toggle() }     // id: "bold"
+                    .foregroundStyle(isBold ? Color.accentColor : Color.primary)
+                if showsShare {
+                    Button("Share", systemImage: "square.and.arrow.up") { }  // id: "share"
+                }
+            }
+            .labelStyle(.iconOnly)
+            .buttonStyle(.borderless)
+            Toggle("User removed “share” via Customize Toolbar…", isOn: Binding(get: { !showsShare }, set: { showsShare = !$0 }))
+                .controlSize(.small)
+            Text("Illustrative — ids let macOS users add, remove, and rearrange items, persisted across launches")
+                .font(.caption2)
+                .foregroundStyle(.tertiary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(width: 280)
+    }
+}
+
+/// A phone with a navigation bar (and optional tab bar) over colorful content — bar styling applies to iOS bars.
+private struct C04_PhoneBarsMock: View {
+    var showsNavBar: Bool
+    var showsTabBar: Bool
+    var barStyle: AnyShapeStyle
+    var barColorScheme: ColorScheme?
+    @Environment(\.colorScheme) private var inherited
+
+    init(
+        showsNavBar: Bool = true,
+        showsTabBar: Bool = false,
+        barStyle: AnyShapeStyle = AnyShapeStyle(Material.bar),
+        barColorScheme: ColorScheme? = nil
+    ) {
+        self.showsNavBar = showsNavBar
+        self.showsTabBar = showsTabBar
+        self.barStyle = barStyle
+        self.barColorScheme = barColorScheme
+    }
+
+    var body: some View {
+        ZStack {
+            LinearGradient(colors: [.orange, .pink, .purple], startPoint: .top, endPoint: .bottom)
+            VStack(spacing: 0) {
+                if showsNavBar {
+                    HStack {
+                        Image(systemName: "chevron.left")
+                        Spacer()
+                        Text("Photos").bold()
+                        Spacer()
+                        Image(systemName: "square.and.arrow.up")
+                    }
+                    .font(.caption2)
+                    .padding(.horizontal, 8)
+                    .frame(height: 28)
+                    .background(barStyle)
+                    .environment(\.colorScheme, barColorScheme ?? inherited)
+                }
+                Spacer()
+                if showsTabBar {
+                    HStack {
+                        Image(systemName: "photo.on.rectangle")
+                        Spacer()
+                        Image(systemName: "heart")
+                        Spacer()
+                        Image(systemName: "magnifyingglass")
+                    }
+                    .font(.caption2)
+                    .padding(.horizontal, 14)
+                    .frame(height: 28)
+                    .background(barStyle)
+                    .environment(\.colorScheme, barColorScheme ?? inherited)
+                }
+            }
+        }
+        .frame(width: 100, height: 160)
+        .clipShape(.rect(cornerRadius: 14))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(.black, lineWidth: 3))
+    }
+}
+
+private struct C04_ToolbarVisibilityExample: View {
+    @State private var isImmersed = false
+
+    var body: some View {
+        HStack(spacing: 20) {
+            C04_PhoneBarsMock(showsNavBar: !isImmersed)
+                .animation(.easeInOut(duration: 0.2), value: isImmersed)
+            VStack(alignment: .leading, spacing: 8) {
+                Toggle("Immersed", isOn: $isImmersed).toggleStyle(.switch)
+                Text(isImmersed ? ".hidden — the bar is gone and the photo fills the screen" : ".visible — the navigation bar is shown")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text("Illustrative — .navigationBar is an iOS bar; on macOS use .windowToolbar")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+            }
+            .frame(width: 170)
+        }
+    }
+}
+
+// MARK: - .toolbarBackground()
+
+private struct C04_ToolbarBackgroundExample: View {
+    var body: some View {
+        HStack(spacing: 20) {
+            C04_PhoneBarsMock(showsNavBar: true, showsTabBar: true, barStyle: AnyShapeStyle(Material.ultraThinMaterial))
+            VStack(alignment: .leading, spacing: 8) {
+                Text(".ultraThinMaterial painted behind both the navigation bar and the tab bar — the photo shows through")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text("Illustrative — iOS bars")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+            }
+            .frame(width: 170)
+        }
+    }
+}
+
+private struct C04_ToolbarBackgroundVisibilityExample: View {
+    @State private var forceVisible = true
+
+    var body: some View {
+        HStack(spacing: 20) {
+            C04_PhoneBarsMock(barStyle: AnyShapeStyle(forceVisible ? Color.indigo : Color.clear), barColorScheme: .dark)
+            VStack(alignment: .leading, spacing: 8) {
+                Picker("Visibility", selection: $forceVisible) {
+                    Text(".visible").tag(true)
+                    Text(".automatic").tag(false)
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                Text(forceVisible ? "the indigo background shows even at the top of the scroll" : "automatic hides the background until content scrolls beneath the bar")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text("Illustrative — iOS bars")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+            }
+            .frame(width: 170)
+        }
+    }
+}
+
+private struct C04_ToolbarColorSchemeExample: View {
+    @State private var isDark = true
+
+    var body: some View {
+        HStack(spacing: 20) {
+            C04_PhoneBarsMock(barStyle: AnyShapeStyle(Color.indigo), barColorScheme: isDark ? .dark : .light)
+            VStack(alignment: .leading, spacing: 8) {
+                Picker("Scheme", selection: $isDark) {
+                    Text(".dark").tag(true)
+                    Text(".light").tag(false)
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                Text(isDark ? "white title and items stay legible on indigo" : "dark title and items on indigo are hard to read")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text("Illustrative — iOS bars")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
+            }
+            .frame(width: 170)
+        }
+    }
+}
+
+// MARK: - .transition()
+
+private struct C04_AsymmetricTransitionExample: View {
+    @State private var showToast = false
+
+    var body: some View {
+        VStack(spacing: 8) {
+            ZStack(alignment: .bottom) {
+                RoundedRectangle(cornerRadius: 10).fill(.quaternary)
+                if showToast {
+                    Label("Saved", systemImage: "checkmark.circle.fill")
+                        .font(.caption.bold())
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(.green, in: .capsule)
+                        .padding(.bottom, 10)
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .bottom),
+                            removal: .opacity
+                        ))
+                }
+            }
+            .frame(width: 240, height: 90)
+            .clipShape(.rect(cornerRadius: 10))
+            Button(showToast ? "Dismiss toast" : "Show toast") { withAnimation(.snappy) { showToast.toggle() } }
+            Text("in: slides up from the bottom · out: fades")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+}
+
+private struct C04_MoveTransitionExample: View {
+    @State private var showSidebar = true
+
+    var body: some View {
+        VStack(spacing: 8) {
+            HStack(spacing: 0) {
+                if showSidebar {
+                    VStack(alignment: .leading, spacing: 6) {
+                        ForEach(["Inbox", "Drafts", "Sent"], id: \.self) {
+                            Label($0, systemImage: "tray").font(.caption)
+                        }
+                        Spacer(minLength: 0)
+                    }
+                    .padding(8)
+                    .frame(width: 90)
+                    .background(.background.secondary)
+                    .transition(.move(edge: .leading))
+                }
+                Text("Detail")
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+            .frame(width: 240, height: 90)
+            .clipShape(.rect(cornerRadius: 10))
+            .overlay(RoundedRectangle(cornerRadius: 10).stroke(.quaternary))
+            Toggle("Sidebar", isOn: $showSidebar.animation(.snappy))
+                .toggleStyle(.switch)
+        }
+    }
+}
+
+private struct C04_CombinedTransitionExample: View {
+    @State private var showBanner = false
+
+    var body: some View {
+        VStack(spacing: 8) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 10).fill(.quaternary)
+                if showBanner {
+                    Label("New version available", systemImage: "arrow.down.circle")
+                        .font(.caption)
+                        .padding(10)
+                        .background(.blue.opacity(0.15), in: .rect(cornerRadius: 8))
+                        .transition(.scale(scale: 0.9).combined(with: .opacity))
+                }
+            }
+            .frame(width: 240, height: 80)
+            Button(showBanner ? "Hide banner" : "Show banner") { withAnimation(.bouncy) { showBanner.toggle() } }
+            Text("scale from 90 % and fade, played together")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+}
+
+private struct C04_BlurReplaceTransitionExample: View {
+    @State private var isDone = false
+
+    var body: some View {
+        VStack(spacing: 8) {
+            ZStack {
+                if isDone {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+                        .transition(.blurReplace)
+                } else {
+                    Image(systemName: "circle.dotted")
+                        .foregroundStyle(.secondary)
+                        .transition(.blurReplace)
+                }
+            }
+            .font(.system(size: 44))
+            .frame(height: 60)
+            Button(isDone ? "Reset" : "Complete") { withAnimation(.smooth) { isDone.toggle() } }
+            Text("the old symbol blurs out as the new one blurs in")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 }

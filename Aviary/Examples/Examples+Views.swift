@@ -281,7 +281,7 @@ enum ExamplesViews {
         Form {
             LabeledContent("Version", value: "2.4.1")
             LabeledContent("Storage") {
-                Text("82%") + Text(" used").foregroundStyle(.secondary)
+                Text("82%\(Text(" used").foregroundStyle(.secondary))")
             }
             LabeledContent("Battery") {
                 ProgressView(value: 0.6).frame(width: 100)
@@ -1304,7 +1304,10 @@ private struct V_LabeledContentExample: View {
         Form {
             LabeledContent("Version", value: "2.4.1")
             LabeledContent("Storage") {
-                Text("82%") + Text(" used").foregroundStyle(.secondary)
+                HStack(spacing: 0) {
+                    Text("82%")
+                    Text(" used").foregroundStyle(.secondary)
+                }
             }
             LabeledContent("Battery") {
                 ProgressView(value: 0.6).frame(width: 100)

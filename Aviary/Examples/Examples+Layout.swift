@@ -1070,8 +1070,10 @@ private struct L_GridColumnAlignmentExample: View {
 
 // MARK: - Custom Layout: FlexRow
 
-private struct L_Flex: LayoutValueKey {
-    static let defaultValue: CGFloat = 1
+private struct L_Flex {}
+
+extension L_Flex: LayoutValueKey {
+    nonisolated static let defaultValue: CGFloat = 1
 }
 
 private struct L_FlexRow: Layout {

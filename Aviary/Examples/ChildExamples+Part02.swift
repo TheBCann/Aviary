@@ -559,6 +559,183 @@ enum ChildExamplesPart02 {
         }
         """) { AnyView(C02_AnnotationTitlesExample()) },
 
+        // MARK: AreaMark
+
+        ChildExampleEntry(parent: "AreaMark", child: "AreaMark(x:y:stacking:)", code: """
+        Chart(traffic) { t in
+            AreaMark(x: .value("Hour", t.hour),
+                     y: .value("Requests", t.count),
+                     stacking: normalized ? .normalized : .standard)   // .normalized: every hour sums to 100 %
+            .foregroundStyle(by: .value("Source", t.source))
+        }
+        """) { AnyView(C02_AreaMarkStackingExample()) },
+
+        ChildExampleEntry(parent: "AreaMark", child: "AreaMark(x:yStart:yEnd:)", code: """
+        Chart(forecast) { f in
+            AreaMark(x: .value("Day", f.date),
+                     yStart: .value("Low", f.low),
+                     yEnd: .value("High", f.high))       // a band between two values, not a fill from the baseline
+            .foregroundStyle(Color.orange)
+            .opacity(0.3)
+            LineMark(x: .value("Day", f.date), y: .value("Forecast", f.mid))
+                .foregroundStyle(Color.orange)
+        }
+        """) { AnyView(C02_AreaMarkBandExample()) },
+
+        ChildExampleEntry(parent: "AreaMark", child: "AreaMark(x:y:series:stacking:)", code: """
+        Chart(readings) { r in
+            AreaMark(x: .value("Time", r.time),
+                     y: .value("Level", r.level),
+                     series: .value("Sensor", r.sensorID),   // three separate areas …
+                     stacking: .unstacked)
+            .foregroundStyle(Color.teal.opacity(0.4))         // … in one shared style, no legend
+        }
+        """) { AnyView(C02_AreaMarkSeriesExample()) },
+
+        ChildExampleEntry(parent: "AreaMark", child: "MarkStackingMethod", code: """
+        Chart(shares) { m in
+            AreaMark(x: .value("Month", m.month),
+                     y: .value("Share", m.share),
+                     stacking: method.value)             // .standard, .normalized, .center, .unstacked
+            .foregroundStyle(by: .value("Product", m.product))
+        }
+        """) { AnyView(C02_MarkStackingMethodExample()) },
+
+        // MARK: AxisMarks
+
+        ChildExampleEntry(parent: "AxisMarks", child: "AxisGridLine", code: """
+        Chart(scores) { s in
+            LineMark(x: .value("Trial", s.trial), y: .value("Score", s.score))
+        }
+        .chartYAxis {
+            AxisMarks { _ in
+                AxisGridLine(stroke: StrokeStyle(dash: dashed ? [2, 3] : []))   // the line across the plot
+                AxisValueLabel()
+            }
+        }
+        """) { AnyView(C02_AxisGridLineExample()) },
+
+        ChildExampleEntry(parent: "AxisMarks", child: "AxisTick", code: """
+        Chart(steps) { e in
+            BarMark(x: .value("Day", e.day), y: .value("Steps", e.steps))
+        }
+        .chartXAxis {
+            AxisMarks { _ in
+                AxisTick(length: tickLength)        // short mark outside the plot edge; no grid line
+                AxisValueLabel()
+            }
+        }
+        """) { AnyView(C02_AxisTickExample()) },
+
+        ChildExampleEntry(parent: "AxisMarks", child: "AxisValueLabel", code: """
+        Chart(prices) { p in
+            LineMark(x: .value("Date", p.date), y: .value("Close", p.close))
+        }
+        .chartYAxis {
+            AxisMarks(values: .automatic) { _ in
+                AxisGridLine()
+                AxisValueLabel(format: .currency(code: "USD"))   // "$100" instead of "100"
+            }
+        }
+        """) { AnyView(C02_AxisValueLabelExample()) },
+
+        ChildExampleEntry(parent: "AxisMarks", child: "AxisMarks(preset:position:values:stroke:)", code: """
+        Chart(scores) { s in
+            LineMark(x: .value("Trial", s.trial), y: .value("Score", s.score))
+        }
+        .chartYAxis {
+            AxisMarks(preset: preset.value,                 // .automatic / .aligned / .extended / .inset
+                      position: leading ? .leading : .trailing,
+                      values: .automatic(desiredCount: 4),
+                      stroke: StrokeStyle(lineWidth: 0.5))
+        }
+        """) { AnyView(C02_AxisMarksPresetExample()) },
+
+        // MARK: BarMark
+
+        ChildExampleEntry(parent: "BarMark", child: "BarMark(x:y:width:height:stacking:)", code: """
+        Chart(sales) { sale in
+            BarMark(x: .value("Month", sale.month),
+                    y: .value("Units", sale.units),
+                    width: .ratio(ratio),                       // 0.2 … 1.0 of the band
+                    height: .automatic,
+                    stacking: normalized ? .normalized : .standard)
+            .foregroundStyle(by: .value("Region", sale.region))
+        }
+        """) { AnyView(C02_BarMarkStandardExample()) },
+
+        ChildExampleEntry(parent: "BarMark", child: "BarMark(x:yStart:yEnd:width:)", code: """
+        Chart(shifts) { s in                                    // hours of the day
+            BarMark(x: .value("Day", s.day),
+                    yStart: .value("Start", s.start),
+                    yEnd: .value("End", s.end),                 // floats between two y values
+                    width: .fixed(14))
+            .cornerRadius(4)
+        }
+        .chartYScale(domain: 6...24)
+        """) { AnyView(C02_BarMarkRangeExample()) },
+
+        ChildExampleEntry(parent: "BarMark", child: "BarMark(xStart:xEnd:y:height:)", code: """
+        Chart(tasks) { task in
+            BarMark(xStart: .value("Begin", task.start),
+                    xEnd: .value("Finish", task.end),
+                    y: .value("Task", task.name),               // categorical y → horizontal bars
+                    height: .inset(4))
+            .foregroundStyle(by: .value("Task", task.name))
+        }
+        .chartLegend(.hidden)
+        """) { AnyView(C02_BarMarkHorizontalExample()) },
+
+        ChildExampleEntry(parent: "BarMark", child: "MarkDimension", code: """
+        Chart(teams) { t in
+            BarMark(x: .value("Team", t.name),
+                    y: .value("Wins", t.wins),
+                    width: width.value)     // .automatic, .fixed(24), .ratio(0.5), .inset(6)
+        }
+        """) { AnyView(C02_MarkDimensionExample()) },
+
+        // MARK: ChartProxy
+
+        ChildExampleEntry(parent: "ChartProxy", child: "value(atX:as:)", code: """
+        .chartOverlay { proxy in
+            GeometryReader { geo in
+                Rectangle().fill(.clear).contentShape(Rectangle())
+                    .gesture(DragGesture(minimumDistance: 0).onChanged { drag in
+                        guard let plot = proxy.plotFrame else { return }
+                        let x = drag.location.x - geo[plot].origin.x        // into plot coordinates
+                        selected = proxy.value(atX: x, as: Date.self)      // nil outside the plot
+                    })
+            }
+        }
+        """) { AnyView(C02_ChartProxyValueAtXExample()) },
+
+        ChildExampleEntry(parent: "ChartProxy", child: "position(forX:)", code: """
+        .chartOverlay { proxy in
+            GeometryReader { geo in
+                if let x = proxy.position(forX: selectedDate), let plot = proxy.plotFrame {
+                    Rectangle()
+                        .fill(.red)
+                        .frame(width: 1, height: geo[plot].height)
+                        .offset(x: geo[plot].origin.x + x, y: geo[plot].origin.y)   // plot → overlay space
+                }
+            }
+        }
+        """) { AnyView(C02_ChartProxyPositionForXExample()) },
+
+        ChildExampleEntry(parent: "ChartProxy", child: "value(at:as:)", code: """
+        .chartOverlay { proxy in
+            GeometryReader { geo in
+                Rectangle().fill(.clear).contentShape(Rectangle())
+                    .gesture(DragGesture(minimumDistance: 0).onChanged { drag in
+                        guard let plot = proxy.plotFrame else { return }
+                        let origin = geo[plot].origin
+                        let point = CGPoint(x: drag.location.x - origin.x, y: drag.location.y - origin.y)
+                        hit = proxy.value(at: point, as: (Date, Double).self)   // x and y in one call
+                    })
+            }
+        }
+        """) { AnyView(C02_ChartProxyValueAtExample()) },
+
         // C02_END_ENTRIES
     ]
 }
@@ -2457,6 +2634,501 @@ private struct C02_AnnotationTitlesExample: View {
             .labelsHidden()
             .frame(width: 240)
             C02_Caption("Illustrative — .hidden keeps the glyphs and drops the captions; .automatic lets MapKit decide by zoom.")
+        }
+    }
+}
+
+// MARK: - AreaMark
+
+private struct C02_AreaMarkStackingExample: View {
+    struct Traffic: Identifiable {
+        let id = UUID()
+        let hour: Int
+        let count: Double
+        let source: String
+    }
+    let traffic: [Traffic] = (0..<8).flatMap { (h: Int) -> [Traffic] in
+        [Traffic(hour: h, count: 20 + 12 * sin(Double(h) / 2), source: "Web"),
+         Traffic(hour: h, count: 10 + Double(h) * 2, source: "API"),
+         Traffic(hour: h, count: 8 + 6 * cos(Double(h) / 2), source: "Mobile")]
+    }
+    @State private var normalized = true
+    var body: some View {
+        VStack(spacing: 8) {
+            Chart(traffic) { t in
+                AreaMark(x: .value("Hour", t.hour),
+                         y: .value("Requests", t.count),
+                         stacking: normalized ? .normalized : .standard)
+                .foregroundStyle(by: .value("Source", t.source))
+            }
+            .frame(height: 130)
+            Picker("stacking", selection: $normalized) {
+                Text(".standard").tag(false)
+                Text(".normalized").tag(true)
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            .frame(width: 220)
+        }
+    }
+}
+
+private struct C02_AreaMarkBandExample: View {
+    struct Forecast: Identifiable {
+        let id = UUID()
+        let date: Date
+        let low: Double
+        let high: Double
+        var mid: Double { (low + high) / 2 }
+    }
+    let forecast: [Forecast] = (0..<10).map { (i: Int) -> Forecast in
+        let mid = 18 + 4 * sin(Double(i) / 2)
+        return Forecast(date: C02_Data.day(i), low: mid - 3 - Double(i % 3), high: mid + 3 + Double(i % 2))
+    }
+    var body: some View {
+        VStack(spacing: 6) {
+            Chart(forecast) { f in
+                AreaMark(x: .value("Day", f.date),
+                         yStart: .value("Low", f.low),
+                         yEnd: .value("High", f.high))
+                .foregroundStyle(Color.orange)
+                .opacity(0.3)
+                LineMark(x: .value("Day", f.date), y: .value("Forecast", f.mid))
+                    .foregroundStyle(Color.orange)
+            }
+            .frame(height: 140)
+            C02_Caption("The area spans low … high per day — the shape behind confidence bands and min–max envelopes.")
+        }
+    }
+}
+
+private struct C02_AreaMarkSeriesExample: View {
+    struct Reading: Identifiable {
+        let id = UUID()
+        let time: Int
+        let level: Double
+        let sensorID: String
+    }
+    let readings: [Reading] = (0..<10).flatMap { (t: Int) -> [Reading] in
+        [Reading(time: t, level: 30 + 15 * sin(Double(t) / 2), sensorID: "A"),
+         Reading(time: t, level: 20 + 10 * cos(Double(t) / 3), sensorID: "B"),
+         Reading(time: t, level: 12 + Double(t) * 1.5, sensorID: "C")]
+    }
+    var body: some View {
+        VStack(spacing: 6) {
+            Chart(readings) { r in
+                AreaMark(x: .value("Time", r.time),
+                         y: .value("Level", r.level),
+                         series: .value("Sensor", r.sensorID),
+                         stacking: .unstacked)
+                .foregroundStyle(Color.teal.opacity(0.4))
+            }
+            .frame(height: 130)
+            C02_Caption("series: splits sensors A, B, C into separate overlapping areas without coloring by category.")
+        }
+    }
+}
+
+private struct C02_MarkStackingMethodExample: View {
+    enum Method: String, CaseIterable, Identifiable {
+        case standard, normalized, center, unstacked
+        var id: String { rawValue }
+        var value: MarkStackingMethod {
+            switch self {
+            case .standard: return .standard
+            case .normalized: return .normalized
+            case .center: return .center
+            case .unstacked: return .unstacked
+            }
+        }
+    }
+    struct Share: Identifiable {
+        let id = UUID()
+        let month: String
+        let share: Double
+        let product: String
+    }
+    let shares: [Share] = {
+        let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
+        var rows: [Share] = []
+        for (i, m) in months.enumerated() {
+            rows.append(Share(month: m, share: 20 + Double(i) * 4, product: "Basic"))
+            rows.append(Share(month: m, share: 30 - Double(i) * 2, product: "Pro"))
+            rows.append(Share(month: m, share: 10 + 8 * sin(Double(i)), product: "Team"))
+        }
+        return rows
+    }()
+    @State private var method: Method = .center
+    var body: some View {
+        VStack(spacing: 8) {
+            Chart(shares) { m in
+                AreaMark(x: .value("Month", m.month),
+                         y: .value("Share", m.share),
+                         stacking: method.value)
+                .foregroundStyle(by: .value("Product", m.product))
+            }
+            .frame(height: 130)
+            Picker("stacking", selection: $method) {
+                ForEach(Method.allCases) { Text(".\($0.rawValue)").tag($0) }
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            .frame(width: 320)
+        }
+    }
+}
+
+// MARK: - AxisMarks
+
+private struct C02_AxisGridLineExample: View {
+    @State private var dashed = true
+    var body: some View {
+        VStack(spacing: 8) {
+            Chart(C02_Data.scores) { s in
+                LineMark(x: .value("Trial", s.trial), y: .value("Score", s.score))
+            }
+            .chartYAxis {
+                AxisMarks { _ in
+                    AxisGridLine(stroke: StrokeStyle(dash: dashed ? [2, 3] : []))
+                    AxisValueLabel()
+                }
+            }
+            .frame(height: 130)
+            Toggle("stroke: StrokeStyle(dash: [2, 3])", isOn: $dashed)
+                .toggleStyle(.switch)
+                .controlSize(.small)
+                .font(.caption)
+        }
+    }
+}
+
+private struct C02_AxisTickExample: View {
+    @State private var tickLength: CGFloat = 4
+    var body: some View {
+        VStack(spacing: 8) {
+            Chart(C02_Data.steps) { e in
+                BarMark(x: .value("Day", e.day), y: .value("Steps", e.steps))
+            }
+            .chartXAxis {
+                AxisMarks { _ in
+                    AxisTick(length: tickLength)
+                    AxisValueLabel()
+                }
+            }
+            .frame(height: 130)
+            HStack {
+                Text("length: \(Int(tickLength)) pt").font(.caption).monospacedDigit()
+                Slider(value: $tickLength, in: 0...16)
+            }
+            .controlSize(.small)
+        }
+    }
+}
+
+private struct C02_AxisValueLabelExample: View {
+    var body: some View {
+        HStack(spacing: 16) {
+            VStack(spacing: 4) {
+                Chart(C02_Data.prices) { p in
+                    LineMark(x: .value("Date", p.date), y: .value("Close", p.close))
+                }
+                .chartYAxis {
+                    AxisMarks(values: .automatic) { _ in
+                        AxisGridLine()
+                        AxisValueLabel()
+                    }
+                }
+                .frame(height: 120)
+                C02_Caption("AxisValueLabel()")
+            }
+            VStack(spacing: 4) {
+                Chart(C02_Data.prices) { p in
+                    LineMark(x: .value("Date", p.date), y: .value("Close", p.close))
+                }
+                .chartYAxis {
+                    AxisMarks(values: .automatic) { _ in
+                        AxisGridLine()
+                        AxisValueLabel(format: .currency(code: "USD"))
+                    }
+                }
+                .frame(height: 120)
+                C02_Caption("AxisValueLabel(format: .currency(code: \"USD\"))")
+            }
+        }
+    }
+}
+
+private struct C02_AxisMarksPresetExample: View {
+    enum Preset: String, CaseIterable, Identifiable {
+        case automatic, aligned, extended, inset
+        var id: String { rawValue }
+        var value: AxisMarkPreset {
+            switch self {
+            case .automatic: return .automatic
+            case .aligned: return .aligned
+            case .extended: return .extended
+            case .inset: return .inset
+            }
+        }
+    }
+    @State private var preset: Preset = .extended
+    @State private var leading = true
+    var body: some View {
+        VStack(spacing: 8) {
+            Chart(C02_Data.scores) { s in
+                LineMark(x: .value("Trial", s.trial), y: .value("Score", s.score))
+            }
+            .chartYAxis {
+                AxisMarks(preset: preset.value,
+                          position: leading ? .leading : .trailing,
+                          values: .automatic(desiredCount: 4),
+                          stroke: StrokeStyle(lineWidth: 0.5))
+            }
+            .frame(height: 120)
+            HStack(spacing: 12) {
+                Picker("preset", selection: $preset) {
+                    ForEach(Preset.allCases) { Text(".\($0.rawValue)").tag($0) }
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                Toggle("position: .leading", isOn: $leading)
+                    .toggleStyle(.switch)
+            }
+            .controlSize(.small)
+            .font(.caption)
+        }
+    }
+}
+
+// MARK: - BarMark
+
+private struct C02_BarMarkStandardExample: View {
+    @State private var ratio: CGFloat = 0.6
+    @State private var normalized = true
+    var body: some View {
+        VStack(spacing: 8) {
+            Chart(C02_Data.regional) { sale in
+                BarMark(x: .value("Month", sale.month),
+                        y: .value("Units", sale.amount),
+                        width: .ratio(ratio),
+                        height: .automatic,
+                        stacking: normalized ? .normalized : .standard)
+                .foregroundStyle(by: .value("Region", sale.region))
+            }
+            .frame(height: 120)
+            HStack(spacing: 12) {
+                Text("width: .ratio(\(String(format: "%.1f", ratio)))").monospacedDigit()
+                Slider(value: $ratio, in: 0.2...1)
+                Toggle("stacking: .normalized", isOn: $normalized)
+                    .toggleStyle(.switch)
+            }
+            .controlSize(.small)
+            .font(.caption)
+        }
+    }
+}
+
+private struct C02_BarMarkRangeExample: View {
+    struct Shift: Identifiable {
+        let id = UUID()
+        let day: String
+        let start: Double
+        let end: Double
+    }
+    let shifts = [
+        Shift(day: "Mon", start: 9, end: 17), Shift(day: "Tue", start: 8, end: 12),
+        Shift(day: "Wed", start: 13, end: 21), Shift(day: "Thu", start: 9, end: 17),
+        Shift(day: "Fri", start: 10, end: 14),
+    ]
+    var body: some View {
+        VStack(spacing: 6) {
+            Chart(shifts) { s in
+                BarMark(x: .value("Day", s.day),
+                        yStart: .value("Start", s.start),
+                        yEnd: .value("End", s.end),
+                        width: .fixed(14))
+                .foregroundStyle(Color.indigo)
+                .cornerRadius(4)
+            }
+            .chartYScale(domain: 6...24)
+            .frame(height: 140)
+            C02_Caption("Each bar floats from its start hour to its end hour instead of rising from zero.")
+        }
+    }
+}
+
+private struct C02_BarMarkHorizontalExample: View {
+    struct Phase: Identifiable {
+        let id = UUID()
+        let name: String
+        let start: Date
+        let end: Date
+    }
+    let tasks = [
+        Phase(name: "Design", start: C02_Data.day(0), end: C02_Data.day(6)),
+        Phase(name: "Build", start: C02_Data.day(4), end: C02_Data.day(16)),
+        Phase(name: "Test", start: C02_Data.day(14), end: C02_Data.day(22)),
+        Phase(name: "Ship", start: C02_Data.day(21), end: C02_Data.day(24)),
+    ]
+    var body: some View {
+        Chart(tasks) { task in
+            BarMark(xStart: .value("Begin", task.start),
+                    xEnd: .value("Finish", task.end),
+                    y: .value("Task", task.name),
+                    height: .inset(4))
+            .foregroundStyle(by: .value("Task", task.name))
+        }
+        .chartLegend(.hidden)
+        .chartXAxis {
+            AxisMarks(values: .stride(by: .day, count: 7)) { _ in
+                AxisGridLine()
+                AxisValueLabel(format: .dateTime.month().day())
+            }
+        }
+        .frame(height: 150)
+    }
+}
+
+private struct C02_MarkDimensionExample: View {
+    enum Dimension: String, CaseIterable, Identifiable {
+        case automatic = ".automatic"
+        case fixed = ".fixed(24)"
+        case ratio = ".ratio(0.5)"
+        case inset = ".inset(6)"
+        var id: String { rawValue }
+        var value: MarkDimension {
+            switch self {
+            case .automatic: return .automatic
+            case .fixed: return .fixed(24)
+            case .ratio: return .ratio(0.5)
+            case .inset: return .inset(6)
+            }
+        }
+    }
+    struct Team: Identifiable {
+        let id = UUID()
+        let name: String
+        let wins: Double
+    }
+    let teams = [
+        Team(name: "Hawks", wins: 42), Team(name: "Owls", wins: 35),
+        Team(name: "Jays", wins: 51), Team(name: "Wrens", wins: 28),
+    ]
+    @State private var width: Dimension = .fixed
+    var body: some View {
+        VStack(spacing: 8) {
+            Chart(teams) { t in
+                BarMark(x: .value("Team", t.name),
+                        y: .value("Wins", t.wins),
+                        width: width.value)
+            }
+            .frame(height: 120)
+            Picker("width", selection: $width) {
+                ForEach(Dimension.allCases) { Text($0.rawValue).tag($0) }
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            .frame(width: 320)
+        }
+    }
+}
+
+// MARK: - ChartProxy
+
+private struct C02_ChartProxyValueAtXExample: View {
+    @State private var selected: Date?
+    var body: some View {
+        VStack(spacing: 6) {
+            Chart {
+                ForEach(C02_Data.prices) { p in
+                    LineMark(x: .value("Date", p.date), y: .value("Close", p.close))
+                }
+                if let selected {
+                    RuleMark(x: .value("Selected", selected))
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .chartOverlay { proxy in
+                GeometryReader { geo in
+                    Rectangle().fill(.clear).contentShape(Rectangle())
+                        .gesture(DragGesture(minimumDistance: 0).onChanged { drag in
+                            guard let plot = proxy.plotFrame else { return }
+                            let x = drag.location.x - geo[plot].origin.x
+                            selected = proxy.value(atX: x, as: Date.self)
+                        })
+                }
+            }
+            .frame(height: 130)
+            Text(selected.map { "value(atX:as:) → \($0.formatted(.dateTime.month().day()))" }
+                 ?? "Press and drag across the plot — selected = nil")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .monospacedDigit()
+        }
+    }
+}
+
+private struct C02_ChartProxyPositionForXExample: View {
+    @State private var dayIndex: Double = 12
+    var body: some View {
+        let selectedDate = C02_Data.day(Int(dayIndex))
+        VStack(spacing: 8) {
+            Chart(C02_Data.prices) { p in
+                LineMark(x: .value("Date", p.date), y: .value("Close", p.close))
+            }
+            .chartOverlay { proxy in
+                GeometryReader { geo in
+                    if let x = proxy.position(forX: selectedDate), let plot = proxy.plotFrame {
+                        Rectangle()
+                            .fill(.red)
+                            .frame(width: 1, height: geo[plot].height)
+                            .offset(x: geo[plot].origin.x + x, y: geo[plot].origin.y)
+                    }
+                }
+            }
+            .frame(height: 120)
+            HStack {
+                Text("position(forX: \(selectedDate.formatted(.dateTime.month().day())))")
+                    .font(.caption)
+                    .monospacedDigit()
+                Slider(value: $dayIndex, in: 0...27, step: 1)
+            }
+            .controlSize(.small)
+        }
+    }
+}
+
+private struct C02_ChartProxyValueAtExample: View {
+    @State private var hit: (Date, Double)?
+    var body: some View {
+        VStack(spacing: 6) {
+            Chart {
+                ForEach(C02_Data.prices) { p in
+                    PointMark(x: .value("Date", p.date), y: .value("Close", p.close))
+                }
+                if let hit {
+                    PointMark(x: .value("Date", hit.0), y: .value("Close", hit.1))
+                        .foregroundStyle(.red)
+                        .symbolSize(120)
+                }
+            }
+            .chartOverlay { proxy in
+                GeometryReader { geo in
+                    Rectangle().fill(.clear).contentShape(Rectangle())
+                        .gesture(DragGesture(minimumDistance: 0).onChanged { drag in
+                            guard let plot = proxy.plotFrame else { return }
+                            let origin = geo[plot].origin
+                            let point = CGPoint(x: drag.location.x - origin.x, y: drag.location.y - origin.y)
+                            hit = proxy.value(at: point, as: (Date, Double).self)
+                        })
+                }
+            }
+            .frame(height: 130)
+            Text(hit.map { "value(at:as:) → (\($0.0.formatted(.dateTime.month().day())), \(String(format: "%.1f", $0.1)))" }
+                 ?? "Press and drag inside the plot — hit = nil")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .monospacedDigit()
         }
     }
 }

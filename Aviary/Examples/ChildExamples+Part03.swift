@@ -6,14 +6,16 @@
 //  MapKit, StoreKit, TipKit, PhotosUI and the view-controller representables).
 //  One private C03_* struct per variant; every rendering exercises the exact
 //  overload the variant names, so siblings can be compared side by side.
-//  Variants that need live data (map tiles, StoreKit products, picker results)
-//  keep the real call in their code string and render a captioned illustration.
+//  Variants that need live data (map tiles, StoreKit products, picker results,
+//  a configured TipKit datastore) keep the real call in their code string and
+//  render a captioned illustration.
 //
 
 import SwiftUI
 import Charts
 import MapKit
 import AppKit
+import TipKit
 
 enum ChildExamplesPart03 {
     static let entries: [ChildExampleEntry] = [
@@ -535,6 +537,91 @@ enum ChildExamplesPart03 {
             asset = result.firstObject
         }
         """) { AnyView(C03_ItemIdentifierExample()) },
+
+        // MARK: StoreView
+
+        ChildExampleEntry(parent: "StoreView", child: "StoreView(ids:prefersPromotionalIcon:)", code: """
+        StoreView(ids: ["com.example.tip.small", "com.example.tip.large"],
+                  prefersPromotionalIcon: prefersPromotionalIcon)   // App Store Connect promo image as each row's icon
+        """) { AnyView(C03_StoreViewIDsExample()) },
+
+        ChildExampleEntry(parent: "StoreView", child: "StoreView(products:prefersPromotionalIcon:)", code: """
+        // loadedProducts: [Product] from an earlier Product.products(for:) call
+        StoreView(products: loadedProducts,
+                  prefersPromotionalIcon: false)   // no second round trip to the App Store
+            .productViewStyle(.compact)
+        """) { AnyView(C03_StoreViewProductsExample()) },
+
+        ChildExampleEntry(parent: "StoreView", child: "StoreView(ids:prefersPromotionalIcon:icon:)", code: """
+        StoreView(ids: ["com.example.bundle.basic", "com.example.bundle.pro"],
+                  prefersPromotionalIcon: false) { product in
+            Image(systemName: product.id.hasSuffix("pro") ? "crown.fill" : "star.fill")   // your icon per Product
+                .font(.title2)
+                .foregroundStyle(product.id.hasSuffix("pro") ? Color.yellow : Color.blue)
+        }
+        """) { AnyView(C03_StoreViewIconExample()) },
+
+        // MARK: SubscriptionStoreView
+
+        ChildExampleEntry(parent: "SubscriptionStoreView", child: "SubscriptionStoreView(groupID:visibleRelationships:)", code: """
+        SubscriptionStoreView(groupID: "21534970",
+                              visibleRelationships: relationships)   // .all, .upgrade, .downgrade, .crossgrade, .current
+        // Filtered against the subscriber's current plan (Pro here): .upgrade lists only higher tiers
+        """) { AnyView(C03_SubscriptionRelationshipsExample()) },
+
+        ChildExampleEntry(parent: "SubscriptionStoreView", child: "SubscriptionStoreView(groupID:visibleRelationships:marketingContent:)", code: """
+        SubscriptionStoreView(groupID: "21534970", visibleRelationships: .all) {
+            VStack(spacing: 6) {                                   // replaces the default icon + title header
+                LinearGradient(colors: [.purple, .blue], startPoint: .leading, endPoint: .trailing)
+                    .frame(height: 40)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                Text("Unlock everything").font(.headline)
+            }
+        }
+        """) { AnyView(C03_SubscriptionMarketingExample()) },
+
+        ChildExampleEntry(parent: "SubscriptionStoreView", child: "SubscriptionStoreView(productIDs:)", code: """
+        SubscriptionStoreView(productIDs: [
+            "com.example.pro.monthly",     // only these two plans are merchandised,
+            "com.example.pro.yearly"       // not the whole subscription group
+        ])
+        """) { AnyView(C03_SubscriptionProductIDsExample()) },
+
+        ChildExampleEntry(parent: "SubscriptionStoreView", child: "SubscriptionStoreView(subscriptions:)", code: """
+        SubscriptionStoreView(subscriptions: proPlans)       // [Product] you already fetched — no built-in load
+            .subscriptionStoreControlStyle(.prominentPicker)
+        """) { AnyView(C03_SubscriptionProductsExample()) },
+
+        // MARK: Tip
+
+        ChildExampleEntry(parent: "Tip", child: "Tip.rules", code: """
+        struct ExportTip: Tip {
+            @Parameter static var hasCreatedProject: Bool = false
+            var title: Text { Text("Export Anytime") }
+            var rules: [Rule] {
+                #Rule(Self.$hasCreatedProject) { $0 == true }   // every rule must hold before the tip may show
+            }
+        }
+
+        ExportTip.hasCreatedProject = true     // flipping the parameter re-evaluates the rule
+        """) { AnyView(C03_TipRulesExample()) },
+
+        ChildExampleEntry(parent: "Tip", child: "Tip.options", code: """
+        var options: [TipOption] {
+            [Tips.MaxDisplayCount(3),               // retire the tip after three showings
+             Tips.IgnoresDisplayFrequency(true)]    // skip the app-wide displayFrequency spacing
+        }
+        """) { AnyView(C03_TipOptionsExample()) },
+
+        ChildExampleEntry(parent: "Tip", child: "Tip.actions", code: """
+        var actions: [Tips.Action] {
+            [Tips.Action(id: "learn", title: "Learn More")]
+        }
+
+        TipView(ExportTip()) { action in
+            if action.id == "learn" { showHelp = true }    // the id comes back in the closure
+        }
+        """) { AnyView(C03_TipActionsExample()) },
 
         // C03_END_ENTRIES
     ]
@@ -1277,7 +1364,7 @@ private struct C03_UserLocationPositionExample: View {
                     .shadow(radius: 2)
             }
             .onAppear { pulsing = true }
-            Text("position.followsUserLocation == \(position.followsUserLocation) · fallback: .automatic")
+            Text(verbatim: "position.followsUserLocation == \(position.followsUserLocation) · fallback: .automatic")
                 .font(.caption2).foregroundStyle(.secondary)
         }
     }
@@ -2038,6 +2125,481 @@ private struct C03_ItemIdentifierExample: View {
                 .font(.caption2).foregroundStyle(.secondary)
             Text("Illustrative — identifiers come from a real picker selection")
                 .font(.caption2).foregroundStyle(.tertiary)
+        }
+        .padding()
+    }
+}
+
+// MARK: - Shared illustration helpers
+
+private struct C03_Caption: View {
+    var text: String
+    init(_ text: String) { self.text = text }
+
+    var body: some View {
+        Text(text)
+            .font(.caption2)
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.center)
+    }
+}
+
+// MARK: - Shared StoreKit illustration
+
+private struct C03_StoreProduct: Identifiable {
+    let id: String
+    var name: String
+    var detail: String
+    var price: String
+}
+
+private let C03_tipProducts = [
+    C03_StoreProduct(id: "com.example.tip.small", name: "Small Tip", detail: "Buy the developer a coffee", price: "$0.99"),
+    C03_StoreProduct(id: "com.example.tip.large", name: "Large Tip", detail: "Fund a week of work", price: "$4.99"),
+]
+
+private let C03_bundleProducts = [
+    C03_StoreProduct(id: "com.example.bundle.basic", name: "Basic Bundle", detail: "The core tools", price: "$2.99"),
+    C03_StoreProduct(id: "com.example.bundle.pro", name: "Pro Bundle", detail: "Everything, forever", price: "$14.99"),
+]
+
+private struct C03_PromoImage: View {
+    var symbol: String
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: 8)
+            .fill(LinearGradient(colors: [.orange, .pink], startPoint: .topLeading, endPoint: .bottomTrailing))
+            .frame(width: 40, height: 40)
+            .overlay { Image(systemName: symbol).foregroundStyle(.white) }
+    }
+}
+
+/// One ProductView-shaped row: icon slot, name/description, system buy button.
+private struct C03_StoreRow<Icon: View>: View {
+    var product: C03_StoreProduct
+    var compact: Bool
+    var icon: () -> Icon
+
+    init(product: C03_StoreProduct, compact: Bool = false, @ViewBuilder icon: @escaping () -> Icon) {
+        self.product = product
+        self.compact = compact
+        self.icon = icon
+    }
+
+    var body: some View {
+        HStack(spacing: 10) {
+            icon()
+            VStack(alignment: .leading, spacing: 2) {
+                Text(product.name).font(.callout.weight(.semibold))
+                if !compact {
+                    Text(product.detail).font(.caption).foregroundStyle(.secondary)
+                }
+            }
+            Spacer()
+            Text(product.price)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 12).padding(.vertical, 5)
+                .background(.blue, in: Capsule())
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, compact ? 5 : 8)
+        .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 8))
+    }
+}
+
+private struct C03_StoreViewIDsExample: View {
+    @State private var prefersPromotionalIcon = true
+
+    var body: some View {
+        VStack(spacing: 8) {
+            Toggle("prefersPromotionalIcon", isOn: $prefersPromotionalIcon)
+                .font(.caption.monospaced())
+            ForEach(C03_tipProducts) { product in
+                C03_StoreRow(product: product) {
+                    if prefersPromotionalIcon {
+                        C03_PromoImage(symbol: product.id.hasSuffix("large") ? "cup.and.saucer.fill" : "cup.and.saucer")
+                    }
+                }
+            }
+            C03_Caption("Illustrative — StoreView(ids:) fetches these products from the App Store; true swaps in each product's App Store Connect promotional image")
+        }
+        .padding()
+    }
+}
+
+private struct C03_StoreViewProductsExample: View {
+    var body: some View {
+        VStack(spacing: 8) {
+            HStack {
+                Text("loadedProducts.count == \(C03_tipProducts.count)").font(.caption.monospaced())
+                Spacer()
+                Text("no fetch").font(.caption2).foregroundStyle(.green)
+            }
+            ForEach(C03_tipProducts) { product in
+                C03_StoreRow(product: product, compact: true) { EmptyView() }
+            }
+            C03_Caption("Illustrative — takes Product values already fetched with Product.products(for:); .compact keeps name and price on one line")
+        }
+        .padding()
+    }
+}
+
+private struct C03_StoreViewIconExample: View {
+    var body: some View {
+        VStack(spacing: 8) {
+            ForEach(C03_bundleProducts) { product in
+                C03_StoreRow(product: product) {
+                    Image(systemName: product.id.hasSuffix("pro") ? "crown.fill" : "star.fill")
+                        .font(.title2)
+                        .foregroundStyle(product.id.hasSuffix("pro") ? Color.yellow : Color.blue)
+                        .frame(width: 40, height: 40)
+                }
+            }
+            C03_Caption("Illustrative — the icon closure runs once per loaded Product; prices and buy buttons are drawn by StoreKit")
+        }
+        .padding()
+    }
+}
+
+// MARK: - Shared SubscriptionStoreView illustration
+
+private struct C03_Plan: Identifiable {
+    let id: String
+    var name: String
+    var price: String
+    var tier: Int          // 1 = top tier, mirroring the App Store Connect ranking
+}
+
+private let C03_groupPlans = [
+    C03_Plan(id: "com.example.premium.monthly", name: "Premium", price: "$9.99 / month", tier: 1),
+    C03_Plan(id: "com.example.pro.monthly", name: "Pro", price: "$4.99 / month", tier: 2),
+    C03_Plan(id: "com.example.basic.monthly", name: "Basic", price: "$1.99 / month", tier: 3),
+]
+
+private let C03_proPlans = [
+    C03_Plan(id: "com.example.pro.monthly", name: "Pro Monthly", price: "$4.99 / month", tier: 2),
+    C03_Plan(id: "com.example.pro.yearly", name: "Pro Yearly", price: "$39.99 / year", tier: 2),
+]
+
+private struct C03_DefaultMarketingHeader: View {
+    var title: String
+
+    var body: some View {
+        HStack(spacing: 8) {
+            RoundedRectangle(cornerRadius: 7)
+                .fill(LinearGradient(colors: [.blue, .cyan], startPoint: .top, endPoint: .bottom))
+                .frame(width: 28, height: 28)
+                .overlay { Image(systemName: "bird.fill").font(.caption).foregroundStyle(.white) }
+            Text(title).font(.headline)
+        }
+    }
+}
+
+/// A SubscriptionStoreView-shaped sheet: marketing header, plan picker, subscribe button.
+private struct C03_SubscriptionSheet<Header: View>: View {
+    var plans: [C03_Plan]
+    var currentID: String?
+    var prominent: Bool
+    var showsIDs: Bool
+    var header: () -> Header
+    @State private var selection: String?
+
+    init(plans: [C03_Plan], currentID: String? = nil, prominent: Bool = false, showsIDs: Bool = false,
+         @ViewBuilder header: @escaping () -> Header) {
+        self.plans = plans
+        self.currentID = currentID
+        self.prominent = prominent
+        self.showsIDs = showsIDs
+        self.header = header
+    }
+
+    var body: some View {
+        VStack(spacing: 8) {
+            header()
+            ForEach(plans) { plan in
+                let picked = selection == plan.id
+                HStack(spacing: 8) {
+                    Image(systemName: picked ? "checkmark.circle.fill" : "circle")
+                        .foregroundStyle(picked ? Color.blue : Color.secondary)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(plan.name).font(prominent ? .callout.weight(.semibold) : .caption.weight(.semibold))
+                        Text(showsIDs ? plan.id : plan.price)
+                            .font(showsIDs ? .caption2.monospaced() : .caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    if showsIDs {
+                        Text(plan.price).font(.caption2)
+                    } else if plan.id == currentID {
+                        Text("Current").font(.caption2).foregroundStyle(.secondary)
+                    }
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, prominent ? 8 : 4)
+                .background(picked ? Color.blue.opacity(0.12) : Color.gray.opacity(0.1),
+                            in: RoundedRectangle(cornerRadius: 8))
+                .overlay(RoundedRectangle(cornerRadius: 8)
+                    .strokeBorder(picked ? Color.blue : Color.clear, lineWidth: prominent ? 2 : 1))
+                .contentShape(Rectangle())
+                .onTapGesture { selection = plan.id }
+            }
+            Button("Subscribe") { }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+                .disabled(selection == nil)
+        }
+    }
+}
+
+private enum C03_Relationship: String, CaseIterable {
+    case all, upgrade, downgrade, current
+}
+
+private struct C03_SubscriptionRelationshipsExample: View {
+    @State private var relationships: C03_Relationship = .upgrade
+    private let currentPlan = C03_groupPlans[1]   // Pro
+
+    private var visible: [C03_Plan] {
+        switch relationships {
+        case .all: return C03_groupPlans
+        case .upgrade: return C03_groupPlans.filter { $0.tier < currentPlan.tier }
+        case .downgrade: return C03_groupPlans.filter { $0.tier > currentPlan.tier }
+        case .current: return [currentPlan]
+        }
+    }
+
+    var body: some View {
+        VStack(spacing: 8) {
+            Picker("visibleRelationships", selection: $relationships) {
+                ForEach(C03_Relationship.allCases, id: \.self) { Text(".\($0.rawValue)").tag($0) }
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            C03_SubscriptionSheet(plans: visible, currentID: currentPlan.id) {
+                C03_DefaultMarketingHeader(title: "Pro Access")
+            }
+            C03_Caption("Illustrative — StoreKit loads group 21534970 and filters it against the subscriber's current plan (Pro)")
+        }
+        .padding()
+    }
+}
+
+private struct C03_SubscriptionMarketingExample: View {
+    var body: some View {
+        VStack(spacing: 8) {
+            C03_SubscriptionSheet(plans: Array(C03_groupPlans.prefix(2))) {
+                VStack(spacing: 6) {
+                    LinearGradient(colors: [.purple, .blue], startPoint: .leading, endPoint: .trailing)
+                        .frame(height: 40)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                    Text("Unlock everything").font(.headline)
+                }
+            }
+            C03_Caption("Illustrative — marketingContent replaces the default icon-and-title header; plans and purchase come from StoreKit")
+        }
+        .padding()
+    }
+}
+
+private struct C03_SubscriptionProductIDsExample: View {
+    var body: some View {
+        VStack(spacing: 8) {
+            C03_SubscriptionSheet(plans: C03_proPlans, showsIDs: true) {
+                C03_DefaultMarketingHeader(title: "Pro")
+            }
+            C03_Caption("Illustrative — only the listed identifiers are loaded; a group with six plans would still show just these two")
+        }
+        .padding()
+    }
+}
+
+private struct C03_SubscriptionProductsExample: View {
+    var body: some View {
+        VStack(spacing: 8) {
+            C03_SubscriptionSheet(plans: C03_proPlans, prominent: true) {
+                C03_DefaultMarketingHeader(title: "Pro")
+            }
+            C03_Caption("Illustrative — proPlans are Product values you fetched yourself; .prominentPicker renders the plans as large cards")
+        }
+        .padding()
+    }
+}
+
+// MARK: - Shared TipKit illustration
+
+private struct C03_ExportTip: Tip {
+    @Parameter static var hasCreatedProject: Bool = false
+    var title: Text { Text("Export Anytime") }
+    var message: Text? { Text("Share a project as a PDF from the toolbar.") }
+    var image: Image? { Image(systemName: "square.and.arrow.up") }
+    var rules: [Rule] {
+        #Rule(Self.$hasCreatedProject) { $0 == true }
+    }
+    var options: [TipOption] {
+        [Tips.MaxDisplayCount(3), Tips.IgnoresDisplayFrequency(true)]
+    }
+    var actions: [Tips.Action] {
+        [Tips.Action(id: "learn", title: "Learn More")]
+    }
+}
+
+private struct C03_SyncTip: Tip {
+    var title: Text { Text("Sync Across Devices") }
+    var message: Text? { Text("Turn on iCloud sync in Settings to keep every Mac up to date.") }
+    var image: Image? { Image(systemName: "icloud") }
+}
+
+private struct C03_Pointer: Shape {
+    func path(in rect: CGRect) -> Path {
+        var p = Path()
+        p.move(to: CGPoint(x: rect.minX, y: rect.minY))
+        p.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
+        p.addLine(to: CGPoint(x: rect.midX, y: rect.maxY))
+        p.closeSubpath()
+        return p
+    }
+}
+
+/// Mirrors TipView's macOS layout so tip variants can be drawn without a
+/// configured TipKit datastore (a real TipView stays empty until Tips.configure()).
+/// Everything it shows — image, title, message, actions — is read from the real Tip.
+private struct C03_TipCard: View {
+    var tip: any Tip
+    var arrowEdge: Edge? = nil
+    var background: AnyShapeStyle = AnyShapeStyle(Color.gray.opacity(0.14))
+    var cornerRadius: CGFloat = 12
+    var miniature = false
+    var onAction: (Tips.Action) -> Void = { _ in }
+    var onClose: () -> Void = { }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            if arrowEdge == .top { pointer.rotationEffect(.degrees(180)) }
+            HStack(alignment: miniature ? .center : .top, spacing: 10) {
+                if let image = tip.image {
+                    image.font(miniature ? .body : .title2).foregroundStyle(.blue)
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    tip.title.font(.callout.weight(.semibold))
+                    if !miniature, let message = tip.message {
+                        message.font(.caption).foregroundStyle(.secondary)
+                    }
+                    if !miniature, !tip.actions.isEmpty {
+                        HStack(spacing: 12) {
+                            ForEach(tip.actions) { action in
+                                Button { onAction(action) } label: { action.label() }
+                                    .buttonStyle(.link)
+                                    .font(.caption.weight(.semibold))
+                            }
+                        }
+                        .padding(.top, 2)
+                    }
+                }
+                Spacer(minLength: 0)
+                Button(action: onClose) {
+                    Image(systemName: "xmark").font(.caption2.weight(.bold))
+                }
+                .buttonStyle(.plain)
+                .foregroundStyle(.secondary)
+            }
+            .padding(miniature ? 8 : 12)
+            .background(background, in: RoundedRectangle(cornerRadius: cornerRadius))
+            if arrowEdge == .bottom { pointer }
+        }
+    }
+
+    private var pointer: some View {
+        C03_Pointer()
+            .fill(background)
+            .frame(width: 18, height: 9)
+    }
+}
+
+private struct C03_HiddenTipSlot: View {
+    var reason: String
+
+    var body: some View {
+        Text(reason)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.center)
+            .frame(maxWidth: .infinity, minHeight: 64)
+            .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+private struct C03_TipRulesExample: View {
+    @State private var hasCreatedProject = false
+    private let tip = C03_ExportTip()
+
+    var body: some View {
+        VStack(spacing: 10) {
+            Toggle("ExportTip.hasCreatedProject", isOn: $hasCreatedProject)
+                .font(.caption.monospaced())
+                .onChange(of: hasCreatedProject) { _, newValue in
+                    C03_ExportTip.hasCreatedProject = newValue     // the real @Parameter
+                }
+            if hasCreatedProject {
+                C03_TipCard(tip: tip)
+            } else {
+                C03_HiddenTipSlot(reason: "#Rule { $0 == true } is false → the tip stays hidden")
+            }
+            C03_Caption("Illustrative — ExportTip declares \(tip.rules.count) rule; TipKit evaluates it once Tips.configure() has run")
+        }
+        .padding()
+    }
+}
+
+private struct C03_TipOptionsExample: View {
+    @State private var displays = 1
+    private let tip = C03_ExportTip()
+    private let maxDisplayCount = 3
+
+    private var optionNames: String {
+        tip.options.map { String(describing: type(of: $0)) }.joined(separator: ", ")
+    }
+
+    var body: some View {
+        VStack(spacing: 10) {
+            if displays <= maxDisplayCount {
+                C03_TipCard(tip: tip, onClose: { displays += 1 })
+            } else {
+                C03_HiddenTipSlot(reason: "displayCountExceeded — MaxDisplayCount(3) retired the tip")
+            }
+            HStack {
+                Button("Dismiss and show again") { displays += 1 }
+                    .disabled(displays > maxDisplayCount)
+                Spacer()
+                Text("display \(min(displays, maxDisplayCount)) of \(maxDisplayCount)")
+                    .font(.caption.monospacedDigit())
+            }
+            C03_Caption("Illustrative — options: [\(optionNames)]; IgnoresDisplayFrequency(true) ignores the displayFrequency set in Tips.configure()")
+        }
+        .padding()
+    }
+}
+
+private struct C03_TipActionsExample: View {
+    @State private var showHelp = false
+    @State private var lastActionID: String?
+    private let tip = C03_ExportTip()
+
+    var body: some View {
+        VStack(spacing: 10) {
+            C03_TipCard(tip: tip, onAction: { action in
+                lastActionID = action.id
+                if action.id == "learn" { showHelp = true }
+            })
+            HStack {
+                Text("action.id: \(lastActionID.map { "\"\($0)\"" } ?? "—")")
+                    .font(.caption.monospaced())
+                Spacer()
+                Text("showHelp: \(showHelp ? "true" : "false")")
+                    .font(.caption.monospaced())
+                    .foregroundStyle(showHelp ? Color.green : Color.secondary)
+            }
+            C03_Caption("Illustrative — the button comes from the real tip.actions; TipView draws it once Tips.configure() has run")
         }
         .padding()
     }

@@ -1783,7 +1783,7 @@ private struct T_RunOutlineRenderer: TextRenderer {
 private struct T_TextLayoutExample: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            (Text("Each ") + Text("run").bold() + Text(" of every ") + Text("line").italic().foregroundStyle(.orange) + Text(" in the layout is outlined by the renderer."))
+            Text("Each \(Text("run").bold()) of every \(Text("line").italic().foregroundStyle(.orange)) in the layout is outlined by the renderer.")
                 .font(.title3)
                 .textRenderer(T_RunOutlineRenderer())
                 .frame(width: 280)
@@ -1846,7 +1846,7 @@ private struct T_EmphasisRenderer: TextRenderer {
 private struct T_TextAttributeExample: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            (Text("Fresh").customAttribute(T_Emphasis()) + Text(" from the oven"))
+            Text("\(Text("Fresh").customAttribute(T_Emphasis())) from the oven")
                 .font(.title2)
                 .textRenderer(T_EmphasisRenderer())
             T_Note("The renderer checks run[Emphasis.self] and draws an accent bar under only that run.")
@@ -1911,6 +1911,8 @@ private struct T_TextSelectionExample: View {
             return "Selected “\(text[range])”"
         case .multiSelection(let ranges):
             return "\(ranges.ranges.count) selected ranges"
+        @unknown default:
+            return "Unsupported selection"
         }
     }
 }
