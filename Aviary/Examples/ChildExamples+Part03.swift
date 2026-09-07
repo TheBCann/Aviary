@@ -623,6 +623,96 @@ enum ChildExamplesPart03 {
         }
         """) { AnyView(C03_TipActionsExample()) },
 
+        ChildExampleEntry(parent: "Tip", child: "invalidate(reason:)", code: """
+        Button("Export") {
+            export()
+            ExportTip().invalidate(reason: .actionPerformed)   // retired for good — it never shows again
+        }
+        // other reasons: .displayCountExceeded, .tipClosed
+        """) { AnyView(C03_TipInvalidateExample()) },
+
+        // MARK: TipView
+
+        ChildExampleEntry(parent: "TipView", child: "TipView(_:arrowEdge:action:)", code: """
+        TipView(RenameTip(), arrowEdge: arrowEdge) { action in     // nil, .top or .bottom
+            if action.id == "learn" { showHelp = true }
+        }
+        """) { AnyView(C03_TipViewArrowEdgeExample()) },
+
+        ChildExampleEntry(parent: "TipView", child: ".tipViewStyle(_:)", code: """
+        TipView(SyncTip())                       // default inline card
+
+        TipView(SyncTip())
+            .tipViewStyle(.miniature)            // title + glyph only, for tight spaces
+        """) { AnyView(C03_TipViewStyleExample()) },
+
+        ChildExampleEntry(parent: "TipView", child: ".tipBackground(_:)", code: """
+        TipView(SyncTip())
+            .tipBackground(style)   // any ShapeStyle: .blue.opacity(0.1), .mint.gradient, .regularMaterial
+        """) { AnyView(C03_TipBackgroundExample()) },
+
+        ChildExampleEntry(parent: "TipView", child: ".tipCornerRadius(_:antialiased:)", code: """
+        TipView(SyncTip())
+            .tipCornerRadius(radius, antialiased: true)
+        """) { AnyView(C03_TipCornerRadiusExample()) },
+
+        // MARK: UIViewControllerRepresentable
+
+        ChildExampleEntry(parent: "UIViewControllerRepresentable", child: "makeUIViewController(context:)", code: """
+        func makeUIViewController(context: Context) -> UIPageViewController {
+            let pager = UIPageViewController(transitionStyle: .scroll,
+                                             navigationOrientation: .horizontal)
+            pager.dataSource = context.coordinator          // runs once per view identity
+            return pager
+        }
+        """) { AnyView(C03_MakeUIViewControllerExample()) },
+
+        ChildExampleEntry(parent: "UIViewControllerRepresentable", child: "updateUIViewController(_:context:)", code: """
+        func updateUIViewController(_ pager: UIPageViewController, context: Context) {
+            let target = context.coordinator.controllers[currentIndex]        // SwiftUI state in
+            pager.setViewControllers([target], direction: .forward, animated: true)
+        }
+        """) { AnyView(C03_UpdateUIViewControllerExample()) },
+
+        ChildExampleEntry(parent: "UIViewControllerRepresentable", child: "makeCoordinator()", code: """
+        func makeCoordinator() -> Coordinator { Coordinator(pages: pages) }
+
+        final class Coordinator: NSObject, UIPageViewControllerDataSource {
+            let controllers: [UIViewController]
+            init(pages: [AnyView]) { controllers = pages.map { UIHostingController(rootView: $0) } }
+            func pageViewController(_ pager: UIPageViewController,
+                                    viewControllerAfter vc: UIViewController) -> UIViewController? {
+                let next = (controllers.firstIndex(of: vc) ?? -1) + 1        // + viewControllerBefore
+                return next < controllers.count ? controllers[next] : nil
+            }
+        }
+        """) { AnyView(C03_MakeCoordinatorUIExample()) },
+
+        ChildExampleEntry(parent: "UIViewControllerRepresentable", child: "sizeThatFits(_:uiViewController:context:)", code: """
+        func sizeThatFits(_ proposal: ProposedViewSize,
+                          uiViewController: UIPageViewController,
+                          context: Context) -> CGSize? {
+            CGSize(width: proposal.width ?? 320, height: 56)   // take the width, insist on 56 pt tall
+        }
+        """) { AnyView(C03_SizeThatFitsUIExample()) },
+
+        // MARK: UserAnnotation
+
+        ChildExampleEntry(parent: "UserAnnotation", child: "UserAnnotation()", code: """
+        Map(position: $position) {
+            UserAnnotation()          // the system's pulsing blue puck at the device location
+        }
+        """) { AnyView(C03_UserAnnotationExample()) },
+
+        ChildExampleEntry(parent: "UserAnnotation", child: "UserAnnotation(anchor:content:)", code: """
+        Map {
+            UserAnnotation(anchor: anchor) { location in         // UserLocation: coordinate + heading
+                Image(systemName: "location.north.fill")
+                    .rotationEffect(.degrees(location.heading?.trueHeading ?? 0))
+            }
+        }
+        """) { AnyView(C03_UserAnnotationContentExample()) },
+
         // C03_END_ENTRIES
     ]
 }
@@ -2602,6 +2692,315 @@ private struct C03_TipActionsExample: View {
             C03_Caption("Illustrative — the button comes from the real tip.actions; TipView draws it once Tips.configure() has run")
         }
         .padding()
+    }
+}
+
+private struct C03_TipInvalidateExample: View {
+    @State private var invalidated = false
+    @State private var exports = 0
+    private let tip = C03_ExportTip()
+
+    var body: some View {
+        VStack(spacing: 10) {
+            if invalidated {
+                C03_HiddenTipSlot(reason: "invalidated(.actionPerformed) — the tip never shows again")
+            } else {
+                C03_TipCard(tip: tip)
+            }
+            HStack {
+                Button("Export") {
+                    exports += 1
+                    C03_ExportTip().invalidate(reason: .actionPerformed)   // the real call
+                    invalidated = true
+                }
+                .disabled(invalidated)
+                Spacer()
+                Text("exports: \(exports) · status: \(invalidated ? ".invalidated(.actionPerformed)" : ".available")")
+                    .font(.caption.monospaced())
+            }
+            C03_Caption("Illustrative — invalidate(reason:) runs on the real ExportTip; TipKit persists the invalidation once Tips.configure() has run")
+        }
+        .padding()
+    }
+}
+
+// MARK: - TipView
+
+private struct C03_RenameTip: Tip {
+    var title: Text { Text("Rename in Place") }
+    var message: Text? { Text("Double-click a title to rename it without opening the inspector.") }
+    var image: Image? { Image(systemName: "pencil.line") }
+    var actions: [Tips.Action] { [Tips.Action(id: "learn", title: "Learn More")] }
+}
+
+private struct C03_TipViewArrowEdgeExample: View {
+    @State private var edgeIndex = 1
+    @State private var lastActionID: String?
+    @State private var showHelp = false
+    private let edges: [(name: String, edge: Edge?)] = [
+        (name: "nil", edge: nil), (name: ".bottom", edge: .bottom), (name: ".top", edge: .top),
+    ]
+
+    var body: some View {
+        VStack(spacing: 10) {
+            Picker("arrowEdge", selection: $edgeIndex) {
+                ForEach(edges.indices, id: \.self) { Text(edges[$0].name).tag($0) }
+            }
+            .pickerStyle(.segmented)
+            .font(.caption)
+            C03_TipCard(tip: C03_RenameTip(), arrowEdge: edges[edgeIndex].edge, onAction: { action in
+                lastActionID = action.id
+                if action.id == "learn" { showHelp = true }
+            })
+            HStack {
+                Text("action.id: \(lastActionID.map { "\"\($0)\"" } ?? "—")")
+                    .font(.caption.monospaced())
+                Spacer()
+                Text("showHelp: \(showHelp ? "true" : "false")")
+                    .font(.caption.monospaced())
+                    .foregroundStyle(showHelp ? Color.green : Color.secondary)
+            }
+            C03_Caption("Illustrative — the pointer sits on arrowEdge; TipView draws the real card once Tips.configure() has run")
+        }
+        .padding()
+    }
+}
+
+private struct C03_TipViewStyleExample: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("default").font(.caption2).foregroundStyle(.secondary)
+            C03_TipCard(tip: C03_SyncTip())
+            Text(".tipViewStyle(.miniature)").font(.caption2).foregroundStyle(.secondary)
+            C03_TipCard(tip: C03_SyncTip(), miniature: true)
+            C03_Caption("Illustrative — .miniature drops the message and shrinks the glyph; a custom TipViewStyle can replace the whole layout")
+        }
+        .padding()
+    }
+}
+
+private struct C03_TipBackgroundExample: View {
+    @State private var index = 0
+    private let styles: [(name: String, style: AnyShapeStyle)] = [
+        (name: ".blue.opacity(0.1)", style: AnyShapeStyle(Color.blue.opacity(0.1))),
+        (name: ".yellow.opacity(0.2)", style: AnyShapeStyle(Color.yellow.opacity(0.2))),
+        (name: ".mint.gradient", style: AnyShapeStyle(Color.mint.gradient)),
+        (name: ".regularMaterial", style: AnyShapeStyle(Material.regular)),
+    ]
+
+    var body: some View {
+        VStack(spacing: 10) {
+            Picker("tipBackground", selection: $index) {
+                ForEach(styles.indices, id: \.self) { Text(styles[$0].name).tag($0) }
+            }
+            .pickerStyle(.menu)
+            .font(.caption)
+            C03_TipCard(tip: C03_SyncTip(), background: styles[index].style)
+            C03_Caption("Illustrative — the whole tip container is filled with the ShapeStyle you pass")
+        }
+        .padding()
+    }
+}
+
+private struct C03_TipCornerRadiusExample: View {
+    @State private var radius: CGFloat = 20
+
+    var body: some View {
+        VStack(spacing: 10) {
+            C03_TipCard(tip: C03_SyncTip(), cornerRadius: radius)
+            Slider(value: $radius, in: 0...28) { Text("tipCornerRadius \(Int(radius))") }
+                .font(.caption)
+            C03_Caption("Illustrative — antialiased: true smooths the clipped edge; match the radius of the surrounding cards")
+        }
+        .padding()
+    }
+}
+
+// MARK: - UIViewControllerRepresentable (iOS only — rendered through the macOS analog)
+
+private let C03_pageTitles = ["Welcome", "Features", "Get Started"]
+
+private struct C03_PagerMadeOnceBadge: NSViewControllerRepresentable {
+    var page: Int
+
+    func makeNSViewController(context: Context) -> C03_BadgeController {
+        let controller = C03_BadgeController()
+        controller.headline.stringValue = "Pager made at " + Date.now.formatted(date: .omitted, time: .standard)
+        return controller
+    }
+
+    func updateNSViewController(_ controller: C03_BadgeController, context: Context) {
+        controller.detail.stringValue = "page \(page + 1) of \(C03_pageTitles.count)"
+    }
+}
+
+private struct C03_MakeUIViewControllerExample: View {
+    @State private var page = 0
+
+    var body: some View {
+        VStack(spacing: 10) {
+            C03_PagerMadeOnceBadge(page: page)
+                .frame(width: 220, height: 60)
+            Button("Next page") { page = (page + 1) % C03_pageTitles.count }
+            C03_Caption("Illustrative — iOS only. The macOS analog's make ran once: the timestamp stays while the page advances through update")
+        }
+        .padding()
+    }
+}
+
+private struct C03_PagerSyncBadge: NSViewControllerRepresentable {
+    var currentIndex: Int
+
+    func makeNSViewController(context: Context) -> C03_BadgeController { C03_BadgeController() }
+
+    func updateNSViewController(_ controller: C03_BadgeController, context: Context) {
+        controller.headline.stringValue = "Page \(currentIndex + 1): \(C03_pageTitles[currentIndex])"
+        controller.detail.stringValue = "setViewControllers([controllers[\(currentIndex)]], direction: .forward)"
+    }
+}
+
+private struct C03_UpdateUIViewControllerExample: View {
+    @State private var currentIndex = 0
+
+    var body: some View {
+        VStack(spacing: 10) {
+            C03_PagerSyncBadge(currentIndex: currentIndex)
+                .frame(width: 320, height: 60)
+            Picker("currentIndex", selection: $currentIndex) {
+                ForEach(C03_pageTitles.indices, id: \.self) { Text("\($0)").tag($0) }
+            }
+            .pickerStyle(.segmented)
+            .font(.caption)
+            C03_Caption("Illustrative — iOS only. Each change of currentIndex re-runs update (updateNSViewController here) and pushes the target page in")
+        }
+        .padding()
+    }
+}
+
+private struct C03_PagerCoordinatorButton: NSViewControllerRepresentable {
+    @Binding var index: Int
+
+    func makeCoordinator() -> Coordinator { Coordinator(pages: C03_pageTitles, index: $index) }
+
+    func makeNSViewController(context: Context) -> C03_ButtonController {
+        let controller = C03_ButtonController()
+        controller.button.title = "Next page ›"
+        controller.button.target = context.coordinator
+        controller.button.action = #selector(Coordinator.advance)
+        return controller
+    }
+
+    func updateNSViewController(_ controller: C03_ButtonController, context: Context) { }
+
+    final class Coordinator: NSObject {
+        let pages: [String]                     // the data source's backing store
+        @Binding var index: Int
+        init(pages: [String], index: Binding<Int>) {
+            self.pages = pages
+            _index = index
+        }
+        @objc func advance() { index = (index + 1) % pages.count }
+    }
+}
+
+private struct C03_MakeCoordinatorUIExample: View {
+    @State private var index = 0
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack(spacing: 6) {
+                ForEach(C03_pageTitles.indices, id: \.self) { i in
+                    Circle()
+                        .fill(i == index ? Color.accentColor : Color.gray.opacity(0.35))
+                        .frame(width: 8, height: 8)
+                }
+            }
+            Text(C03_pageTitles[index]).font(.headline)
+            C03_PagerCoordinatorButton(index: $index)
+                .frame(width: 220, height: 44)
+            C03_Caption("Illustrative — iOS only. The Coordinator owns the pages and answers the control's callbacks, writing the result back into @State")
+        }
+        .padding()
+    }
+}
+
+private struct C03_SizeThatFitsUIExample: View {
+    @State private var width: Double = 220
+
+    var body: some View {
+        VStack(spacing: 10) {
+            C03_FixedHeightBadge()
+                .frame(width: width, height: 110)          // proposal: width × 110
+                .overlay(Rectangle().strokeBorder(.red, style: StrokeStyle(lineWidth: 1, dash: [4])))
+            Slider(value: $width, in: 120...260) { Text("proposed width") }
+                .font(.caption)
+            C03_Caption("Illustrative — iOS only. Red box = proposal (\(Int(width)) × 110); the macOS analog answers \(Int(width)) × 56, exactly as the UIKit form would")
+        }
+        .padding()
+    }
+}
+
+// MARK: - UserAnnotation
+
+private struct C03_UserPuck: View {
+    @State private var pulsing = false
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(.blue.opacity(0.25))
+                .frame(width: pulsing ? 64 : 24, height: pulsing ? 64 : 24)
+                .opacity(pulsing ? 0 : 1)
+                .animation(.easeOut(duration: 1.6).repeatForever(autoreverses: false), value: pulsing)
+            Circle()
+                .fill(.blue)
+                .frame(width: 16, height: 16)
+                .overlay(Circle().stroke(.white, lineWidth: 3))
+                .shadow(radius: 2)
+        }
+        .onAppear { pulsing = true }
+    }
+}
+
+private struct C03_UserAnnotationExample: View {
+    var body: some View {
+        C03_MockMap(caption: "Illustrative — the puck follows the device location at runtime") {
+            C03_UserPuck()
+        }
+    }
+}
+
+private struct C03_UserAnnotationContentExample: View {
+    @State private var heading: Double = 45
+    @State private var anchorIndex = 0
+    private let anchors: [(name: String, point: UnitPoint)] = [
+        (name: ".center", point: .center), (name: ".bottom", point: .bottom), (name: ".top", point: .top),
+    ]
+
+    var body: some View {
+        VStack(spacing: 6) {
+            C03_MockMap(caption: "Illustrative — UserLocation (coordinate + heading) arrives live at runtime; + marks the location") {
+                Image(systemName: "plus")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.red)
+                Image(systemName: "location.north.fill")
+                    .font(.title2)
+                    .foregroundStyle(.white)
+                    .padding(8)
+                    .background(.blue, in: Circle())
+                    .rotationEffect(.degrees(heading))
+                    .offset(y: (0.5 - anchors[anchorIndex].point.y) * 40)   // hang the content on its anchor
+            }
+            HStack {
+                Picker("anchor", selection: $anchorIndex) {
+                    ForEach(anchors.indices, id: \.self) { Text(anchors[$0].name).tag($0) }
+                }
+                .pickerStyle(.segmented)
+                Slider(value: $heading, in: 0...359) { Text("heading \(Int(heading))°") }
+            }
+            .font(.caption)
+            .padding(.horizontal)
+        }
     }
 }
 

@@ -505,6 +505,251 @@ enum ChildExamplesPart06 {
         Button { } label: { Label("Share", systemImage: "square.and.arrow.up") }.buttonStyle(PillStyle())
         """) { AnyView(C06_ButtonConfigLabelExample()) },
 
+        ChildExampleEntry(parent: "ButtonStyleConfiguration", child: "isPressed", code: """
+        struct PressStyle: ButtonStyle {
+            func makeBody(configuration: Configuration) -> some View {
+                configuration.label
+                    .padding(.horizontal, 14).padding(.vertical, 8)
+                    .background(.tint.opacity(configuration.isPressed ? 0.35 : 0.15), in: Capsule())
+                    .opacity(configuration.isPressed ? 0.55 : 1)     // true only while held down
+                    .offset(y: configuration.isPressed ? 1 : 0)
+                    .animation(.easeOut(duration: 0.1), value: configuration.isPressed)
+            }
+        }
+
+        Button("Hold Me") { presses += 1 }.buttonStyle(PressStyle())
+        """) { AnyView(C06_ButtonConfigPressedExample()) },
+
+        ChildExampleEntry(parent: "ButtonStyleConfiguration", child: "role", code: """
+        struct RoleAwareStyle: ButtonStyle {
+            func makeBody(configuration: Configuration) -> some View {
+                configuration.label
+                    .foregroundStyle(configuration.role == .destructive ? Color.red : Color.primary)
+                    .fontWeight(configuration.role == .cancel ? .regular : .semibold)
+                    .padding(.horizontal, 12).padding(.vertical, 6)
+                    .background(.quaternary, in: Capsule())
+            }
+        }
+
+        Button("Save") { }.buttonStyle(RoleAwareStyle())                        // role == nil
+        Button("Delete", role: .destructive) { }.buttonStyle(RoleAwareStyle())
+        Button("Cancel", role: .cancel) { }.buttonStyle(RoleAwareStyle())
+        """) { AnyView(C06_ButtonConfigRoleExample()) },
+
+        // MARK: CommandGroup
+
+        ChildExampleEntry(parent: "CommandGroup", child: "CommandGroupPlacement", code: """
+        .commands {
+            CommandGroup(replacing: .appInfo) {          // App menu: About…
+                Button("About PixelForge") { showAbout = true }
+            }
+            CommandGroup(after: .newItem) {              // File menu, below New
+                Button("New from Clipboard") { newFromClipboard() }
+            }
+            CommandGroup(before: .help) {                // Help menu, above the app's Help item
+                Button("Release Notes") { openReleaseNotes() }
+            }
+        }
+        """) { AnyView(C06_CommandGroupPlacementExample()) },
+
+        ChildExampleEntry(parent: "CommandGroup", child: "CommandGroup(before:addition:)", code: """
+        WindowGroup { EditorView() }
+            .commands {
+                CommandGroup(before: .help) {
+                    Button("Release Notes") { openReleaseNotes() }
+                }
+            }
+        """) { AnyView(C06_CommandGroupBeforeExample()) },
+
+        ChildExampleEntry(parent: "CommandGroup", child: "CommandGroup(after:addition:)", code: """
+        .commands {
+            CommandGroup(after: .pasteboard) {
+                Divider()
+                Button("Paste as Plain Text") { pastePlainText() }
+                    .keyboardShortcut("v", modifiers: [.command, .shift, .option])
+            }
+        }
+        """) { AnyView(C06_CommandGroupAfterExample()) },
+
+        ChildExampleEntry(parent: "CommandGroup", child: "CommandGroup(replacing:addition:)", code: """
+        .commands {
+            CommandGroup(replacing: .appSettings) {
+                Button("Preferences…") { openWindow(id: "prefs") }
+                    .keyboardShortcut(",")
+            }
+        }
+        """) { AnyView(C06_CommandGroupReplacingExample()) },
+
+        // MARK: FocusedValues
+
+        ChildExampleEntry(parent: "FocusedValues", child: "FocusedValueKey", code: """
+        struct SelectedSensorKey: FocusedValueKey {
+            typealias Value = String
+        }
+        extension FocusedValues {
+            var selectedSensor: String? {
+                get { self[SelectedSensorKey.self] }
+                set { self[SelectedSensorKey.self] = newValue }
+            }
+        }
+
+        SensorChip(name: name).focusable().focusedValue(\\.selectedSensor, name)
+        @FocusedValue(\\.selectedSensor) private var selectedSensor: String?     // reader
+        """) { AnyView(C06_FocusedValueKeyExample()) },
+
+        ChildExampleEntry(parent: "FocusedValues", child: "@Entry", code: """
+        extension FocusedValues {
+            @Entry var playbackRate: Binding<Double>?     // key type + accessor in one line
+        }
+
+        PlayerView(rate: $rate)
+            .focusable()
+            .focusedValue(\\.playbackRate, $rate)
+
+        @FocusedBinding(\\.playbackRate) private var rate: Double?               // reader
+        """) { AnyView(C06_FocusedValuesEntryExample()) },
+
+        // MARK: HoverEffect
+
+        ChildExampleEntry(parent: "HoverEffect", child: "HoverEffect.automatic", code: """
+        Image(systemName: "gearshape")
+            .padding(6)
+            .hoverEffect(.automatic)      // the system picks .highlight or .lift for the view
+        """) { AnyView(C06_HoverEffectAutomaticExample()) },
+
+        ChildExampleEntry(parent: "HoverEffect", child: "HoverEffect.highlight", code: """
+        Text(tag.name)
+            .padding(.horizontal, 8)
+            .contentShape(.hoverEffect, Capsule())
+            .hoverEffect(.highlight)      // the pointer morphs into a platter behind the content
+        """) { AnyView(C06_HoverEffectHighlightExample()) },
+
+        ChildExampleEntry(parent: "HoverEffect", child: "HoverEffect.lift", code: """
+        AppIcon(app: app)
+            .hoverEffect(.lift)           // scales up slightly and hides the pointer beneath
+        """) { AnyView(C06_HoverEffectLiftExample()) },
+
+        // MARK: KeyboardShortcut
+
+        ChildExampleEntry(parent: "KeyboardShortcut", child: "KeyboardShortcut(_:modifiers:)", code: """
+        let toggleSidebar = KeyboardShortcut("s", modifiers: [.command, .control])   // ⌃⌘S
+
+        Button("Toggle Sidebar") { showsSidebar.toggle() }
+            .keyboardShortcut(toggleSidebar)
+        """) { AnyView(C06_KeyboardShortcutInitExample()) },
+
+        ChildExampleEntry(parent: "KeyboardShortcut", child: "KeyboardShortcut(_:modifiers:localization:)", code: """
+        let previousTab = KeyboardShortcut("[", modifiers: .command, localization: .withoutMirroring)
+        let nextTab     = KeyboardShortcut("]", modifiers: .command, localization: .withoutMirroring)
+
+        Button("Previous Tab") { selectedTab = max(selectedTab - 1, 0) }
+            .keyboardShortcut(previousTab)
+        Button("Next Tab") { selectedTab = min(selectedTab + 1, tabs.count - 1) }
+            .keyboardShortcut(nextTab)
+        """) { AnyView(C06_KeyboardShortcutLocalizationExample()) },
+
+        ChildExampleEntry(parent: "KeyboardShortcut", child: "KeyboardShortcut.defaultAction", code: """
+        TextField("Account name", text: $name)
+        HStack {
+            Button("Cancel") { status = "Cancelled" }
+                .keyboardShortcut(.cancelAction)
+            Button("Sign In") { signIn() }
+                .keyboardShortcut(.defaultAction)   // Return; drawn as the prominent default on macOS
+        }
+        """) { AnyView(C06_KeyboardShortcutDefaultExample()) },
+
+        ChildExampleEntry(parent: "KeyboardShortcut", child: "KeyboardShortcut.cancelAction", code: """
+        Button("Export…") { showsExport = true }
+            .sheet(isPresented: $showsExport) {
+                VStack {
+                    ExportOptions(format: $format)
+                    HStack {
+                        Button("Cancel") { showsExport = false }
+                            .keyboardShortcut(.cancelAction)   // Escape dismisses the sheet
+                        Button("Export") { export(); showsExport = false }
+                            .keyboardShortcut(.defaultAction)
+                    }
+                }
+            }
+        """) { AnyView(C06_KeyboardShortcutCancelExample()) },
+
+        // MARK: LabeledContentStyle
+
+        ChildExampleEntry(parent: "LabeledContentStyle", child: "makeBody(configuration:)", code: """
+        struct InspectorRowStyle: LabeledContentStyle {
+            func makeBody(configuration: Configuration) -> some View {
+                HStack(alignment: .firstTextBaseline) {
+                    configuration.label
+                        .foregroundStyle(.secondary)
+                        .frame(width: 90, alignment: .trailing)
+                    configuration.content
+                }
+            }
+        }
+
+        LabeledContent("Name", value: "Hero Banner")
+        LabeledContent("Opacity") { Slider(value: $opacity, in: 0...1) }
+            .labeledContentStyle(InspectorRowStyle())
+        """) { AnyView(C06_LabeledContentMakeBodyExample()) },
+
+        ChildExampleEntry(parent: "LabeledContentStyle", child: "LabeledContentStyleConfiguration", code: """
+        struct VerticalLabeledContentStyle: LabeledContentStyle {
+            func makeBody(configuration: Configuration) -> some View {   // Configuration == LabeledContentStyleConfiguration
+                VStack(alignment: .leading, spacing: 2) {
+                    configuration.label.font(.caption.smallCaps()).foregroundStyle(.secondary)
+                    configuration.content.font(.body.monospacedDigit())
+                }
+            }
+        }
+
+        LabeledContent("Pressure", value: "1013 hPa")
+            .labeledContentStyle(VerticalLabeledContentStyle())
+        """) { AnyView(C06_LabeledContentConfigurationExample()) },
+
+        ChildExampleEntry(parent: "LabeledContentStyle", child: "LabeledContentStyle.automatic", code: """
+        VStack(alignment: .leading) {
+            LabeledContent("Sensor", value: "BME280")
+            LabeledContent("Firmware", value: "2.4.1")
+            GroupBox("Raw") {
+                LabeledContent("Pressure", value: "1013 hPa")
+                LabeledContent("Humidity", value: "41 %")
+            }
+            .labeledContentStyle(.automatic)          // restores the default inside this subtree
+        }
+        .labeledContentStyle(VerticalLabeledContentStyle())
+        """) { AnyView(C06_LabeledContentAutomaticExample()) },
+
+        // MARK: SidebarCommands
+
+        ChildExampleEntry(parent: "SidebarCommands", child: "ToolbarCommands", code: """
+        WindowGroup { MainView().toolbar { EditorToolbar() } }
+            .commands {
+                ToolbarCommands()        // View ▸ Show/Hide Toolbar, Customize Toolbar…
+            }
+        """) { AnyView(C06_ToolbarCommandsExample()) },
+
+        ChildExampleEntry(parent: "SidebarCommands", child: "TextEditingCommands", code: """
+        WindowGroup { NotesEditor() }
+            .commands {
+                TextEditingCommands()    // Edit ▸ Find, Spelling and Grammar, Substitutions, Transformations, Speech
+            }
+        """) { AnyView(C06_TextEditingCommandsExample()) },
+
+        ChildExampleEntry(parent: "SidebarCommands", child: "TextFormattingCommands", code: """
+        WindowGroup { RichTextEditor() }
+            .commands {
+                TextFormattingCommands() // adds a Format menu: Font ▸, Text ▸
+            }
+        """) { AnyView(C06_TextFormattingCommandsExample()) },
+
+        ChildExampleEntry(parent: "SidebarCommands", child: "InspectorCommands", code: """
+        NavigationSplitView { Sidebar() } detail: { Detail() }
+            .inspector(isPresented: $showsInspector) { InspectorPane() }
+
+        // In the scene:
+        .commands { InspectorCommands() }   // View ▸ Show/Hide Inspector  ⌃⌘I
+        """) { AnyView(C06_InspectorCommandsExample()) },
+
         // C06_ENTRIES_END
     ]
 }
@@ -567,11 +812,19 @@ private struct C06_MenuMock: View {
                 if item == "-" {
                     Divider().padding(.vertical, 2)
                 } else {
-                    Text(item)
-                        .font(.callout)
-                        .padding(.horizontal, 10).padding(.vertical, 3)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(highlighted.contains(item) ? Color.accentColor.opacity(0.18) : .clear)
+                    // "Title\t⌘S" renders the part after the tab as a trailing shortcut / submenu chevron.
+                    let parts = item.split(separator: "\t", maxSplits: 1).map(String.init)
+                    HStack(spacing: 8) {
+                        Text(parts.first ?? item)
+                        Spacer(minLength: 0)
+                        if parts.count > 1 {
+                            Text(parts[1]).foregroundStyle(.secondary)
+                        }
+                    }
+                    .font(.callout)
+                    .padding(.horizontal, 10).padding(.vertical, 3)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(highlighted.contains(item) ? Color.accentColor.opacity(0.18) : .clear)
                 }
             }
         }
@@ -2099,6 +2352,631 @@ private struct C06_ButtonConfigLabelExample: View {
             Text("Last tapped: \(last)").font(.callout).foregroundStyle(.secondary)
             C06_Caption("configuration.label is the button's own content, type-erased — text, a Label, or an image.")
         }
+    }
+}
+
+private struct C06_PressStyle: ButtonStyle {
+    var onPress: (Bool) -> Void = { _ in }
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .padding(.horizontal, 14).padding(.vertical, 8)
+            .background(.tint.opacity(configuration.isPressed ? 0.35 : 0.15), in: Capsule())
+            .opacity(configuration.isPressed ? 0.55 : 1)
+            .offset(y: configuration.isPressed ? 1 : 0)
+            .animation(.easeOut(duration: 0.1), value: configuration.isPressed)
+            .onChange(of: configuration.isPressed) { _, pressed in onPress(pressed) }
+    }
+}
+
+private struct C06_ButtonConfigPressedExample: View {
+    @State private var isPressed = false
+    @State private var presses = 0
+
+    var body: some View {
+        VStack(spacing: 10) {
+            Button("Hold Me") { presses += 1 }
+                .buttonStyle(C06_PressStyle(onPress: { isPressed = $0 }))
+            Text(isPressed ? "configuration.isPressed == true" : "configuration.isPressed == false")
+                .font(.callout.monospaced())
+                .foregroundStyle(isPressed ? Color.accentColor : Color.secondary)
+            Text("released \(presses)×").font(.caption).foregroundStyle(.secondary)
+            C06_Caption("Press and hold — isPressed is true only while the pointer is down on the button.")
+        }
+    }
+}
+
+private struct C06_RoleAwareStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .foregroundStyle(configuration.role == .destructive ? Color.red : Color.primary)
+            .fontWeight(configuration.role == .cancel ? .regular : .semibold)
+            .padding(.horizontal, 12).padding(.vertical, 6)
+            .background(.quaternary, in: Capsule())
+    }
+}
+
+private struct C06_ButtonConfigRoleExample: View {
+    @State private var last = "—"
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack(spacing: 12) {
+                Button("Save") { last = "Save (role: nil)" }
+                    .buttonStyle(C06_RoleAwareStyle())
+                Button("Delete", role: .destructive) { last = "Delete (role: .destructive)" }
+                    .buttonStyle(C06_RoleAwareStyle())
+                Button("Cancel", role: .cancel) { last = "Cancel (role: .cancel)" }
+                    .buttonStyle(C06_RoleAwareStyle())
+            }
+            Text("Last tapped: \(last)").font(.callout).foregroundStyle(.secondary)
+            C06_Caption("One style reads configuration.role — red for destructive, lighter weight for cancel, default otherwise.")
+        }
+    }
+}
+
+// MARK: - CommandGroup
+
+private struct C06_CommandGroupPlacementExample: View {
+    private let placements: [(placement: String, region: String)] = [
+        (".appInfo", "PixelForge ▸ About PixelForge"),
+        (".appSettings", "PixelForge ▸ Settings…"),
+        (".newItem", "File ▸ New"),
+        (".saveItem", "File ▸ Save, Save As…"),
+        (".pasteboard", "Edit ▸ Cut, Copy, Paste"),
+        (".help", "Help ▸ PixelForge Help"),
+    ]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            C06_MenuBarMock(title: "Standard regions a CommandGroup can anchor to",
+                            menus: ["File", "Edit", "View", "Window", "Help"],
+                            highlighted: ["PixelForge", "File", "Edit", "Help"],
+                            appName: "PixelForge")
+            Grid(alignment: .leading, horizontalSpacing: 14, verticalSpacing: 3) {
+                ForEach(Array(placements.enumerated()), id: \.offset) { _, row in
+                    GridRow {
+                        Text(row.placement).font(.caption.monospaced())
+                        Text(row.region).font(.caption).foregroundStyle(.secondary)
+                    }
+                }
+            }
+            C06_Caption("Illustrative — applies at the Scene level: each placement names a standard group to insert before, after, or replace.")
+        }
+        .frame(maxWidth: 360)
+    }
+}
+
+private struct C06_CommandGroupBeforeExample: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            C06_MenuBarMock(title: "CommandGroup(before: .help) { Button(\"Release Notes\") … }",
+                            menus: ["File", "Edit", "View", "Window", "Help"],
+                            highlighted: ["Help"], appName: "PixelForge")
+            HStack(alignment: .top, spacing: 16) {
+                C06_MenuMock(title: "Help — default", items: ["Search", "-", "PixelForge Help"])
+                C06_MenuMock(title: "Help — with the addition",
+                             items: ["Search", "-", "Release Notes", "PixelForge Help"],
+                             highlighted: ["Release Notes"])
+            }
+            C06_Caption("Illustrative — applies at the Scene level: your items land immediately ahead of the standard group; the system items stay.")
+        }
+        .frame(maxWidth: 400)
+    }
+}
+
+private struct C06_CommandGroupAfterExample: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            C06_MenuBarMock(title: "CommandGroup(after: .pasteboard) { Divider(); Button(\"Paste as Plain Text\") … }",
+                            menus: ["File", "Edit", "View", "Window", "Help"],
+                            highlighted: ["Edit"], appName: "PixelForge")
+            HStack(alignment: .top, spacing: 16) {
+                C06_MenuMock(title: "Edit — default",
+                             items: ["Cut\t⌘X", "Copy\t⌘C", "Paste\t⌘V", "Select All\t⌘A"])
+                C06_MenuMock(title: "Edit — with the addition",
+                             items: ["Cut\t⌘X", "Copy\t⌘C", "Paste\t⌘V", "Select All\t⌘A", "-", "Paste as Plain Text\t⌥⇧⌘V"],
+                             highlighted: ["Paste as Plain Text\t⌥⇧⌘V"])
+            }
+            C06_Caption("Illustrative — applies at the Scene level: the addition is appended just below the standard pasteboard group.")
+        }
+        .frame(maxWidth: 400)
+    }
+}
+
+private struct C06_CommandGroupReplacingExample: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            C06_MenuBarMock(title: "CommandGroup(replacing: .appSettings) { Button(\"Preferences…\") … }",
+                            menus: ["File", "Edit", "View", "Window", "Help"],
+                            highlighted: ["PixelForge"], appName: "PixelForge")
+            HStack(alignment: .top, spacing: 16) {
+                C06_MenuMock(title: "PixelForge — default",
+                             items: ["About PixelForge", "-", "Settings…\t⌘,", "-", "Quit PixelForge\t⌘Q"])
+                C06_MenuMock(title: "PixelForge — replaced",
+                             items: ["About PixelForge", "-", "Preferences…\t⌘,", "-", "Quit PixelForge\t⌘Q"],
+                             highlighted: ["Preferences…\t⌘,"])
+            }
+            C06_Caption("Illustrative — applies at the Scene level: the system's Settings… item is swapped out for yours entirely.")
+        }
+        .frame(maxWidth: 400)
+    }
+}
+
+// MARK: - FocusedValues
+
+private struct C06_SelectedSensorKey {}
+
+nonisolated extension C06_SelectedSensorKey: FocusedValueKey {
+    typealias Value = String
+}
+
+extension FocusedValues {
+    fileprivate nonisolated var selectedSensor: String? {
+        get { self[C06_SelectedSensorKey.self] }
+        set { self[C06_SelectedSensorKey.self] = newValue }
+    }
+}
+
+private struct C06_FocusedValueKeyExample: View {
+    private let sensors = ["BME280", "SHT31", "MPU6050"]
+    @FocusState private var focusedSensor: String?
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack(spacing: 8) {
+                ForEach(sensors, id: \.self) { name in
+                    Label(name, systemImage: "dot.radiowaves.left.and.right")
+                        .font(.caption)
+                        .padding(.horizontal, 8).padding(.vertical, 5)
+                        .c06FocusRing(focusedSensor == name)
+                        .focusable()
+                        .focused($focusedSensor, equals: name)
+                        .focusedValue(\.selectedSensor, name)
+                        .onTapGesture { focusedSensor = name }
+                }
+            }
+            C06_SelectedSensorReader()
+            C06_Caption("Click a sensor to focus it. The key type's Value fixes the entry's type; the computed property reads and writes through the subscript.")
+        }
+    }
+}
+
+private struct C06_SelectedSensorReader: View {
+    @FocusedValue(\.selectedSensor) private var selectedSensor: String?
+
+    var body: some View {
+        Text(selectedSensor.map { "self[SelectedSensorKey.self] → \"\($0)\"" }
+             ?? "self[SelectedSensorKey.self] → nil")
+            .font(.callout.monospaced())
+    }
+}
+
+private struct C06_FocusedValuesEntryExample: View {
+    @State private var rate = 1.0
+    @FocusState private var playerFocused: Bool
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack(spacing: 10) {
+                Image(systemName: "play.fill")
+                Slider(value: $rate, in: 0.5...2, step: 0.25) { Text("Rate") }
+                    .frame(width: 120)
+                Text(String(format: "%.2f×", rate)).font(.caption.monospacedDigit())
+            }
+            .padding(10)
+            .frame(width: 230)
+            .c06FocusRing(playerFocused)
+            .focusable()
+            .focused($playerFocused)
+            .focusedValue(\.playbackRate, $rate)
+            .onTapGesture { playerFocused = true }
+            C06_PlaybackRateReader()
+            C06_Caption("Click the player to focus it. One @Entry line replaces the key type + accessor pair; because the entry holds a Binding, @FocusedBinding can read it.")
+        }
+    }
+}
+
+private struct C06_PlaybackRateReader: View {
+    @FocusedBinding(\.playbackRate) private var rate: Double?
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Button("Faster") { rate = min((rate ?? 1) + 0.25, 2) }
+            Button("Reset") { rate = 1 }
+            Text(rate.map { String(format: "@FocusedBinding → %.2f", $0) } ?? "@FocusedBinding → nil")
+                .font(.callout.monospaced())
+        }
+        .disabled(rate == nil)
+    }
+}
+
+// MARK: - HoverEffect
+
+private struct C06_HoverEffectAutomaticExample: View {
+    @State private var hoveringGear = false
+    @State private var hoveringCard = false
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack(spacing: 28) {
+                VStack(spacing: 6) {
+                    Image(systemName: "gearshape")
+                        .font(.title3)
+                        .padding(6)
+                        .background(hoveringGear ? Color.primary.opacity(0.12) : Color.clear,
+                                    in: RoundedRectangle(cornerRadius: 8))
+                        .onHover { hoveringGear = $0 }
+                        .animation(.easeOut(duration: 0.15), value: hoveringGear)
+                    Text("small view → highlight").font(.caption2).foregroundStyle(.secondary)
+                }
+                VStack(spacing: 6) {
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(.teal.gradient)
+                        .frame(width: 70, height: 44)
+                        .scaleEffect(hoveringCard ? 1.06 : 1)
+                        .shadow(radius: hoveringCard ? 6 : 0)
+                        .onHover { hoveringCard = $0 }
+                        .animation(.easeOut(duration: 0.15), value: hoveringCard)
+                    Text("large view → lift").font(.caption2).foregroundStyle(.secondary)
+                }
+            }
+            C06_Caption("Illustrative — iOS/tvOS only: .automatic lets the system choose highlight or lift from the view's size and context. Simulated with onHover.")
+        }
+    }
+}
+
+private struct C06_HoverEffectHighlightExample: View {
+    private let tags = ["swiftui", "focus", "pointer"]
+    @State private var hovered: String? = nil
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack(spacing: 10) {
+                ForEach(tags, id: \.self) { tag in
+                    Text(tag)
+                        .font(.callout)
+                        .padding(.horizontal, 10).padding(.vertical, 5)
+                        .background(hovered == tag ? Color.primary.opacity(0.14) : Color.clear, in: Capsule())
+                        .contentShape(Capsule())
+                        .onHover { hovered = $0 ? tag : nil }
+                        .animation(.easeOut(duration: 0.15), value: hovered)
+                }
+            }
+            C06_Caption("Illustrative — iOS/tvOS only: .highlight morphs the pointer into a rounded platter behind the content, the treatment bar buttons use. Simulated with onHover.")
+        }
+    }
+}
+
+private struct C06_HoverEffectLiftExample: View {
+    private struct App: Identifiable {
+        let id: Int
+        let name: String
+        let symbol: String
+        let color: Color
+    }
+    private let apps = [
+        App(id: 0, name: "Mail", symbol: "envelope.fill", color: .blue),
+        App(id: 1, name: "Photos", symbol: "photo.fill", color: .orange),
+        App(id: 2, name: "Notes", symbol: "note.text", color: .yellow),
+    ]
+    @State private var hovered: Int? = nil
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack(spacing: 22) {
+                ForEach(apps) { app in
+                    VStack(spacing: 6) {
+                        Image(systemName: app.symbol)
+                            .font(.title2)
+                            .foregroundStyle(.white)
+                            .frame(width: 48, height: 48)
+                            .background(app.color.gradient, in: RoundedRectangle(cornerRadius: 12))
+                            .scaleEffect(hovered == app.id ? 1.12 : 1)
+                            .shadow(color: .black.opacity(hovered == app.id ? 0.25 : 0), radius: 8, y: 4)
+                        Text(app.name).font(.caption2)
+                    }
+                    .onHover { hovered = $0 ? app.id : nil }
+                    .animation(.easeOut(duration: 0.15), value: hovered)
+                }
+            }
+            C06_Caption("Illustrative — iOS/tvOS only: .lift scales the view up and hides the pointer beneath it, suiting app icons and cards. Simulated with onHover.")
+        }
+    }
+}
+
+// MARK: - KeyboardShortcut
+
+private struct C06_KeyboardShortcutInitExample: View {
+    private let toggleSidebar = KeyboardShortcut("s", modifiers: [.command, .control])
+    @State private var showsSidebar = true
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack(spacing: 0) {
+                if showsSidebar {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Label("Inbox", systemImage: "tray")
+                        Label("Sent", systemImage: "paperplane")
+                    }
+                    .font(.caption)
+                    .padding(8)
+                    .frame(width: 80, alignment: .leading)
+                    .frame(maxHeight: .infinity)
+                    .background(.quaternary)
+                }
+                Text("Content")
+                    .font(.caption)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
+            .frame(width: 220, height: 60)
+            .background(.background, in: RoundedRectangle(cornerRadius: 8))
+            .overlay(RoundedRectangle(cornerRadius: 8).stroke(.separator))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .animation(.easeInOut(duration: 0.2), value: showsSidebar)
+            Button("Toggle Sidebar") { showsSidebar.toggle() }
+                .keyboardShortcut(toggleSidebar)
+            C06_Caption("Press ⌃⌘S or click. The stored shortcut pairs a KeyEquivalent with a modifier set; leave modifiers out and Command is assumed.")
+        }
+    }
+}
+
+private struct C06_KeyboardShortcutLocalizationExample: View {
+    private let tabs = ["Overview", "Layers", "Export"]
+    private let previousTab = KeyboardShortcut("[", modifiers: .command, localization: .withoutMirroring)
+    private let nextTab = KeyboardShortcut("]", modifiers: .command, localization: .withoutMirroring)
+    @State private var selectedTab = 0
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack(spacing: 4) {
+                ForEach(Array(tabs.enumerated()), id: \.offset) { index, tab in
+                    Text(tab)
+                        .font(.callout)
+                        .padding(.horizontal, 10).padding(.vertical, 4)
+                        .background(index == selectedTab ? Color.accentColor.opacity(0.2) : Color.clear,
+                                    in: RoundedRectangle(cornerRadius: 6))
+                        .onTapGesture { selectedTab = index }
+                }
+            }
+            .padding(4)
+            .background(.quaternary, in: RoundedRectangle(cornerRadius: 8))
+            HStack(spacing: 10) {
+                Button("Previous Tab") { selectedTab = max(selectedTab - 1, 0) }
+                    .keyboardShortcut(previousTab)
+                Button("Next Tab") { selectedTab = min(selectedTab + 1, tabs.count - 1) }
+                    .keyboardShortcut(nextTab)
+            }
+            C06_Caption("⌘[ and ⌘] — .withoutMirroring keeps the brackets as typed in right-to-left layouts, where .automatic would swap them.")
+        }
+    }
+}
+
+private struct C06_KeyboardShortcutDefaultExample: View {
+    @State private var name = ""
+    @State private var status = "Not signed in"
+
+    var body: some View {
+        VStack(spacing: 10) {
+            TextField("Account name", text: $name)
+                .textFieldStyle(.roundedBorder)
+                .frame(width: 200)
+            HStack {
+                Button("Cancel") { status = "Cancelled" }
+                    .keyboardShortcut(.cancelAction)
+                Button("Sign In") { status = name.isEmpty ? "Signed in as guest" : "Signed in as \(name)" }
+                    .keyboardShortcut(.defaultAction)
+            }
+            Text(status).font(.callout).foregroundStyle(.secondary)
+            C06_Caption("Press Return — .defaultAction binds it and, on macOS, draws the button with the prominent default style.")
+        }
+    }
+}
+
+private struct C06_KeyboardShortcutCancelExample: View {
+    @State private var showsExport = false
+    @State private var format = "PNG"
+    @State private var outcome = "No export yet"
+
+    var body: some View {
+        VStack(spacing: 10) {
+            Button("Export…") { showsExport = true }
+                .sheet(isPresented: $showsExport) {
+                    VStack(spacing: 14) {
+                        Text("Export").font(.headline)
+                        Picker("Format", selection: $format) {
+                            Text("PNG").tag("PNG")
+                            Text("JPEG").tag("JPEG")
+                            Text("PDF").tag("PDF")
+                        }
+                        .pickerStyle(.segmented)
+                        .labelsHidden()
+                        HStack {
+                            Button("Cancel") {
+                                outcome = "Cancelled (Escape or click)"
+                                showsExport = false
+                            }
+                            .keyboardShortcut(.cancelAction)
+                            Button("Export") {
+                                outcome = "Exported as \(format)"
+                                showsExport = false
+                            }
+                            .keyboardShortcut(.defaultAction)
+                        }
+                    }
+                    .padding(20)
+                    .frame(width: 260)
+                }
+            Text(outcome).font(.callout).foregroundStyle(.secondary)
+            C06_Caption("Open the sheet and press Escape — .cancelAction fires the Cancel button and the sheet goes away.")
+        }
+    }
+}
+
+// MARK: - LabeledContentStyle
+
+private struct C06_InspectorRowStyle: LabeledContentStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        HStack(alignment: .firstTextBaseline) {
+            configuration.label
+                .foregroundStyle(.secondary)
+                .frame(width: 90, alignment: .trailing)
+            configuration.content
+        }
+    }
+}
+
+private struct C06_VerticalLabeledContentStyle: LabeledContentStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            configuration.label.font(.caption.smallCaps()).foregroundStyle(.secondary)
+            configuration.content.font(.body.monospacedDigit())
+        }
+    }
+}
+
+private struct C06_LabeledContentMakeBodyExample: View {
+    @State private var opacity = 0.8
+
+    var body: some View {
+        VStack(spacing: 10) {
+            VStack(alignment: .leading, spacing: 6) {
+                LabeledContent("Name", value: "Hero Banner")
+                LabeledContent("Size", value: "1200 × 630")
+                LabeledContent("Opacity") {
+                    Slider(value: $opacity, in: 0...1).frame(width: 110)
+                }
+            }
+            .labeledContentStyle(C06_InspectorRowStyle())
+            .padding(10)
+            .frame(width: 260)
+            .background(.quaternary, in: RoundedRectangle(cornerRadius: 8))
+            C06_Caption("makeBody(configuration:) decides the arrangement — here labels sit right-aligned in a 90pt column, inspector style.")
+        }
+    }
+}
+
+private struct C06_LabeledContentConfigurationExample: View {
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack(alignment: .top, spacing: 24) {
+                LabeledContent("Pressure", value: "1013 hPa")
+                LabeledContent("Humidity", value: "41 %")
+                LabeledContent("Temperature", value: "22.4 °C")
+            }
+            .labeledContentStyle(C06_VerticalLabeledContentStyle())
+            .padding(10)
+            .background(.quaternary, in: RoundedRectangle(cornerRadius: 8))
+            C06_Caption("configuration.label and configuration.content are the two halves, type-erased, so each can be styled on its own.")
+        }
+    }
+}
+
+private struct C06_LabeledContentAutomaticExample: View {
+    var body: some View {
+        VStack(spacing: 10) {
+            VStack(alignment: .leading, spacing: 8) {
+                LabeledContent("Sensor", value: "BME280")
+                LabeledContent("Firmware", value: "2.4.1")
+                GroupBox("Raw") {
+                    LabeledContent("Pressure", value: "1013 hPa")
+                    LabeledContent("Humidity", value: "41 %")
+                }
+                .labeledContentStyle(.automatic)
+            }
+            .labeledContentStyle(C06_VerticalLabeledContentStyle())
+            .frame(width: 240)
+            C06_Caption("The outer rows use the custom vertical style; inside the group box .automatic restores label-leading, content-trailing.")
+        }
+    }
+}
+
+// MARK: - SidebarCommands siblings
+
+private struct C06_ToolbarCommandsExample: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            C06_MenuBarMock(title: ".commands { ToolbarCommands() }",
+                            menus: ["File", "Edit", "View", "Window", "Help"], highlighted: ["View"])
+            C06_MenuMock(title: "View",
+                         items: ["Hide Toolbar\t⌥⌘T", "Customize Toolbar…", "-", "Enter Full Screen\t⌃⌘F"],
+                         highlighted: ["Hide Toolbar\t⌥⌘T", "Customize Toolbar…"])
+            C06_Caption("Illustrative — applies at the Scene level: adds Show/Hide Toolbar and Customize Toolbar… to the View menu for windows with a customizable toolbar.")
+        }
+        .frame(maxWidth: 360)
+    }
+}
+
+private struct C06_TextEditingCommandsExample: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            C06_MenuBarMock(title: ".commands { TextEditingCommands() }",
+                            menus: ["File", "Edit", "View", "Window", "Help"], highlighted: ["Edit"])
+            C06_MenuMock(title: "Edit",
+                         items: ["Paste\t⌘V", "Select All\t⌘A", "-",
+                                 "Find\t▸", "Spelling and Grammar\t▸", "Substitutions\t▸", "Transformations\t▸", "Speech\t▸"],
+                         highlighted: ["Find\t▸", "Spelling and Grammar\t▸", "Substitutions\t▸", "Transformations\t▸", "Speech\t▸"])
+            C06_Caption("Illustrative — applies at the Scene level: installs the standard text-editing submenus in the Edit menu.")
+        }
+        .frame(maxWidth: 360)
+    }
+}
+
+private struct C06_TextFormattingCommandsExample: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            C06_MenuBarMock(title: ".commands { TextFormattingCommands() }",
+                            menus: ["File", "Edit", "Format", "View", "Window", "Help"], highlighted: ["Format"])
+            HStack(alignment: .top, spacing: 16) {
+                C06_MenuMock(title: "Format", items: ["Font\t▸", "Text\t▸"], highlighted: ["Font\t▸", "Text\t▸"])
+                C06_MenuMock(title: "Text ▸",
+                             items: ["Align Left\t⌘{", "Center\t⌘|", "Justify", "Align Right\t⌘}", "-", "Writing Direction\t▸"])
+            }
+            C06_Caption("Illustrative — applies at the Scene level: supplies a whole Format menu with font, text, and alignment commands.")
+        }
+        .frame(maxWidth: 400)
+    }
+}
+
+private struct C06_InspectorCommandsExample: View {
+    @State private var showsInspector = true
+
+    private var menuItem: String { "\(showsInspector ? "Hide" : "Show") Inspector\t⌃⌘I" }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .top, spacing: 14) {
+                C06_MenuMock(title: "View",
+                             items: ["Hide Toolbar\t⌥⌘T", "-", menuItem, "-", "Enter Full Screen\t⌃⌘F"],
+                             highlighted: [menuItem])
+                VStack(spacing: 8) {
+                    HStack(spacing: 0) {
+                        Text("Sidebar")
+                            .frame(width: 46)
+                            .frame(maxHeight: .infinity)
+                            .background(.quaternary)
+                        Text("Detail")
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        if showsInspector {
+                            Text("Inspector")
+                                .frame(width: 60)
+                                .frame(maxHeight: .infinity)
+                                .background(Color.accentColor.opacity(0.15))
+                        }
+                    }
+                    .font(.caption2)
+                    .frame(width: 170, height: 64)
+                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(.separator))
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .animation(.easeInOut(duration: 0.2), value: showsInspector)
+                    Button(showsInspector ? "Hide Inspector" : "Show Inspector") { showsInspector.toggle() }
+                        .keyboardShortcut("i", modifiers: [.control, .command])
+                        .controlSize(.small)
+                }
+            }
+            C06_Caption("Illustrative — the menu item is added at the Scene level and toggles the .inspector(isPresented:) presentation; ⌃⌘I works on the mock too.")
+        }
+        .frame(maxWidth: 400)
     }
 }
 

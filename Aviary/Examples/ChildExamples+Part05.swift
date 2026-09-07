@@ -556,7 +556,144 @@ enum ChildExamplesPart05 {
             .accessibilityAddTraits(.isHeader)
         """) { AnyView(C05_TraitHeaderExample()) },
 
-        // C05_MORE_ENTRIES
+        ChildExampleEntry(parent: "AccessibilityTraits", child: ".isSelected", code: """
+        ForEach(filters, id: \\.self) { filter in
+            FilterChip(title: filter, isSelected: filter == selected)
+                .onTapGesture { selected = filter }
+                .accessibilityAddTraits(.isButton)
+                .accessibilityAddTraits(filter == selected ? .isSelected : [])   // driven by the model
+        }
+        """) { AnyView(C05_TraitSelectedExample()) },
+
+        ChildExampleEntry(parent: "AccessibilityTraits", child: ".isToggle", code: """
+        CustomSwitch(isOn: $isOn)                     // a Capsule with a sliding knob, not a Toggle
+            .accessibilityLabel("Wi-Fi")
+            .accessibilityAddTraits(.isToggle)        // spoken as “toggle”, not “button”
+            .accessibilityValue(isOn ? "On" : "Off")
+        """) { AnyView(C05_TraitToggleExample()) },
+
+        // MARK: AccessibilityZoomGestureAction
+
+        ChildExampleEntry(parent: "AccessibilityZoomGestureAction", child: "AccessibilityZoomGestureAction.Direction", code: """
+        MapTile()
+            .scaleEffect(scale)
+            .accessibilityZoomAction { action in
+                switch action.direction {             // AccessibilityZoomGestureAction.Direction
+                case .zoomIn:  scale *= 1.25
+                case .zoomOut: scale /= 1.25
+                }
+            }
+        """) { AnyView(C05_ZoomDirectionExample()) },
+
+        ChildExampleEntry(parent: "AccessibilityZoomGestureAction", child: "location", code: """
+        Poster()
+            .scaleEffect(scale, anchor: zoomAnchor)
+            .accessibilityZoomAction { action in
+                zoomAnchor = action.location          // UnitPoint — fractional, size-independent
+                scale *= action.direction == .zoomIn ? 1.2 : 0.8
+            }
+        """) { AnyView(C05_ZoomLocationExample()) },
+
+        ChildExampleEntry(parent: "AccessibilityZoomGestureAction", child: "point", code: """
+        Viewport()
+            .accessibilityZoomAction { action in
+                let center = action.point             // CGPoint in the view's local coordinates
+                zoom(by: action.direction == .zoomIn ? 2 : 0.5, around: center)
+            }
+        """) { AnyView(C05_ZoomPointExample()) },
+
+        // MARK: AXChartDescriptorRepresentable
+
+        ChildExampleEntry(parent: "AXChartDescriptorRepresentable", child: "makeChartDescriptor()", code: """
+        struct RainfallDescriptor: AXChartDescriptorRepresentable {
+            let readings: [Reading]                  // day + inches
+
+            func makeChartDescriptor() -> AXChartDescriptor {
+                let x = AXCategoricalDataAxisDescriptor(title: "Day", categoryOrder: readings.map(\\.day))
+                let y = AXNumericDataAxisDescriptor(title: "Inches", range: 0...3, gridlinePositions: []) { String(format: "%.1f inches", $0) }
+                let points = readings.map { AXDataPoint(x: $0.day, y: $0.inches) }
+                let series = AXDataSeriesDescriptor(name: "Rainfall", isContinuous: false, dataPoints: points)
+                return AXChartDescriptor(title: "Rainfall", summary: nil, xAxis: x, yAxis: y, additionalAxes: [], series: [series])
+            }
+        }
+
+        RainfallBars(readings: readings)
+            .accessibilityChartDescriptor(RainfallDescriptor(readings: readings))
+        """) { AnyView(C05_ChartMakeDescriptorExample()) },
+
+        ChildExampleEntry(parent: "AXChartDescriptorRepresentable", child: "updateChartDescriptor(_:)", code: """
+        func updateChartDescriptor(_ descriptor: AXChartDescriptor) {
+            descriptor.series = [makeSeries()]                       // mutate in place — no rebuild
+            descriptor.summary = "Updated with \\(readings.count) readings"
+        }
+
+        TemperatureLine(readings: readings)
+            .accessibilityChartDescriptor(ReadingsDescriptor(readings: readings))   // SwiftUI calls update on change
+        """) { AnyView(C05_ChartUpdateDescriptorExample()) },
+
+        // MARK: openURL
+
+        ChildExampleEntry(parent: "openURL", child: "openURL(_:)", code: """
+        @Environment(\\.openURL) private var openURL
+
+        Button("Homepage") {
+            if let url = URL(string: "https://swift.org") {
+                openURL(url)                          // the system picks the app that claims it
+            }
+        }
+        """) { AnyView(C05_OpenURLExample()) },
+
+        ChildExampleEntry(parent: "openURL", child: "openURL(_:completion:)", code: """
+        openURL(url) { accepted in                 // false: nothing claimed the URL
+            if !accepted {
+                showFallback = true
+            }
+        }
+        """) { AnyView(C05_OpenURLCompletionExample()) },
+
+        ChildExampleEntry(parent: "openURL", child: "OpenURLAction(handler:)", code: """
+        Text("Open [Settings](demo://settings) or [Help](demo://help)")
+            .environment(\\.openURL, OpenURLAction { url in
+                route = url.host() ?? ""             // the subtree's links now route in-app
+                return .handled
+            })
+        """) { AnyView(C05_OpenURLActionHandlerExample()) },
+
+        ChildExampleEntry(parent: "openURL", child: "OpenURLAction.Result", code: """
+        .environment(\\.openURL, OpenURLAction { url in
+            switch url.host() ?? "" {
+            case "internal": route(to: url); return .handled     // claimed — completion gets true
+            case "blocked":  return .discarded                   // dropped — completion gets false
+            default:         return .systemAction                // defer to the next handler, then the system
+            }
+        })
+        """) { AnyView(C05_OpenURLResultExample()) },
+
+        // MARK: openWindow
+
+        ChildExampleEntry(parent: "openWindow", child: "openWindow(id:)", code: """
+        // In the App:  Window("Inspector", id: "inspector") { InspectorView() }
+        @Environment(\\.openWindow) private var openWindow
+
+        Button("Inspector") {
+            openWindow(id: "inspector")               // raises the scene declared with that id
+        }
+        """) { AnyView(C05_OpenWindowIDExample()) },
+
+        ChildExampleEntry(parent: "openWindow", child: "openWindow(value:)", code: """
+        // In the App:  WindowGroup(for: Note.ID.self) { $id in NoteView(id: id) }
+        Button("Open Note") {
+            openWindow(value: note.id)                // one window per distinct value; a repeat just raises it
+        }
+        """) { AnyView(C05_OpenWindowValueExample()) },
+
+        ChildExampleEntry(parent: "openWindow", child: "openWindow(id:value:)", code: """
+        // In the App:  WindowGroup("Editor",  id: "editor",  for: Document.ID.self) { $id in EditorView(id: id) }
+        //              WindowGroup("Preview", id: "preview", for: Document.ID.self) { $id in PreviewView(id: id) }
+        Button("Edit in Window") {
+            openWindow(id: "editor", value: document.id)   // id picks the group, value parameterizes it
+        }
+        """) { AnyView(C05_OpenWindowIDValueExample()) },
     ]
 }
 
@@ -2326,4 +2463,550 @@ private struct C05_TraitHeaderExample: View {
     }
 }
 
-// C05_MORE_STRUCTS
+private struct C05_TraitSelectedExample: View {
+    private let filters = ["All", "Unread", "Flagged"]
+    @State private var selected = "All"
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack(spacing: 8) {
+                ForEach(filters, id: \.self) { filter in
+                    Text(filter)
+                        .font(.callout)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 5)
+                        .background(filter == selected ? Color.accentColor : Color.gray.opacity(0.2), in: .capsule)
+                        .foregroundStyle(filter == selected ? Color.white : Color.primary)
+                        .onTapGesture { selected = filter }
+                        .accessibilityAddTraits(.isButton)
+                        .accessibilityAddTraits(filter == selected ? .isSelected : [])
+                }
+            }
+            C05_AXPanel([
+                ("Spoken", "“\(selected), selected, button”"),
+                ("Others", "“…, button” — no selected trait")
+            ])
+            C05_Caption("Drive the trait from the model so VoiceOver tracks the current choice instead of a fixed flag.")
+        }
+    }
+}
+
+private struct C05_TraitToggleExample: View {
+    @State private var isOn = true
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack {
+                Text("Wi-Fi")
+                Spacer()
+                Capsule()
+                    .fill(isOn ? Color.green : Color.gray.opacity(0.4))
+                    .frame(width: 44, height: 26)
+                    .overlay(alignment: isOn ? .trailing : .leading) {
+                        Circle().fill(.white).padding(2)
+                    }
+                    .onTapGesture { withAnimation(.snappy) { isOn.toggle() } }
+                    .accessibilityLabel("Wi-Fi")
+                    .accessibilityAddTraits(.isToggle)
+                    .accessibilityValue(isOn ? "On" : "Off")
+            }
+            .padding(10)
+            .background(.quaternary.opacity(0.5), in: .rect(cornerRadius: 10))
+            C05_AXPanel([
+                ("Spoken", "“Wi-Fi, toggle, \(isOn ? "On" : "Off")”"),
+                ("Without it", "“Wi-Fi, \(isOn ? "On" : "Off")” — a plain element with a value")
+            ])
+        }
+    }
+}
+
+// MARK: - AccessibilityZoomGestureAction
+
+private struct C05_ZoomDirectionExample: View {
+    @State private var scale: CGFloat = 1
+    @State private var lastDirection = "—"
+
+    private func apply(_ direction: AccessibilityZoomGestureAction.Direction) {
+        withAnimation(.snappy) {
+            switch direction {
+            case .zoomIn: scale *= 1.25
+            case .zoomOut: scale /= 1.25
+            }
+        }
+        lastDirection = ".\(direction)"
+    }
+
+    var body: some View {
+        VStack(spacing: 10) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 10).fill(Color.green.opacity(0.2))
+                Image(systemName: "map.fill")
+                    .font(.system(size: 34))
+                    .foregroundStyle(.green)
+                    .scaleEffect(scale)
+            }
+            .frame(width: 160, height: 70)
+            .clipShape(.rect(cornerRadius: 10))
+            .accessibilityLabel("Map")
+            .accessibilityZoomAction { action in
+                apply(action.direction)
+            }
+            HStack {
+                Button("Simulate .zoomIn") { apply(.zoomIn) }
+                Button("Simulate .zoomOut") { apply(.zoomOut) }
+            }
+            C05_AXPanel([("direction", lastDirection), ("scale", String(format: "%.2f×", scale))])
+            C05_Caption("Assistive users trigger the zoom action from VoiceOver's rotor; the Direction case says which way they asked.")
+        }
+    }
+}
+
+private struct C05_ZoomLocationExample: View {
+    @State private var scale: CGFloat = 1
+    @State private var zoomAnchor: UnitPoint = .center
+
+    private func zoom(_ direction: AccessibilityZoomGestureAction.Direction, at location: UnitPoint) {
+        withAnimation(.snappy) {
+            zoomAnchor = location
+            scale *= direction == .zoomIn ? 1.2 : 0.8
+        }
+    }
+
+    var body: some View {
+        VStack(spacing: 10) {
+            ZStack {
+                LinearGradient(colors: [.purple, .pink, .orange], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    .scaleEffect(scale, anchor: zoomAnchor)
+                GeometryReader { geo in
+                    C05_Crosshair()
+                        .position(x: geo.size.width * zoomAnchor.x, y: geo.size.height * zoomAnchor.y)
+                }
+            }
+            .frame(width: 160, height: 70)
+            .clipShape(.rect(cornerRadius: 10))
+            .accessibilityLabel("Poster")
+            .accessibilityZoomAction { action in
+                zoom(action.direction, at: action.location)
+            }
+            HStack {
+                Button("Zoom in at .topLeading") { zoom(.zoomIn, at: .topLeading) }
+                Button("Zoom in at .bottomTrailing") { zoom(.zoomIn, at: .bottomTrailing) }
+                Button("Reset") { withAnimation { scale = 1; zoomAnchor = .center } }
+            }
+            C05_AXPanel([
+                ("location", String(format: "UnitPoint(x: %.2f, y: %.2f)", zoomAnchor.x, zoomAnchor.y)),
+                ("scale", String(format: "%.2f×", scale))
+            ])
+        }
+    }
+}
+
+private struct C05_ZoomPointExample: View {
+    private let size = CGSize(width: 160, height: 70)
+    @State private var scale: CGFloat = 1
+    @State private var center = CGPoint(x: 80, y: 35)
+
+    private func zoom(by factor: CGFloat, around point: CGPoint) {
+        withAnimation(.snappy) {
+            center = point
+            scale *= factor
+        }
+    }
+
+    var body: some View {
+        VStack(spacing: 10) {
+            ZStack {
+                LinearGradient(colors: [.cyan, .blue], startPoint: .top, endPoint: .bottom)
+                    .overlay(Image(systemName: "sailboat.fill").font(.largeTitle).foregroundStyle(.white))
+                    .scaleEffect(scale, anchor: UnitPoint(x: center.x / size.width, y: center.y / size.height))
+                C05_Crosshair().position(center)
+            }
+            .frame(width: size.width, height: size.height)
+            .clipShape(.rect(cornerRadius: 10))
+            .accessibilityLabel("Viewport")
+            .accessibilityZoomAction { action in
+                let center = action.point
+                zoom(by: action.direction == .zoomIn ? 2 : 0.5, around: center)
+            }
+            HStack {
+                Button("×2 at (40, 20)") { zoom(by: 2, around: CGPoint(x: 40, y: 20)) }
+                Button("×0.5 at (120, 50)") { zoom(by: 0.5, around: CGPoint(x: 120, y: 50)) }
+                Button("Reset") { withAnimation { scale = 1; center = CGPoint(x: 80, y: 35) } }
+            }
+            C05_AXPanel([
+                ("point", String(format: "CGPoint(x: %.0f, y: %.0f)", center.x, center.y)),
+                ("scale", String(format: "%.2f×", scale))
+            ])
+            C05_Caption("Same anchor as `location`, but in points — handy when you already do geometry in local coordinates.")
+        }
+    }
+}
+
+// MARK: - AXChartDescriptorRepresentable
+
+nonisolated private struct C05_Reading: Identifiable {
+    let day: String
+    let inches: Double
+    var id: String { day }
+}
+
+nonisolated private struct C05_RainfallDescriptor: AXChartDescriptorRepresentable {
+    let readings: [C05_Reading]
+
+    func makeChartDescriptor() -> AXChartDescriptor {
+        let x = AXCategoricalDataAxisDescriptor(title: "Day", categoryOrder: readings.map(\.day))
+        let y = AXNumericDataAxisDescriptor(title: "Inches", range: 0...3, gridlinePositions: []) { String(format: "%.1f inches", $0) }
+        let points = readings.map { AXDataPoint(x: $0.day, y: $0.inches) }
+        let series = AXDataSeriesDescriptor(name: "Rainfall", isContinuous: false, dataPoints: points)
+        return AXChartDescriptor(title: "Rainfall", summary: nil, xAxis: x, yAxis: y, additionalAxes: [], series: [series])
+    }
+}
+
+private struct C05_RainfallBars: View {
+    let readings: [C05_Reading]
+
+    var body: some View {
+        HStack(alignment: .bottom, spacing: 10) {
+            ForEach(readings) { reading in
+                VStack(spacing: 3) {
+                    RoundedRectangle(cornerRadius: 3)
+                        .fill(Color.blue.gradient)
+                        .frame(width: 22, height: max(4, reading.inches / 3 * 56))
+                    Text(reading.day).font(.caption2)
+                }
+            }
+        }
+        .padding(8)
+        .background(.quaternary.opacity(0.5), in: .rect(cornerRadius: 10))
+    }
+}
+
+private struct C05_ChartMakeDescriptorExample: View {
+    private let readings = [
+        C05_Reading(day: "Mon", inches: 0.4), C05_Reading(day: "Tue", inches: 1.8),
+        C05_Reading(day: "Wed", inches: 2.6), C05_Reading(day: "Thu", inches: 0.9),
+        C05_Reading(day: "Fri", inches: 0.1)
+    ]
+
+    var body: some View {
+        let descriptor = C05_RainfallDescriptor(readings: readings).makeChartDescriptor()
+        VStack(spacing: 10) {
+            C05_RainfallBars(readings: readings)
+                .accessibilityChartDescriptor(C05_RainfallDescriptor(readings: readings))
+            C05_AXPanel([
+                ("Title", descriptor.title ?? "—"),
+                ("X axis", "\(descriptor.xAxis.title): \(readings.map(\.day).joined(separator: " "))"),
+                ("Y axis", descriptor.yAxis.map { "\($0.title) 0…3" } ?? "—"),
+                ("Series", descriptor.series.map { "\($0.name ?? "—") (\($0.dataPoints.count) points)" }.joined(separator: ", "))
+            ])
+            C05_Caption("Illustrative — VoiceOver's Audio Graphs play this descriptor as sound. The panel reads back what makeChartDescriptor() built.")
+        }
+    }
+}
+
+nonisolated private struct C05_ReadingsDescriptor: AXChartDescriptorRepresentable {
+    let readings: [Double]
+
+    private func makeSeries() -> AXDataSeriesDescriptor {
+        let points = readings.enumerated().map { AXDataPoint(x: Double($0.offset), y: $0.element) }
+        return AXDataSeriesDescriptor(name: "Temperature", isContinuous: true, dataPoints: points)
+    }
+
+    func makeChartDescriptor() -> AXChartDescriptor {
+        let x = AXNumericDataAxisDescriptor(title: "Reading", range: 0...Double(max(readings.count - 1, 1)), gridlinePositions: []) { "#\(Int($0))" }
+        let y = AXNumericDataAxisDescriptor(title: "Degrees", range: 10...30, gridlinePositions: []) { String(format: "%.0f degrees", $0) }
+        return AXChartDescriptor(title: "Temperature", summary: "\(readings.count) readings", xAxis: x, yAxis: y, additionalAxes: [], series: [makeSeries()])
+    }
+
+    func updateChartDescriptor(_ descriptor: AXChartDescriptor) {
+        descriptor.series = [makeSeries()]
+        descriptor.summary = "Updated with \(readings.count) readings"
+    }
+}
+
+private struct C05_TemperatureLine: View {
+    let readings: [Double]
+
+    var body: some View {
+        GeometryReader { geo in
+            Path { path in
+                guard readings.count > 1 else { return }
+                let stepX = geo.size.width / CGFloat(readings.count - 1)
+                for (index, value) in readings.enumerated() {
+                    let point = CGPoint(x: CGFloat(index) * stepX, y: geo.size.height * (1 - CGFloat((value - 10) / 20)))
+                    if index == 0 { path.move(to: point) } else { path.addLine(to: point) }
+                }
+            }
+            .stroke(Color.orange, style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
+        }
+        .frame(height: 54)
+        .padding(8)
+        .background(.quaternary.opacity(0.5), in: .rect(cornerRadius: 10))
+    }
+}
+
+private struct C05_ChartUpdateDescriptorExample: View {
+    @State private var readings: [Double] = [18, 21, 19, 24]
+    @State private var descriptor = C05_ReadingsDescriptor(readings: [18, 21, 19, 24]).makeChartDescriptor()
+    @State private var updates = 0
+
+    var body: some View {
+        VStack(spacing: 10) {
+            C05_TemperatureLine(readings: readings)
+                .accessibilityChartDescriptor(C05_ReadingsDescriptor(readings: readings))
+            HStack {
+                Button("Add reading") { readings.append(Double(Int.random(in: 12...28))) }
+                Button("Reset") { readings = [18, 21, 19, 24] }
+            }
+            C05_AXPanel([
+                ("summary", descriptor.summary ?? "—"),
+                ("series", "\(descriptor.series.first?.dataPoints.count ?? 0) points · updates: \(updates)")
+            ])
+            C05_Caption("When the representable changes, SwiftUI calls updateChartDescriptor(_:) on the descriptor it already holds; the demo runs the same method on its own copy so you can watch it.")
+        }
+        .onChange(of: readings) {
+            C05_ReadingsDescriptor(readings: readings).updateChartDescriptor(descriptor)
+            updates += 1
+        }
+    }
+}
+
+// MARK: - openURL
+
+private struct C05_OpenURLButton: View {
+    @Environment(\.openURL) private var openURL
+
+    var body: some View {
+        Button("Homepage") {
+            if let url = URL(string: "https://swift.org") {
+                openURL(url)
+            }
+        }
+    }
+}
+
+private struct C05_OpenURLExample: View {
+    @State private var lastOpened: URL?
+    @State private var handOff = false
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack {
+                C05_OpenURLButton()
+                Toggle("Hand off to the system", isOn: $handOff)
+            }
+            C05_AXPanel([("openURL(_:)", lastOpened?.absoluteString ?? "—")])
+            C05_Caption(handOff
+                ? "The call reaches the system, which opens the URL in your default browser."
+                : "The demo intercepts the call upstream so nothing leaves the app; flip the toggle to let the system open it.")
+        }
+        .environment(\.openURL, OpenURLAction { url in
+            lastOpened = url
+            return handOff ? .systemAction : .handled
+        })
+    }
+}
+
+private struct C05_OpenURLCompletionButtons: View {
+    @Environment(\.openURL) private var openURL
+    @Binding var accepted: Bool?
+    @Binding var showFallback: Bool
+
+    private func open(_ string: String) {
+        guard let url = URL(string: string) else { return }
+        showFallback = false
+        openURL(url) { accepted in
+            self.accepted = accepted
+            if !accepted {
+                showFallback = true
+            }
+        }
+    }
+
+    var body: some View {
+        HStack {
+            Button("Open https://swift.org") { open("https://swift.org") }
+            Button("Open demo://settings") { open("demo://settings") }
+        }
+    }
+}
+
+private struct C05_OpenURLCompletionExample: View {
+    @State private var accepted: Bool?
+    @State private var showFallback = false
+
+    var body: some View {
+        VStack(spacing: 10) {
+            C05_OpenURLCompletionButtons(accepted: $accepted, showFallback: $showFallback)
+            if showFallback {
+                Label("Nothing handles that link — showing the in-app fallback.", systemImage: "exclamationmark.triangle.fill")
+                    .font(.caption)
+                    .foregroundStyle(.orange)
+            }
+            C05_AXPanel([("accepted", accepted.map { "\($0)" } ?? "—")])
+            C05_Caption("The demo installs an upstream handler that accepts https and discards the custom scheme, so nothing leaves the app.")
+        }
+        .environment(\.openURL, OpenURLAction { url in
+            url.scheme == "https" ? .handled : .discarded
+        })
+    }
+}
+
+private struct C05_OpenURLActionHandlerExample: View {
+    @State private var route = "—"
+    @State private var handled = 0
+
+    var body: some View {
+        VStack(spacing: 10) {
+            Text("Open [Settings](demo://settings) or [Help](demo://help)")
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(.quaternary.opacity(0.5), in: .rect(cornerRadius: 10))
+                .environment(\.openURL, OpenURLAction { url in
+                    route = url.host() ?? ""
+                    handled += 1
+                    return .handled
+                })
+            C05_AXPanel([("route", route), ("handled", "\(handled)")])
+            C05_Caption("Links inside the subtree call this handler instead of the system; returning .handled claims the URL.")
+        }
+    }
+}
+
+private struct C05_OpenURLResultExample: View {
+    @State private var lastResult = "—"
+    @State private var systemReceived = "—"
+
+    var body: some View {
+        VStack(spacing: 10) {
+            Text("[internal](demo://internal) · [blocked](demo://blocked) · [external](demo://external)")
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(.quaternary.opacity(0.5), in: .rect(cornerRadius: 10))
+                .environment(\.openURL, OpenURLAction { url in
+                    switch url.host() ?? "" {
+                    case "internal": lastResult = ".handled — routed to \(url.absoluteString)"; return .handled
+                    case "blocked": lastResult = ".discarded"; return .discarded
+                    default: lastResult = ".systemAction — passed up the chain"; return .systemAction
+                    }
+                })
+                .environment(\.openURL, OpenURLAction { url in
+                    systemReceived = url.absoluteString
+                    return .handled
+                })
+            C05_AXPanel([("Result", lastResult), ("Next handler", systemReceived)])
+            C05_Caption("`.systemAction(url)` does the same with a rewritten URL. The demo's outer handler stands in for the system so no external app opens.")
+        }
+    }
+}
+
+// MARK: - openWindow
+
+private struct C05_OpenWindowIDExample: View {
+    @State private var inspectorOpen = false
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack(alignment: .top, spacing: 12) {
+                C05_MockWindow(title: "Document") {
+                    Button("Inspector") { withAnimation(.snappy) { inspectorOpen = true } }
+                }
+                if inspectorOpen {
+                    C05_MockWindow(title: "Inspector") {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("id: \"inspector\"").font(.caption.monospaced())
+                            Button("Close") { withAnimation(.snappy) { inspectorOpen = false } }
+                                .controlSize(.small)
+                        }
+                    }
+                    .transition(.scale.combined(with: .opacity))
+                }
+            }
+            C05_Caption("Illustrative — applies at the Scene level: the button calls openWindow(id: \"inspector\"), which raises the Window declared with that id; calling it again brings the same window forward.")
+        }
+    }
+}
+
+private struct C05_OpenWindowValueExample: View {
+    private let notes = ["Groceries", "Ideas", "Travel"]
+    @State private var openIDs: [Int] = []
+
+    private func open(value id: Int) {
+        withAnimation(.snappy) {
+            if !openIDs.contains(id) { openIDs.append(id) }
+        }
+    }
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack(alignment: .top, spacing: 12) {
+                C05_MockWindow(title: "Notes") {
+                    VStack(alignment: .leading, spacing: 4) {
+                        ForEach(notes.indices, id: \.self) { index in
+                            HStack {
+                                Text(notes[index]).font(.caption)
+                                Spacer()
+                                Button("Open Note") { open(value: index) }.controlSize(.small)
+                            }
+                        }
+                    }
+                }
+                VStack(spacing: 6) {
+                    ForEach(openIDs, id: \.self) { id in
+                        C05_MockWindow(title: notes[id]) {
+                            Text("value: \(id)").font(.caption.monospaced())
+                        }
+                        .transition(.scale.combined(with: .opacity))
+                    }
+                }
+            }
+            C05_Caption("Illustrative — applies at the Scene level: WindowGroup(for: Note.ID.self) opens one window per distinct value; repeating a value raises the existing window instead of opening a second.")
+        }
+    }
+}
+
+private struct C05_OpenWindowIDValueExample: View {
+    @State private var group = "editor"
+    @State private var opened: [String] = []
+
+    private func open(value: Int) {
+        let title = "\(group) · doc-\(value)"
+        withAnimation(.snappy) {
+            if !opened.contains(title) { opened.append(title) }
+            if opened.count > 2 { opened.removeFirst() }
+        }
+    }
+
+    var body: some View {
+        VStack(spacing: 10) {
+            HStack(alignment: .top, spacing: 12) {
+                C05_MockWindow(title: "Library") {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Picker("Group", selection: $group) {
+                            Text("editor").tag("editor")
+                            Text("preview").tag("preview")
+                        }
+                        .pickerStyle(.segmented)
+                        .labelsHidden()
+                        .controlSize(.small)
+                        HStack {
+                            Button("Open doc-1") { open(value: 1) }
+                            Button("Open doc-2") { open(value: 2) }
+                        }
+                        .controlSize(.small)
+                    }
+                }
+                VStack(spacing: 6) {
+                    ForEach(opened, id: \.self) { title in
+                        C05_MockWindow(title: title) {
+                            Text("id: \"\(title.prefix { $0 != " " })\"  value: \(title.suffix(1))")
+                                .font(.caption.monospaced())
+                        }
+                        .transition(.scale.combined(with: .opacity))
+                    }
+                }
+            }
+            C05_Caption("Illustrative — applies at the Scene level: two WindowGroups keyed by the same value type; the id chooses the group and the value parameterizes the window.")
+        }
+    }
+}
